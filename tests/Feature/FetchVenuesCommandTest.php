@@ -730,6 +730,7 @@ class FetchVenuesCommandTest extends TestCase
                 $table->id();
                 $table->string('name');
                 $table->string('external_id')->nullable();
+                $table->string('slug')->nullable();
                 $table->decimal('price', 8, 2)->nullable();
                 $table->integer('duration')->nullable();
                 $table->timestamps();
@@ -789,6 +790,7 @@ class FetchVenuesCommandTest extends TestCase
 
         $pivotTables = [
             'venue_treatment',
+            'treatment_venue',
             'city_venue',
             'city_treatment',
             'city_procedure',
