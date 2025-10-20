@@ -18,6 +18,7 @@ class Treatment extends Model
     protected $fillable = [
         'venue_id',
         'procedure_id',
+        'external_id',
         'name',
         'description',
         'price',
