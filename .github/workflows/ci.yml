@@ -1,0 +1,381 @@
+name: Full CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  COMPOSER_FLAGS: --no-interaction --prefer-dist --no-progress
+
+jobs:
+  migration-freeze:
+    name: Migration Freeze Guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${GITHUB_BASE_REF}:${GITHUB_BASE_REF}"
+
+      - name: Ensure historical migrations remain immutable
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            base_ref="origin/${GITHUB_BASE_REF}"
+            diff_range="${base_ref}...HEAD"
+          else
+            if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+              diff_range="HEAD^...HEAD"
+            else
+              echo "No parent commit to compare against; skipping migration freeze check."
+              exit 0
+            fi
+          fi
+
+          changed_files="$(git diff --name-status ${diff_range} -- database/migrations || true)"
+
+          if [[ -z "${changed_files}" ]]; then
+            exit 0
+          fi
+
+          violations="$(echo "${changed_files}" | awk '$1 != "A" && $1 != "?" {print $0}')"
+
+          if [[ -n "${violations}" ]]; then
+            echo "Detected modifications to existing migration files:"
+            echo "${violations}"
+            echo "Add a new forward-only migration instead of editing history."
+            exit 1
+          fi
+
+          echo "Migration freeze check passed."
+
+  php-lint-pint:
+    name: PHP Lint & Pint
+    runs-on: ubuntu-latest
+    needs: migration-freeze
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install ${{ env.COMPOSER_FLAGS }}
+
+      - name: Validate PHP syntax
+        run: |
+          php_files="$(git ls-files '*.php')"
+          if [ -z "${php_files}" ]; then
+            echo "No PHP files found."
+            exit 0
+          fi
+          git ls-files -z '*.php' | xargs -0 -n1 -P4 php -l
+
+      - name: Run Pint
+        run: composer lint:php
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    needs: php-lint-pint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install ${{ env.COMPOSER_FLAGS }}
+
+      - name: Run PHPStan analysis
+        run: composer analyze
+
+  phpunit:
+    name: PHPUnit (SQLite)
+    runs-on: ubuntu-latest
+    needs: phpstan
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install ${{ env.COMPOSER_FLAGS }}
+
+      - name: Prepare SQLite environment
+        run: |
+          DB_PATH="${GITHUB_WORKSPACE}/database/database.sqlite"
+          cat <<ENV > .env
+          APP_NAME=Laravel
+          APP_ENV=testing
+          APP_KEY=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          APP_LOCALE=lt
+          APP_FALLBACK_LOCALE=en
+          APP_FAKER_LOCALE=en_US
+          LOG_CHANNEL=stack
+          LOG_LEVEL=debug
+          DB_CONNECTION=sqlite
+          DB_DATABASE=${DB_PATH}
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=array
+          FILESYSTEM_DISK=local
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=array
+          SESSION_LIFETIME=120
+          MAIL_MAILER=log
+          MAIL_HOST=localhost
+          MAIL_PORT=1025
+          MAIL_ENCRYPTION=null
+          MAIL_USERNAME=null
+          MAIL_PASSWORD=null
+          MAIL_FROM_ADDRESS="hello@example.com"
+          MAIL_FROM_NAME="Laravel"
+          ENV
+          touch "$DB_PATH"
+          php artisan key:generate
+
+      - name: Run database migrations and seeds
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Run PHPUnit tests
+        run: php artisan test --no-ansi
+
+  node-build:
+    name: Node Build
+    runs-on: ubuntu-latest
+    needs: phpunit
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache node modules
+        id: npm-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets with Vite
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vite-build
+          path: public/build
+
+  lighthouse:
+    name: Lighthouse Budgets
+    runs-on: ubuntu-latest
+    needs: node-build
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, gd, exif, pcntl, bcmath, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install Composer dependencies
+        run: composer install ${{ env.COMPOSER_FLAGS }}
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Prepare application environment
+        run: |
+          DB_PATH="${GITHUB_WORKSPACE}/database/database.sqlite"
+          cat <<ENV > .env
+          APP_NAME=Laravel
+          APP_ENV=production
+          APP_KEY=
+          APP_DEBUG=false
+          APP_URL=http://127.0.0.1:8000
+          ASSET_URL=http://127.0.0.1:8000
+          APP_LOCALE=lt
+          APP_FALLBACK_LOCALE=en
+          APP_FAKER_LOCALE=en_US
+          LOG_CHANNEL=stack
+          LOG_LEVEL=debug
+          DB_CONNECTION=sqlite
+          DB_DATABASE=${DB_PATH}
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=array
+          FILESYSTEM_DISK=public
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=array
+          SESSION_LIFETIME=120
+          MAIL_MAILER=log
+          MAIL_HOST=localhost
+          MAIL_PORT=1025
+          MAIL_ENCRYPTION=null
+          MAIL_USERNAME=null
+          MAIL_PASSWORD=null
+          MAIL_FROM_ADDRESS="hello@example.com"
+          MAIL_FROM_NAME="Laravel"
+          SCOUT_DRIVER=null
+          TELESCOPE_ENABLED=false
+          HORIZON_ENABLED=false
+          ENV
+          touch "${DB_PATH}"
+          php artisan key:generate
+
+      - name: Bootstrap storage directories
+        run: |
+          php artisan storage:link
+          mkdir -p storage/app/public
+          mkdir -p storage/framework/cache
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+
+      - name: Run database migrations with seeders
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Download compiled assets
+        uses: actions/download-artifact@v4
+        with:
+          name: vite-build
+          path: public/build
+
+      - name: Start Laravel server
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 > /tmp/laravel-server.log 2>&1 &
+          echo "SERVER_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for application
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:8000 > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Laravel application did not become ready." >&2
+          if [ -f /tmp/laravel-server.log ]; then
+            echo '--- server log ---'
+            cat /tmp/laravel-server.log
+            echo '-------------------'
+          fi
+          exit 1
+
+      - name: Run Lighthouse audits
+        env:
+          TARGET_URL: http://127.0.0.1:8000
+          LH_MIN_PERFORMANCE: '0.8'
+          LH_MIN_ACCESSIBILITY: '0.9'
+        run: node scripts/lighthouse.mjs
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: storage/lighthouse
+
+      - name: Stop Laravel server
+        if: always()
+        run: |
+          if [ -n "${SERVER_PID}" ]; then
+            kill ${SERVER_PID} || true
+          fi
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          additional_args: --no-banner --redact

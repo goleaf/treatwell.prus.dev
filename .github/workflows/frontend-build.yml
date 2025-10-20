@@ -1,0 +1,243 @@
+name: Frontend Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    name: Build frontend assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Assert deterministic frontend build artifacts
+        run: |
+          set -euo pipefail
+
+          baseline="$(mktemp -d)"
+          cp -a public/build/. "${baseline}/"
+
+          rm -rf node_modules
+          npm ci
+
+          rm -rf public/build
+          npm run build
+
+          export BASELINE_DIR="${baseline}"
+          export TARGET_DIR="public/build"
+          python <<'PY'
+import hashlib
+import os
+import sys
+
+
+def manifest(root: str) -> dict[str, tuple[int, str]]:
+    results: dict[str, tuple[int, str]] = {}
+    for current_root, _dirs, files in os.walk(root):
+        files.sort()
+        for filename in files:
+            path = os.path.join(current_root, filename)
+            relpath = os.path.relpath(path, root).replace(os.sep, "/")
+            size = os.path.getsize(path)
+            digest = hashlib.sha256()
+            with open(path, "rb") as handle:
+                for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    digest.update(chunk)
+            results[relpath] = (size, digest.hexdigest())
+    return results
+
+
+baseline_manifest = manifest(os.environ["BASELINE_DIR"])
+target_manifest = manifest(os.environ["TARGET_DIR"])
+
+if baseline_manifest != target_manifest:
+    baseline_files = set(baseline_manifest)
+    target_files = set(target_manifest)
+
+    missing = sorted(baseline_files - target_files)
+    extra = sorted(target_files - baseline_files)
+    mismatched = sorted(
+        name for name in baseline_files & target_files
+        if baseline_manifest[name] != target_manifest[name]
+    )
+
+    if missing:
+        print("Missing files compared to baseline:", file=sys.stderr)
+        for name in missing:
+            print(f"  {name}", file=sys.stderr)
+
+    if extra:
+        print("Unexpected files in rebuilt artifacts:", file=sys.stderr)
+        for name in extra:
+            print(f"  {name}", file=sys.stderr)
+
+    for name in mismatched:
+        base_size, base_hash = baseline_manifest[name]
+        target_size, target_hash = target_manifest[name]
+        print(
+            "Artifact drift detected for {name}: baseline size/hash {base_size}/{base_hash}, "
+            "rebuilt size/hash {target_size}/{target_hash}".format(
+                name=name, base_size=base_size, base_hash=base_hash,
+                target_size=target_size, target_hash=target_hash,
+            ),
+            file=sys.stderr,
+        )
+
+    sys.exit(1)
+PY
+
+          rm -rf "${baseline}"
+
+      - name: Upload compiled assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: public/build
+
+  lighthouse:
+    name: Lighthouse audits
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, gd, exif, pcntl, bcmath, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Prepare application environment
+        run: |
+          DB_PATH="${GITHUB_WORKSPACE}/database/database.sqlite"
+          cat <<EOF > .env
+          APP_NAME=Laravel
+          APP_ENV=production
+          APP_KEY=
+          APP_DEBUG=false
+          APP_URL=http://127.0.0.1:8000
+          ASSET_URL=http://127.0.0.1:8000
+          APP_LOCALE=lt
+          APP_FALLBACK_LOCALE=en
+          APP_FAKER_LOCALE=en_US
+          LOG_CHANNEL=stack
+          LOG_LEVEL=debug
+          DB_CONNECTION=sqlite
+          DB_DATABASE=${DB_PATH}
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=array
+          FILESYSTEM_DISK=public
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=array
+          SESSION_LIFETIME=120
+          MAIL_MAILER=log
+          MAIL_HOST=localhost
+          MAIL_PORT=1025
+          MAIL_ENCRYPTION=null
+          MAIL_USERNAME=null
+          MAIL_PASSWORD=null
+          MAIL_FROM_ADDRESS="hello@example.com"
+          MAIL_FROM_NAME="Laravel"
+          SCOUT_DRIVER=null
+          TELESCOPE_ENABLED=false
+          HORIZON_ENABLED=false
+          EOF
+          touch "${DB_PATH}"
+          php artisan key:generate
+
+      - name: Bootstrap storage directories
+        run: |
+          php artisan storage:link
+          mkdir -p storage/app/public
+          mkdir -p storage/framework/cache
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+
+      - name: Run database migrations with seeders
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Download compiled assets
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: public/build
+
+      - name: Start Laravel server
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 > /tmp/laravel-server.log 2>&1 &
+          echo "SERVER_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for application
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:8000 > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Laravel application did not become ready." >&2
+          if [ -f /tmp/laravel-server.log ]; then
+            echo '--- server log ---'
+            cat /tmp/laravel-server.log
+            echo '-------------------'
+          fi
+          exit 1
+
+      - name: Run Lighthouse audits
+        env:
+          TARGET_URL: http://127.0.0.1:8000
+          LH_MIN_PERFORMANCE: '0.8'
+          LH_MIN_ACCESSIBILITY: '0.9'
+        run: node scripts/lighthouse.mjs
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: storage/lighthouse
+
+      - name: Stop Laravel server
+        if: always()
+        run: |
+          if [ -n "${SERVER_PID}" ]; then
+            kill ${SERVER_PID} || true
+          fi
+          if [ -f /tmp/laravel-server.log ]; then
+            echo '--- server log ---'
+            cat /tmp/laravel-server.log
+            echo '-------------------'
+          fi
