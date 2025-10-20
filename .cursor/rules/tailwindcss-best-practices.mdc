@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Core Principles
+- Use utility-first approach for styling instead of custom CSS
+- Embrace the utility-first workflow before reaching for custom abstractions
+- Use the mobile-first responsive design approach
+- Maintain consistency by using Tailwind's design system
+- Follow the "just enough design" principle with minimal custom CSS
+- Learn the utility class naming conventions to increase development speed
+
+## Components & Reusability
+- Create custom components using @apply directive for repeated UI patterns
+- Extract components to avoid duplicating the same utility patterns
+- Use Blade components to encapsulate both markup and styling
+- Create a consistent design language with reusable components
+- Balance component abstraction with utility flexibility
+- Use slot elements for component customization
+
+## Responsive Design
+- Utilize Tailwind's responsive utilities (sm:, md:, lg:, xl:)
+- Design for mobile first, then add breakpoint-specific utilities
+- Test on multiple screen sizes during development
+- Use Tailwind's container class appropriately for layout containers
+- Implement responsive typography with appropriate size scales
+- Keep layouts fluid rather than fixed where possible
+
+## Organization
+- Keep CSS files organized and modular
+- Group related utility classes together for readability
+- Sort utility classes in a consistent order (layout, typography, visual, etc.)
+- Use comments to document complex utility combinations
+- Separate custom component styles into dedicated files
+- Use meaningful class prefixes for custom utilities
+
+## Theming & Customization
+- Extend the Tailwind theme in tailwind.config.js instead of using custom CSS
+- Define custom colors and spacing scales in configuration
+- Use CSS variables for dynamic theming capabilities
+- Create consistent color palettes using Tailwind's color system
+- Use semantic color naming in your theme configuration
+
+## Performance
+- Optimize Tailwind configuration for production with PurgeCSS
+- Configure content paths properly to avoid missing styles
+- Minimize custom CSS to benefit from Tailwind's tree-shaking
+- Consider using JIT mode for development and production
+- Monitor final CSS bundle size and optimize where necessary
+- Use modern CSS features that Tailwind supports (like flex and grid)

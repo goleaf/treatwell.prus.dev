@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Component Structure
+- Use Livewire components for interactive elements that require server communication
+- Keep Livewire components focused on a single responsibility
+- Break down complex UI into smaller, reusable Livewire components
+- Use proper naming conventions for component properties and methods
+- Leverage component inheritance for shared functionality
+- Structure your component directories by feature rather than component type
+
+## Data Handling
+- Utilize Livewire's built-in validation system
+- Use computed properties for derived data instead of storing redundant state
+- Apply property type hints to ensure data integrity
+- Use properly scoped data binding with wire:model.defer when appropriate
+- Implement proper error handling in Livewire components
+- Be mindful of property visibility (public vs protected vs private)
+
+## Performance
+- Optimize Livewire components for performance by minimizing DOM changes
+- Use debounce and throttle modifiers to reduce unnecessary server calls
+- Implement lazy loading for components not visible on initial page load
+- Keep the payload size small by only including necessary properties
+- Use polling judiciously to avoid unnecessary server load
+- Implement proper caching strategies for expensive operations
+
+## Lifecycle Management
+- Use Livewire's lifecycle hooks effectively (mount, hydrate, updated, etc.)
+- Understand the component lifecycle to optimize loading and rendering
+- Clean up resources in the dehydrate method when appropriate
+- Use the right lifecycle method for data loading to avoid duplicate queries
+- Implement proper state initialization in the mount method
+- Use the updating/updated hooks to respond to property changes
+
+## Integration
+- Properly integrate with Alpine.js for client-side interactions
+- Use events for communication between components
+- Implement proper JavaScript interoperability when needed
+- Follow Laravel's conventions for routing and responses
+- Use Livewire alongside traditional Laravel controllers where appropriate
+- Leverage third-party packages like Livewire PowerGrid for complex data tables

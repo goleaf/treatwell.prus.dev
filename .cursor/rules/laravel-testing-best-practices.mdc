@@ -1,0 +1,52 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Test Structure
+- Write unit tests for individual components
+- Implement feature tests for end-to-end functionality
+- Structure tests to match your application architecture
+- Create dedicated test classes for each feature or component
+- Follow naming conventions for test methods (test_it_does_something)
+- Organize tests in appropriate directories (Unit, Feature, Integration)
+
+## Test Data
+- Use Laravel's testing helpers and factories to generate test data
+- Implement model factories for all models used in tests
+- Use database transactions to isolate tests
+- Avoid hard-coded test data values
+- Use data providers for testing multiple scenarios
+- Create reusable traits for common test data setup
+
+## Test Isolation
+- Keep tests independent and idempotent
+- Reset application state between tests
+- Use database transactions to prevent test pollution
+- Mock external services and dependencies
+- Use setUp and tearDown methods appropriately
+- Isolate tests from production environment settings
+
+## Test Coverage
+- Use test coverage tools to identify untested areas
+- Aim for high test coverage of critical business logic
+- Test both happy paths and edge cases
+- Write tests for reported bugs to prevent regression
+- Establish minimum test coverage requirements for CI/CD
+- Balance testing effort with development velocity
+
+## Test Performance
+- Optimize slow tests by using in-memory databases when possible
+- Use parallel testing for large test suites
+- Limit the use of heavyweight browser tests to essential flows
+- Favor unit tests over feature tests when appropriate
+- Use test doubles (mocks, stubs) to speed up tests
+- Implement proper database seeding strategies
+
+## Test Maintenance
+- Regularly run and update tests as part of the development process
+- Refactor tests when application code changes
+- Keep test code clean and maintainable
+- Document complex test scenarios
+- Use continuous integration to run tests automatically
+- Review test failures promptly and fix both tests and code

@@ -1,0 +1,717 @@
+)]}', {
+  "context" : {
+    "environment" : "prod"
+  },
+  "canonicalUri" : "https://www.treatwell.lt/salonai/procedura-berniuku-kirpimas/pasiulymo-tipas-vietinis/kur-utena-lietuva/",
+  "alternateLocaleUris" : [ ],
+  "pagination" : {
+    "from" : 0,
+    "page" : 0,
+    "pageSize" : 20,
+    "totalElements" : 1,
+    "totalPages" : 1
+  },
+  "results" : [ {
+    "type" : "venue",
+    "data" : {
+      "id" : 388764,
+      "name" : "Grožio ir SPA centras Tilia",
+      "description" : "\n<p>Tilia centras atidarytas 2016 rudenį. Lietuviškai šis centro pavadinimas reiškia “liepą” – sveikatos ir grožio medį. Jo žiedai pasižymi jauninančiomis savybėmis. Tai vienas iš ypač retų augalų, kuris savyje turi “fitaharmonų” – medžiagų padedančių mums atrodyti sveikai ir gražiai. Su šio medžio savybėmis siejama ir mūsų TILIA filosofija. Nors Utenos mieste yra apstu įmonių, teikiančių vienokias ar kitokias grožio paslaugas, tačiau didžiuojamės būdami VIENINTELIAI, kurie pasirūpina ne tik išoriniu grožiu, bet ir gera savijauta.</p>\n",
+      "location" : {
+        "address" : {
+          "countryId" : 133,
+          "postalCode" : "28143",
+          "addressLines" : [ "Maironio g. 12, Utena" ]
+        },
+        "point" : {
+          "lat" : 55.5002414,
+          "lon" : 25.6000716
+        },
+        "map" : {
+          "zoom" : 18,
+          "lat" : 55.5002414,
+          "lon" : 25.6000716
+        },
+        "tree" : {
+          "id" : 97883,
+          "name" : "Utena",
+          "countryCode" : "LT",
+          "normalisedName" : "utena-lietuva",
+          "type" : "city",
+          "point" : {
+            "lat" : 55.48885,
+            "lon" : 25.614475
+          },
+          "radius" : {
+            "distance" : 5.9717566,
+            "distanceUnit" : "kilometre"
+          }
+        }
+      },
+      "rating" : {
+        "weightedAverage" : 4.93,
+        "count" : 3922,
+        "dimensions" : [ {
+          "name" : "Personalas",
+          "average" : 4.95,
+          "count" : 2726
+        }, {
+          "name" : "Švara",
+          "average" : 4.99,
+          "count" : 2729
+        }, {
+          "name" : "Atmosfera",
+          "average" : 4.95,
+          "count" : 2729
+        } ],
+        "displayAverage" : "4,9",
+        "average" : 4.93
+      },
+      "openingHours" : [ {
+        "open" : true,
+        "dayOfWeek" : "monday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "tuesday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "wednesday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "thursday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "friday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "saturday",
+        "from" : "09:00",
+        "to" : "17:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "sunday",
+        "from" : "09:00",
+        "to" : "15:00"
+      } ],
+      "employees" : [ ],
+      "primaryImage" : {
+        "id" : 1906107,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w360.h240.x0AFA474F/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1080.h720.xD19FA111/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w720.h480.xA5030792/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1280.h800.x0F25512C/"
+        }
+      },
+      "images" : [ {
+        "id" : 1906107,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w360.h240.x0AFA474F/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1080.h720.xD19FA111/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w720.h480.xA5030792/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1280.h800.x0F25512C/"
+        }
+      }, {
+        "id" : 1906121,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w360.h240.x909BCBD7/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w1080.h720.x5F4D6024/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w720.h480.x3C3846B6/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w1280.h800.x037308CF/"
+        }
+      }, {
+        "id" : 12005992,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w360.h240.x482D0F8F/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w1080.h720.xFF639013/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w720.h480.x6317C4EE/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w1280.h800.x0F892340/"
+        }
+      }, {
+        "id" : 1906110,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w360.h240.x29B47B88/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w1080.h720.xA0FFE8B8/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w720.h480.x70494596/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w1280.h800.x0452368A/"
+        }
+      }, {
+        "id" : 1906090,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w360.h240.x28165D03/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w1080.h720.x121BDFF9/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w720.h480.xAD435FDF/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w1280.h800.x2398094E/"
+        }
+      }, {
+        "id" : 1906115,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w360.h240.x63B0B492/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w1080.h720.xC6A3FAE9/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w720.h480.x624EEC66/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w1280.h800.x4B496984/"
+        }
+      }, {
+        "id" : 12005987,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w360.h240.x30E49F17/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w1080.h720.x3531C6D8/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w720.h480.xB50C0D47/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w1280.h800.x864DA434/"
+        }
+      }, {
+        "id" : 1906113,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w360.h240.x571C2FA9/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w1080.h720.xE98A4301/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w720.h480.x003AB637/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w1280.h800.x015614FF/"
+        }
+      } ],
+      "accolades" : [ {
+        "id" : 151,
+        "name" : "Top Rated 2024",
+        "tooltipTextCMSKey" : "top-rated",
+        "images" : {
+          "regular" : {
+            "vector" : {
+              "id" : 12099797,
+              "uris" : {
+                "400x400" : "https://cdn1.treatwell.net/images/view/v2.i12099797.w400.h400.x21F4BF27.svg"
+              },
+              "alt" : "TR-2024-264x264px"
+            },
+            "x3" : {
+              "id" : 12099811,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i12099811.w264.h264.xF728783B.png"
+              },
+              "alt" : "TR-2024-264x264px"
+            }
+          }
+        },
+        "vectorImage" : {
+          "id" : 12099797,
+          "uris" : {
+            "400x400" : "https://cdn1.treatwell.net/images/view/v2.i12099797.w400.h400.x21F4BF27.svg"
+          },
+          "alt" : "TR-2024-264x264px"
+        },
+        "rasterImage" : {
+          "id" : 12099811,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i12099811.w264.h264.xF728783B.png"
+          },
+          "alt" : "TR-2024-264x264px"
+        },
+        "featured" : true
+      }, {
+        "id" : 138,
+        "name" : "Top Rated 2023",
+        "tooltipTextCMSKey" : "top-rated",
+        "images" : {
+          "regular" : {
+            "vector" : {
+              "id" : 9225299,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9225299.w264.h264.x3841637E.svg"
+              },
+              "alt" : "264x264_Top_Rated_2023.svg"
+            },
+            "x3" : {
+              "id" : 9218972,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9218972.w264.h264.xCE7D68EC.png"
+              },
+              "alt" : "264x264_Top_Rated_2023.png"
+            }
+          }
+        },
+        "vectorImage" : {
+          "id" : 9225299,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9225299.w264.h264.x3841637E.svg"
+          },
+          "alt" : "264x264_Top_Rated_2023.svg"
+        },
+        "rasterImage" : {
+          "id" : 9218972,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9218972.w264.h264.xCE7D68EC.png"
+          },
+          "alt" : "264x264_Top_Rated_2023.png"
+        },
+        "featured" : false
+      }, {
+        "id" : 111,
+        "name" : "Top Rated 2022",
+        "tooltipTextCMSKey" : "top-rated",
+        "images" : {
+          "regular" : {
+            "vector" : {
+              "id" : 6989795,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6989795.w264.h264.x89C90199.svg"
+              },
+              "alt" : "264x264_Top Rated Badge"
+            },
+            "x3" : {
+              "id" : 6952178,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6952178.w264.h264.xC272E9F7.png"
+              },
+              "alt" : "264x264_top rated"
+            }
+          }
+        },
+        "vectorImage" : {
+          "id" : 6989795,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6989795.w264.h264.x89C90199.svg"
+          },
+          "alt" : "264x264_Top Rated Badge"
+        },
+        "rasterImage" : {
+          "id" : 6952178,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6952178.w264.h264.xC272E9F7.png"
+          },
+          "alt" : "264x264_top rated"
+        },
+        "featured" : false
+      } ],
+      "type" : {
+        "id" : 48,
+        "name" : "Masažo salonas",
+        "pluralName" : "Masažo salonai",
+        "normalisedName" : "masazo-salonas",
+        "mobile" : false
+      },
+      "subTypes" : [ ],
+      "newVenue" : false,
+      "uri" : {
+        "appUri" : "treatwell://www.treatwell.lt/venue/388764/",
+        "mobileUri" : "https://www.treatwell.lt/salonas/grozio-ir-spa-centras-tilia/",
+        "desktopUri" : "https://www.treatwell.lt/salonas/grozio-ir-spa-centras-tilia/"
+      },
+      "menuHighlights" : [ {
+        "type" : "treatment",
+        "data" : {
+          "id" : "TR2895966",
+          "name" : "Kirpimas vaikų iki 12 m",
+          "priceRange" : {
+            "minSalePriceAmount" : "15.00",
+            "minFullPriceAmount" : "15.00",
+            "maxSalePriceAmount" : "17.00",
+            "maxFullPriceAmount" : "17.00",
+            "minDiscountPercentage" : 0,
+            "maxDiscountPercentage" : 0,
+            "minSavingAmount" : "0.00",
+            "maxSavingAmount" : "0.00",
+            "minSalePrice" : {
+              "salePriceAmount" : "15.00",
+              "fullPriceAmount" : "15.00",
+              "discountPercentage" : 0,
+              "savingAmount" : "0.00"
+            },
+            "range" : true,
+            "yieldDiscountTypes" : [ ]
+          },
+          "fulfilmentPriceRanges" : {
+            "booking" : {
+              "minSalePriceAmount" : "15.00",
+              "minFullPriceAmount" : "15.00",
+              "maxSalePriceAmount" : "17.00",
+              "maxFullPriceAmount" : "17.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "15.00",
+                "fullPriceAmount" : "15.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : true,
+              "yieldDiscountTypes" : [ ]
+            }
+          },
+          "pricingDisplayType" : "total_price",
+          "scorerResults" : [ ],
+          "primaryTreatmentCategoryGroupId" : 6,
+          "treatmentCategoryIds" : [ ],
+          "durationRange" : {
+            "minDurationMinutes" : 30,
+            "maxDurationMinutes" : 45,
+            "durationMix" : "all_durations",
+            "range" : true
+          },
+          "optionGroups" : [ {
+            "name" : "Kirpimas vaikų  30 min",
+            "durationRange" : {
+              "minDurationMinutes" : 30,
+              "maxDurationMinutes" : 30,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "15.00",
+              "minFullPriceAmount" : "15.00",
+              "maxSalePriceAmount" : "15.00",
+              "maxFullPriceAmount" : "15.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "15.00",
+                "fullPriceAmount" : "15.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "15.00",
+                "minFullPriceAmount" : "15.00",
+                "maxSalePriceAmount" : "15.00",
+                "maxFullPriceAmount" : "15.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "15.00",
+                  "fullPriceAmount" : "15.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "4859801",
+              "name" : "Kirpimas vaikų  30 min",
+              "priceRange" : {
+                "minSalePriceAmount" : "15.00",
+                "minFullPriceAmount" : "15.00",
+                "maxSalePriceAmount" : "15.00",
+                "maxFullPriceAmount" : "15.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "15.00",
+                  "fullPriceAmount" : "15.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Simona", "Deimantė", "Rūta", "Jelena" ],
+              "durationMinutes" : 30,
+              "sortScoreComponents" : { }
+            } ]
+          }, {
+            "name" : "Kirpimas vaikų 45 min",
+            "durationRange" : {
+              "minDurationMinutes" : 45,
+              "maxDurationMinutes" : 45,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "17.00",
+              "minFullPriceAmount" : "17.00",
+              "maxSalePriceAmount" : "17.00",
+              "maxFullPriceAmount" : "17.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "17.00",
+                "fullPriceAmount" : "17.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "17.00",
+                "minFullPriceAmount" : "17.00",
+                "maxSalePriceAmount" : "17.00",
+                "maxFullPriceAmount" : "17.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "17.00",
+                  "fullPriceAmount" : "17.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "4859802",
+              "name" : "Kirpimas vaikų 45 min",
+              "priceRange" : {
+                "minSalePriceAmount" : "17.00",
+                "minFullPriceAmount" : "17.00",
+                "maxSalePriceAmount" : "17.00",
+                "maxFullPriceAmount" : "17.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "17.00",
+                  "fullPriceAmount" : "17.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Simona", "Deimantė", "Rūta", "Jelena" ],
+              "durationMinutes" : 45,
+              "sortScoreComponents" : { }
+            } ]
+          } ],
+          "multiOptionSelection" : false,
+          "requiresPatchTest" : false
+        }
+      } ],
+      "treatmentBadges" : [ ]
+    }
+  } ],
+  "specification" : {
+    "treatmentCategoryGroup" : {
+      "id" : 6,
+      "name" : "Plaukai",
+      "pluralName" : "Plaukai"
+    },
+    "treatmentCategories" : [ {
+      "id" : 766,
+      "name" : "Berniukų kirpimas",
+      "pluralName" : "Berniukų kirpimas"
+    } ],
+    "menuItemTypes" : [ "treatment", "treatment_package" ],
+    "location" : {
+      "tree" : {
+        "id" : 97883,
+        "name" : "Utena",
+        "countryCode" : "LT",
+        "normalisedName" : "utena-lietuva",
+        "type" : "city",
+        "point" : {
+          "lat" : 55.48885,
+          "lon" : 25.614475
+        },
+        "radius" : {
+          "distance" : 5.9717566,
+          "distanceUnit" : "kilometre"
+        }
+      }
+    },
+    "sort" : "recommended"
+  },
+  "implicitModifications" : {
+    "addedCriteria" : { },
+    "droppedCriteria" : { }
+  },
+  "aggregations" : {
+    "treatmentCategoryGroups" : [ ],
+    "treatmentCategories" : [ {
+      "id" : 714,
+      "name" : "Balayage dažymas",
+      "normalisedName" : "balayage-dazymas",
+      "count" : 3
+    }, {
+      "id" : 492,
+      "name" : "Barzdos kirpimas ir modeliavimas",
+      "normalisedName" : "barzdos-kirpimas-ir-modeliavimas",
+      "count" : 2
+    }, {
+      "id" : 766,
+      "name" : "Berniukų kirpimas",
+      "normalisedName" : "berniuku-kirpimas",
+      "count" : 1
+    }, {
+      "id" : 465,
+      "name" : "Džiovinimas ir sušukavimas",
+      "normalisedName" : "dziovinimas-ir-susukavimas",
+      "count" : 1
+    }, {
+      "id" : 166,
+      "name" : "Kirpimas ir plaukų priežiūra",
+      "normalisedName" : "kirpimas-ir-plauku-prieziura",
+      "count" : 3
+    }, {
+      "id" : 772,
+      "name" : "Kirpčiukų kirpimas",
+      "normalisedName" : "kirpciuku-kirpimas",
+      "count" : 1
+    }, {
+      "id" : 767,
+      "name" : "Mergaičių kirpimas",
+      "normalisedName" : "mergaiciu-kirpimas",
+      "count" : 1
+    }, {
+      "id" : 779,
+      "name" : "Moterų plaukų šaknų dažymas",
+      "normalisedName" : "moteru-plauku-saknu-dazymas",
+      "count" : 3
+    }, {
+      "id" : 778,
+      "name" : "Moterų visų plaukų dažymas",
+      "normalisedName" : "moteru-visu-plauku-dazymas",
+      "count" : 2
+    }, {
+      "id" : 273,
+      "name" : "Plaukų dažymas",
+      "normalisedName" : "plauku-dazymas",
+      "count" : 2
+    }, {
+      "id" : 774,
+      "name" : "Plaukų dažymas sruogelėmis moterims",
+      "normalisedName" : "plauku-dazymas-sruogelemis-moterims",
+      "count" : 3
+    }, {
+      "id" : 731,
+      "name" : "Plaukų dažymas vyrams",
+      "normalisedName" : "plauku-dazymas-vyrams",
+      "count" : 1
+    }, {
+      "id" : 336,
+      "name" : "Plaukų priauginimas",
+      "normalisedName" : "plauku-priauginimas",
+      "count" : 1
+    }, {
+      "id" : 485,
+      "name" : "Plaukų procedūros",
+      "normalisedName" : "plauku-proceduros",
+      "count" : 3
+    }, {
+      "id" : 427,
+      "name" : "Plaukų tiesinimas",
+      "normalisedName" : "plauku-tiesinimas-1",
+      "count" : 1
+    }, {
+      "id" : 773,
+      "name" : "Plaukų tonavimas moterims",
+      "normalisedName" : "plauku-tonavimas-moterims",
+      "count" : 3
+    }, {
+      "id" : 721,
+      "name" : "Sušukavimas ir proginės šukuosenos",
+      "normalisedName" : "susukavimas-ir-progines-sukuosenos",
+      "count" : 1
+    }, {
+      "id" : 729,
+      "name" : "Vaikų kirpimas",
+      "normalisedName" : "vaiku-kirpimas",
+      "count" : 3
+    }, {
+      "id" : 716,
+      "name" : "Vyriškas kirpimas",
+      "normalisedName" : "vyriskas-kirpimas",
+      "count" : 3
+    } ],
+    "locations" : [ {
+      "id" : 105424,
+      "name" : "Kauno rajonas",
+      "normalisedName" : "kauno-rajonas-lt",
+      "count" : 1
+    }, {
+      "id" : 6054,
+      "name" : "Klaipeda",
+      "normalisedName" : "klaipeda-lt",
+      "count" : 1
+    }, {
+      "id" : 97883,
+      "name" : "Utena",
+      "normalisedName" : "utena-lietuva",
+      "count" : 1
+    }, {
+      "id" : 6056,
+      "name" : "Vilnius",
+      "normalisedName" : "vilnius-lt",
+      "count" : 13
+    } ],
+    "amenities" : [ ],
+    "brands" : [ ],
+    "accolades" : [ {
+      "id" : 151,
+      "name" : "Top Rated 2024",
+      "normalisedName" : "top-rated-2024",
+      "count" : 1
+    }, {
+      "id" : 111,
+      "name" : "Top Rated 2022",
+      "normalisedName" : "top-rated-2022",
+      "count" : 1
+    }, {
+      "id" : 138,
+      "name" : "Top Rated 2023",
+      "normalisedName" : "top-rated-2023",
+      "count" : 1
+    } ]
+  },
+  "locationBreadcrumbs" : [ {
+    "name" : "Treatwell",
+    "uri" : {
+      "appUri" : "treatwell://www.treatwell.lt/",
+      "mobileUri" : "https://www.treatwell.lt/",
+      "desktopUri" : "https://www.treatwell.lt/"
+    }
+  }, {
+    "name" : "Lietuva",
+    "entityId" : 133,
+    "uri" : {
+      "appUri" : "treatwell://www.treatwell.lt/venue/?location.tree.id=133&treatmentCategoryIds=766&menuItemTypes=TREATMENT%2CTREATMENT_PACKAGE&sort=RECOMMENDED",
+      "mobileUri" : "https://www.treatwell.lt/salonai/procedura-berniuku-kirpimas/pasiulymo-tipas-vietinis/kur-lietuva/",
+      "desktopUri" : "https://www.treatwell.lt/salonai/procedura-berniuku-kirpimas/pasiulymo-tipas-vietinis/kur-lietuva/"
+    }
+  }, {
+    "name" : "Utena",
+    "entityId" : 97883,
+    "uri" : {
+      "appUri" : "treatwell://www.treatwell.lt/venue/?location.tree.id=97883&treatmentCategoryIds=766&menuItemTypes=TREATMENT%2CTREATMENT_PACKAGE&sort=RECOMMENDED",
+      "mobileUri" : "https://www.treatwell.lt/salonai/procedura-berniuku-kirpimas/pasiulymo-tipas-vietinis/kur-utena-lietuva/",
+      "desktopUri" : "https://www.treatwell.lt/salonai/procedura-berniuku-kirpimas/pasiulymo-tipas-vietinis/kur-utena-lietuva/"
+    }
+  } ],
+  "indexingForbidden" : false,
+  "searchOptions" : {
+    "sortOptions" : [ "recommended", "review_rating", "price_asc", "price_desc", "discount" ],
+    "validRadius" : [ 0.2, 0.5, 1.0, 3.0, 5.0, 10.0, 20.0 ],
+    "minServicePrice" : 15.00,
+    "maxServicePrice" : 17.00
+  },
+  "relatedTreatments" : [ ]
+}

@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Template Organization
+- Keep Blade templates clean and focused on presentation
+- Structure views in logical directories (layouts, components, partials)
+- Use consistent naming conventions for template files
+- Break complex templates into smaller, reusable partials
+- Separate admin and front-end templates
+- Implement template inheritance for consistent layouts
+
+## Components & Reusability
+- Use Blade components for reusable UI elements
+- Leverage anonymous components for simple UI pieces
+- Create component libraries for common elements (buttons, cards, forms)
+- Use slots and attributes for component flexibility
+- Implement namespaced components for organization
+
+## Security
+- Implement proper escaping to prevent XSS vulnerabilities
+- Use the {{ }} syntax for escaped output (not {!! !!})
+- Use @csrf directive in all forms to prevent CSRF attacks
+- Sanitize user input before displaying in templates
+- Avoid exposing sensitive data in client-rendered templates
+- Implement proper authorization checks in templates
+
+## Performance
+- Use template caching in production environments
+- Avoid complex logic in Blade templates
+- Minimize the use of @php directives
+- Use eager loading to prevent N+1 query issues
+- Implement view composers for repeated data needs
+- Consider fragment caching for expensive template sections
+
+## Structure & Logic
+- Use Blade's control structures for conditional rendering
+- Leverage @foreach, @forelse, and @empty for collections
+- Use view composers for complex data preparation
+- Keep JavaScript and CSS in separate files, not in Blade templates
+- Utilize stacks for organized script and style inclusion
+- Use named routes in templates instead of hardcoded URLs
+
+## Pagination & Data Display
+- Use Laravel's built-in pagination views
+- Customize pagination templates when needed
+- Implement proper empty states for collections
+- Use component-based approach for data tables
+- Implement proper loading states for async data
+- Consider infinite scrolling for large data sets

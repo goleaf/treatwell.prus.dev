@@ -1,0 +1,1675 @@
+)]}', {
+  "context" : {
+    "environment" : "prod"
+  },
+  "canonicalUri" : "https://www.treatwell.lt/salonai/procedura-atpalaiduojantis-masazas/pasiulymo-tipas-vietinis/kur-utena-lietuva/",
+  "alternateLocaleUris" : [ ],
+  "pagination" : {
+    "from" : 0,
+    "page" : 0,
+    "pageSize" : 20,
+    "totalElements" : 2,
+    "totalPages" : 1
+  },
+  "results" : [ {
+    "type" : "venue",
+    "data" : {
+      "id" : 388764,
+      "name" : "Grožio ir SPA centras Tilia",
+      "description" : "\n<p>Tilia centras atidarytas 2016 rudenį. Lietuviškai šis centro pavadinimas reiškia “liepą” – sveikatos ir grožio medį. Jo žiedai pasižymi jauninančiomis savybėmis. Tai vienas iš ypač retų augalų, kuris savyje turi “fitaharmonų” – medžiagų padedančių mums atrodyti sveikai ir gražiai. Su šio medžio savybėmis siejama ir mūsų TILIA filosofija. Nors Utenos mieste yra apstu įmonių, teikiančių vienokias ar kitokias grožio paslaugas, tačiau didžiuojamės būdami VIENINTELIAI, kurie pasirūpina ne tik išoriniu grožiu, bet ir gera savijauta.</p>\n",
+      "location" : {
+        "address" : {
+          "countryId" : 133,
+          "postalCode" : "28143",
+          "addressLines" : [ "Maironio g. 12, Utena" ]
+        },
+        "point" : {
+          "lat" : 55.5002414,
+          "lon" : 25.6000716
+        },
+        "map" : {
+          "zoom" : 18,
+          "lat" : 55.5002414,
+          "lon" : 25.6000716
+        },
+        "tree" : {
+          "id" : 97883,
+          "name" : "Utena",
+          "countryCode" : "LT",
+          "normalisedName" : "utena-lietuva",
+          "type" : "city",
+          "point" : {
+            "lat" : 55.48885,
+            "lon" : 25.614475
+          },
+          "radius" : {
+            "distance" : 5.9717566,
+            "distanceUnit" : "kilometre"
+          }
+        }
+      },
+      "rating" : {
+        "weightedAverage" : 4.93,
+        "count" : 3922,
+        "dimensions" : [ {
+          "name" : "Švara",
+          "average" : 4.99,
+          "count" : 2729
+        }, {
+          "name" : "Atmosfera",
+          "average" : 4.95,
+          "count" : 2729
+        }, {
+          "name" : "Personalas",
+          "average" : 4.95,
+          "count" : 2726
+        } ],
+        "displayAverage" : "4,9",
+        "average" : 4.93
+      },
+      "openingHours" : [ {
+        "open" : true,
+        "dayOfWeek" : "monday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "tuesday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "wednesday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "thursday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "friday",
+        "from" : "09:00",
+        "to" : "20:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "saturday",
+        "from" : "09:00",
+        "to" : "17:00"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "sunday",
+        "from" : "09:00",
+        "to" : "15:00"
+      } ],
+      "employees" : [ ],
+      "primaryImage" : {
+        "id" : 1906107,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w360.h240.x0AFA474F/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1080.h720.xD19FA111/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w720.h480.xA5030792/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1280.h800.x0F25512C/"
+        }
+      },
+      "images" : [ {
+        "id" : 1906107,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w360.h240.x0AFA474F/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1080.h720.xD19FA111/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w720.h480.xA5030792/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906107.w1280.h800.x0F25512C/"
+        }
+      }, {
+        "id" : 1906121,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w360.h240.x909BCBD7/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w1080.h720.x5F4D6024/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w720.h480.x3C3846B6/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906121.w1280.h800.x037308CF/"
+        }
+      }, {
+        "id" : 12005992,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w360.h240.x482D0F8F/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w1080.h720.xFF639013/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w720.h480.x6317C4EE/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i12005992.w1280.h800.x0F892340/"
+        }
+      }, {
+        "id" : 1906110,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w360.h240.x29B47B88/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w1080.h720.xA0FFE8B8/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w720.h480.x70494596/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906110.w1280.h800.x0452368A/"
+        }
+      }, {
+        "id" : 1906090,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w360.h240.x28165D03/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w1080.h720.x121BDFF9/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w720.h480.xAD435FDF/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906090.w1280.h800.x2398094E/"
+        }
+      }, {
+        "id" : 1906115,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w360.h240.x63B0B492/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w1080.h720.xC6A3FAE9/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w720.h480.x624EEC66/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906115.w1280.h800.x4B496984/"
+        }
+      }, {
+        "id" : 12005987,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w360.h240.x30E49F17/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w1080.h720.x3531C6D8/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w720.h480.xB50C0D47/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i12005987.w1280.h800.x864DA434/"
+        }
+      }, {
+        "id" : 1906113,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w360.h240.x571C2FA9/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w1080.h720.xE98A4301/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w720.h480.x003AB637/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i1906113.w1280.h800.x015614FF/"
+        }
+      } ],
+      "accolades" : [ {
+        "id" : 151,
+        "name" : "Top Rated 2024",
+        "tooltipTextCMSKey" : "top-rated",
+        "images" : {
+          "regular" : {
+            "x3" : {
+              "id" : 12099811,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i12099811.w264.h264.xF728783B.png"
+              },
+              "alt" : "TR-2024-264x264px"
+            },
+            "vector" : {
+              "id" : 12099797,
+              "uris" : {
+                "400x400" : "https://cdn1.treatwell.net/images/view/v2.i12099797.w400.h400.x21F4BF27.svg"
+              },
+              "alt" : "TR-2024-264x264px"
+            }
+          }
+        },
+        "vectorImage" : {
+          "id" : 12099797,
+          "uris" : {
+            "400x400" : "https://cdn1.treatwell.net/images/view/v2.i12099797.w400.h400.x21F4BF27.svg"
+          },
+          "alt" : "TR-2024-264x264px"
+        },
+        "rasterImage" : {
+          "id" : 12099811,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i12099811.w264.h264.xF728783B.png"
+          },
+          "alt" : "TR-2024-264x264px"
+        },
+        "featured" : true
+      }, {
+        "id" : 138,
+        "name" : "Top Rated 2023",
+        "tooltipTextCMSKey" : "top-rated",
+        "images" : {
+          "regular" : {
+            "x3" : {
+              "id" : 9218972,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9218972.w264.h264.xCE7D68EC.png"
+              },
+              "alt" : "264x264_Top_Rated_2023.png"
+            },
+            "vector" : {
+              "id" : 9225299,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9225299.w264.h264.x3841637E.svg"
+              },
+              "alt" : "264x264_Top_Rated_2023.svg"
+            }
+          }
+        },
+        "vectorImage" : {
+          "id" : 9225299,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9225299.w264.h264.x3841637E.svg"
+          },
+          "alt" : "264x264_Top_Rated_2023.svg"
+        },
+        "rasterImage" : {
+          "id" : 9218972,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i9218972.w264.h264.xCE7D68EC.png"
+          },
+          "alt" : "264x264_Top_Rated_2023.png"
+        },
+        "featured" : false
+      }, {
+        "id" : 111,
+        "name" : "Top Rated 2022",
+        "tooltipTextCMSKey" : "top-rated",
+        "images" : {
+          "regular" : {
+            "x3" : {
+              "id" : 6952178,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6952178.w264.h264.xC272E9F7.png"
+              },
+              "alt" : "264x264_top rated"
+            },
+            "vector" : {
+              "id" : 6989795,
+              "uris" : {
+                "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6989795.w264.h264.x89C90199.svg"
+              },
+              "alt" : "264x264_Top Rated Badge"
+            }
+          }
+        },
+        "vectorImage" : {
+          "id" : 6989795,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6989795.w264.h264.x89C90199.svg"
+          },
+          "alt" : "264x264_Top Rated Badge"
+        },
+        "rasterImage" : {
+          "id" : 6952178,
+          "uris" : {
+            "264x264" : "https://cdn1.treatwell.net/images/view/v2.i6952178.w264.h264.xC272E9F7.png"
+          },
+          "alt" : "264x264_top rated"
+        },
+        "featured" : false
+      } ],
+      "type" : {
+        "id" : 48,
+        "name" : "Masažo salonas",
+        "pluralName" : "Masažo salonai",
+        "normalisedName" : "masazo-salonas",
+        "mobile" : false
+      },
+      "subTypes" : [ ],
+      "newVenue" : false,
+      "uri" : {
+        "appUri" : "treatwell://www.treatwell.lt/venue/388764/",
+        "mobileUri" : "https://www.treatwell.lt/salonas/grozio-ir-spa-centras-tilia/",
+        "desktopUri" : "https://www.treatwell.lt/salonas/grozio-ir-spa-centras-tilia/"
+      },
+      "menuHighlights" : [ {
+        "type" : "treatment",
+        "data" : {
+          "id" : "TR2896205",
+          "name" : "THAI aromaterapinis  masažas",
+          "priceRange" : {
+            "minSalePriceAmount" : "65.00",
+            "minFullPriceAmount" : "65.00",
+            "maxSalePriceAmount" : "99.00",
+            "maxFullPriceAmount" : "99.00",
+            "minDiscountPercentage" : 0,
+            "maxDiscountPercentage" : 0,
+            "minSavingAmount" : "0.00",
+            "maxSavingAmount" : "0.00",
+            "minSalePrice" : {
+              "salePriceAmount" : "65.00",
+              "fullPriceAmount" : "65.00",
+              "discountPercentage" : 0,
+              "savingAmount" : "0.00"
+            },
+            "range" : true,
+            "yieldDiscountTypes" : [ ]
+          },
+          "fulfilmentPriceRanges" : {
+            "booking" : {
+              "minSalePriceAmount" : "65.00",
+              "minFullPriceAmount" : "65.00",
+              "maxSalePriceAmount" : "99.00",
+              "maxFullPriceAmount" : "99.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "65.00",
+                "fullPriceAmount" : "65.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : true,
+              "yieldDiscountTypes" : [ ]
+            }
+          },
+          "pricingDisplayType" : "total_price",
+          "scorerResults" : [ ],
+          "primaryTreatmentCategoryGroupId" : 37,
+          "treatmentCategoryIds" : [ ],
+          "durationRange" : {
+            "minDurationMinutes" : 60,
+            "maxDurationMinutes" : 120,
+            "durationMix" : "all_durations",
+            "range" : true
+          },
+          "optionGroups" : [ {
+            "name" : "60 min",
+            "durationRange" : {
+              "minDurationMinutes" : 60,
+              "maxDurationMinutes" : 60,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "65.00",
+              "minFullPriceAmount" : "65.00",
+              "maxSalePriceAmount" : "65.00",
+              "maxFullPriceAmount" : "65.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "65.00",
+                "fullPriceAmount" : "65.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "65.00",
+                "minFullPriceAmount" : "65.00",
+                "maxSalePriceAmount" : "65.00",
+                "maxFullPriceAmount" : "65.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "65.00",
+                  "fullPriceAmount" : "65.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "4860383",
+              "name" : "60 min",
+              "priceRange" : {
+                "minSalePriceAmount" : "65.00",
+                "minFullPriceAmount" : "65.00",
+                "maxSalePriceAmount" : "65.00",
+                "maxFullPriceAmount" : "65.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "65.00",
+                  "fullPriceAmount" : "65.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Bopit Tailando meistrė", "Kanja Tailando meistrė" ],
+              "durationMinutes" : 60,
+              "sortScoreComponents" : { }
+            } ]
+          }, {
+            "name" : "90 min",
+            "durationRange" : {
+              "minDurationMinutes" : 90,
+              "maxDurationMinutes" : 90,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "79.00",
+              "minFullPriceAmount" : "79.00",
+              "maxSalePriceAmount" : "79.00",
+              "maxFullPriceAmount" : "79.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "79.00",
+                "fullPriceAmount" : "79.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "79.00",
+                "minFullPriceAmount" : "79.00",
+                "maxSalePriceAmount" : "79.00",
+                "maxFullPriceAmount" : "79.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "79.00",
+                  "fullPriceAmount" : "79.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "4860384",
+              "name" : "90 min",
+              "priceRange" : {
+                "minSalePriceAmount" : "79.00",
+                "minFullPriceAmount" : "79.00",
+                "maxSalePriceAmount" : "79.00",
+                "maxFullPriceAmount" : "79.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "79.00",
+                  "fullPriceAmount" : "79.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Bopit Tailando meistrė", "Kanja Tailando meistrė" ],
+              "durationMinutes" : 90,
+              "sortScoreComponents" : { }
+            } ]
+          }, {
+            "name" : "120 min",
+            "durationRange" : {
+              "minDurationMinutes" : 120,
+              "maxDurationMinutes" : 120,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "99.00",
+              "minFullPriceAmount" : "99.00",
+              "maxSalePriceAmount" : "99.00",
+              "maxFullPriceAmount" : "99.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "99.00",
+                "fullPriceAmount" : "99.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "99.00",
+                "minFullPriceAmount" : "99.00",
+                "maxSalePriceAmount" : "99.00",
+                "maxFullPriceAmount" : "99.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "99.00",
+                  "fullPriceAmount" : "99.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "8598108",
+              "name" : "120 min",
+              "priceRange" : {
+                "minSalePriceAmount" : "99.00",
+                "minFullPriceAmount" : "99.00",
+                "maxSalePriceAmount" : "99.00",
+                "maxFullPriceAmount" : "99.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "99.00",
+                  "fullPriceAmount" : "99.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Bopit Tailando meistrė", "Kanja Tailando meistrė" ],
+              "durationMinutes" : 120,
+              "sortScoreComponents" : { }
+            } ]
+          } ],
+          "multiOptionSelection" : false,
+          "requiresPatchTest" : false
+        }
+      }, {
+        "type" : "treatment",
+        "data" : {
+          "id" : "TR4050803",
+          "name" : "Jūrinė choreografija",
+          "priceRange" : {
+            "minSalePriceAmount" : "30.00",
+            "minFullPriceAmount" : "30.00",
+            "maxSalePriceAmount" : "50.00",
+            "maxFullPriceAmount" : "50.00",
+            "minDiscountPercentage" : 0,
+            "maxDiscountPercentage" : 0,
+            "minSavingAmount" : "0.00",
+            "maxSavingAmount" : "0.00",
+            "minSalePrice" : {
+              "salePriceAmount" : "30.00",
+              "fullPriceAmount" : "30.00",
+              "discountPercentage" : 0,
+              "savingAmount" : "0.00"
+            },
+            "range" : true,
+            "yieldDiscountTypes" : [ ]
+          },
+          "fulfilmentPriceRanges" : {
+            "booking" : {
+              "minSalePriceAmount" : "30.00",
+              "minFullPriceAmount" : "30.00",
+              "maxSalePriceAmount" : "50.00",
+              "maxFullPriceAmount" : "50.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "30.00",
+                "fullPriceAmount" : "30.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : true,
+              "yieldDiscountTypes" : [ ]
+            }
+          },
+          "pricingDisplayType" : "total_price",
+          "scorerResults" : [ ],
+          "primaryTreatmentCategoryGroupId" : 37,
+          "treatmentCategoryIds" : [ ],
+          "durationRange" : {
+            "minDurationMinutes" : 45,
+            "maxDurationMinutes" : 90,
+            "durationMix" : "all_durations",
+            "range" : true
+          },
+          "optionGroups" : [ {
+            "name" : "Veido masažas Jūrinė choreografija",
+            "durationRange" : {
+              "minDurationMinutes" : 45,
+              "maxDurationMinutes" : 45,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "30.00",
+              "minFullPriceAmount" : "30.00",
+              "maxSalePriceAmount" : "30.00",
+              "maxFullPriceAmount" : "30.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "30.00",
+                "fullPriceAmount" : "30.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "30.00",
+                "minFullPriceAmount" : "30.00",
+                "maxSalePriceAmount" : "30.00",
+                "maxFullPriceAmount" : "30.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "30.00",
+                  "fullPriceAmount" : "30.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "7367502",
+              "name" : "Veido masažas Jūrinė choreografija",
+              "priceRange" : {
+                "minSalePriceAmount" : "30.00",
+                "minFullPriceAmount" : "30.00",
+                "maxSalePriceAmount" : "30.00",
+                "maxFullPriceAmount" : "30.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "30.00",
+                  "fullPriceAmount" : "30.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Vaida", "Rimgirda" ],
+              "durationMinutes" : 45,
+              "sortScoreComponents" : { }
+            } ]
+          }, {
+            "name" : "Veido masažas Jūrinė choreografija+ alginatinė kaukė",
+            "durationRange" : {
+              "minDurationMinutes" : 90,
+              "maxDurationMinutes" : 90,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "50.00",
+              "minFullPriceAmount" : "50.00",
+              "maxSalePriceAmount" : "50.00",
+              "maxFullPriceAmount" : "50.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "50.00",
+                "fullPriceAmount" : "50.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "50.00",
+                "minFullPriceAmount" : "50.00",
+                "maxSalePriceAmount" : "50.00",
+                "maxFullPriceAmount" : "50.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "50.00",
+                  "fullPriceAmount" : "50.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "7367501",
+              "name" : "Veido masažas Jūrinė choreografija+ alginatinė kaukė",
+              "priceRange" : {
+                "minSalePriceAmount" : "50.00",
+                "minFullPriceAmount" : "50.00",
+                "maxSalePriceAmount" : "50.00",
+                "maxFullPriceAmount" : "50.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "50.00",
+                  "fullPriceAmount" : "50.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Vaida", "Rimgirda" ],
+              "durationMinutes" : 90,
+              "sortScoreComponents" : { }
+            } ]
+          } ],
+          "multiOptionSelection" : false,
+          "requiresPatchTest" : false
+        }
+      }, {
+        "type" : "treatment",
+        "data" : {
+          "id" : "TR2895927",
+          "name" : "Relaksacinis viso kūno masažas",
+          "priceRange" : {
+            "minSalePriceAmount" : "49.00",
+            "minFullPriceAmount" : "49.00",
+            "maxSalePriceAmount" : "63.00",
+            "maxFullPriceAmount" : "63.00",
+            "minDiscountPercentage" : 0,
+            "maxDiscountPercentage" : 0,
+            "minSavingAmount" : "0.00",
+            "maxSavingAmount" : "0.00",
+            "minSalePrice" : {
+              "salePriceAmount" : "49.00",
+              "fullPriceAmount" : "49.00",
+              "discountPercentage" : 0,
+              "savingAmount" : "0.00"
+            },
+            "range" : true,
+            "yieldDiscountTypes" : [ ]
+          },
+          "fulfilmentPriceRanges" : {
+            "booking" : {
+              "minSalePriceAmount" : "49.00",
+              "minFullPriceAmount" : "49.00",
+              "maxSalePriceAmount" : "63.00",
+              "maxFullPriceAmount" : "63.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "49.00",
+                "fullPriceAmount" : "49.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : true,
+              "yieldDiscountTypes" : [ ]
+            }
+          },
+          "pricingDisplayType" : "total_price",
+          "scorerResults" : [ ],
+          "primaryTreatmentCategoryGroupId" : 37,
+          "treatmentCategoryIds" : [ ],
+          "durationRange" : {
+            "minDurationMinutes" : 60,
+            "maxDurationMinutes" : 90,
+            "durationMix" : "all_durations",
+            "range" : true
+          },
+          "optionGroups" : [ {
+            "name" : "60 min",
+            "durationRange" : {
+              "minDurationMinutes" : 60,
+              "maxDurationMinutes" : 60,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "49.00",
+              "minFullPriceAmount" : "49.00",
+              "maxSalePriceAmount" : "49.00",
+              "maxFullPriceAmount" : "49.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "49.00",
+                "fullPriceAmount" : "49.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "49.00",
+                "minFullPriceAmount" : "49.00",
+                "maxSalePriceAmount" : "49.00",
+                "maxFullPriceAmount" : "49.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "49.00",
+                  "fullPriceAmount" : "49.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "7957948",
+              "name" : "Profesionalus masažuotojas ",
+              "priceRange" : {
+                "minSalePriceAmount" : "49.00",
+                "minFullPriceAmount" : "49.00",
+                "maxSalePriceAmount" : "49.00",
+                "maxFullPriceAmount" : "49.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "49.00",
+                  "fullPriceAmount" : "49.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Laima", "Lina" ],
+              "durationMinutes" : 60,
+              "sortScoreComponents" : { }
+            } ]
+          }, {
+            "name" : "90 min",
+            "durationRange" : {
+              "minDurationMinutes" : 90,
+              "maxDurationMinutes" : 90,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "63.00",
+              "minFullPriceAmount" : "63.00",
+              "maxSalePriceAmount" : "63.00",
+              "maxFullPriceAmount" : "63.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "63.00",
+                "fullPriceAmount" : "63.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "63.00",
+                "minFullPriceAmount" : "63.00",
+                "maxSalePriceAmount" : "63.00",
+                "maxFullPriceAmount" : "63.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "63.00",
+                  "fullPriceAmount" : "63.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "7957950",
+              "name" : "Profesionalus masažuotojas ",
+              "priceRange" : {
+                "minSalePriceAmount" : "63.00",
+                "minFullPriceAmount" : "63.00",
+                "maxSalePriceAmount" : "63.00",
+                "maxFullPriceAmount" : "63.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "63.00",
+                  "fullPriceAmount" : "63.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Laima", "Lina" ],
+              "durationMinutes" : 90,
+              "sortScoreComponents" : { }
+            } ]
+          } ],
+          "multiOptionSelection" : false,
+          "requiresPatchTest" : false
+        }
+      } ],
+      "treatmentBadges" : [ ]
+    }
+  }, {
+    "type" : "venue",
+    "data" : {
+      "id" : 460612,
+      "name" : "Masažo salonas",
+      "description" : "\n<p>Pasiruoškite atsipalaidavimui pas Elingą, kuri yra įsikūrusi Utenoje. Pečių ir kaklo masažas, aromaterapinis masažas ir viso kūno masažas - tai tik kelios šio meistro siūlomų paslaugų.<br/>\n<br/>\n<b>Artimiausias viešasis transportas:</b><br/>\nSaloną yra paprasta pasiekti autobusais: 4 (1), 7A, 20E, M-372, M-652, M-946, M-972, M-997, M-998 (Turgus st.).<br/>\n<br/>\n<b>Komanda:</b><br/>\nPuiki meistrė, užtikrinanti tikrą atsipalaidavimą ir išskirtinį dėmesį.<br/>\n<br/>\n<b>Kas mums patinka:</b></p>\n\n\n<ul>\n<li><i>Atmosfera: </i>rami ir profesionali.</li>\n<li><i>Specializacija: </i>masažai.</li>\n<li><i>Naudojami prekių ženklai ir produktai: </i>atliekamų masažų metų yra naudojami tik profesionalūs aliejai ir kitos būtinosios priemonės.</li>\n<li><i>Papildomi akcentai: </i>salonas yra lengvai pasiekiamas viešuoju transportu.</li></ul>",
+      "location" : {
+        "address" : {
+          "countryId" : 133,
+          "postalCode" : "28194",
+          "addressLines" : [ "J. Basanavičiaus g. 68", "Utena" ]
+        },
+        "point" : {
+          "lat" : 55.4999589,
+          "lon" : 25.6079671
+        },
+        "map" : {
+          "zoom" : 15,
+          "lat" : 55.4999589,
+          "lon" : 25.6079671
+        },
+        "tree" : {
+          "id" : 97883,
+          "name" : "Utena",
+          "countryCode" : "LT",
+          "normalisedName" : "utena-lietuva",
+          "type" : "city",
+          "point" : {
+            "lat" : 55.48885,
+            "lon" : 25.614475
+          },
+          "radius" : {
+            "distance" : 5.9717566,
+            "distanceUnit" : "kilometre"
+          }
+        }
+      },
+      "rating" : {
+        "count" : 0,
+        "dimensions" : [ ],
+        "displayAverage" : "0,0",
+        "average" : 0
+      },
+      "openingHours" : [ {
+        "open" : true,
+        "dayOfWeek" : "monday",
+        "from" : "14:30",
+        "to" : "17:30"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "tuesday",
+        "from" : "14:30",
+        "to" : "18:30"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "wednesday",
+        "from" : "14:30",
+        "to" : "17:30"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "thursday",
+        "from" : "14:30",
+        "to" : "18:30"
+      }, {
+        "open" : true,
+        "dayOfWeek" : "friday",
+        "from" : "14:30",
+        "to" : "18:00"
+      } ],
+      "employees" : [ ],
+      "primaryImage" : {
+        "id" : 13005143,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w360.h240.xAB74C42A/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w1080.h720.xB07ADC99/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w720.h480.xFB141A76/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w1280.h800.xFFD6BCE5/"
+        }
+      },
+      "images" : [ {
+        "id" : 13005143,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w360.h240.xAB74C42A/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w1080.h720.xB07ADC99/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w720.h480.xFB141A76/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i13005143.w1280.h800.xFFD6BCE5/"
+        }
+      }, {
+        "id" : 13257823,
+        "uris" : {
+          "360x240" : "https://cdn1.treatwell.net/images/view/v2.i13257823.w360.h240.xC79602CC/",
+          "1080x720" : "https://cdn1.treatwell.net/images/view/v2.i13257823.w1080.h720.x667731C3/",
+          "720x480" : "https://cdn1.treatwell.net/images/view/v2.i13257823.w720.h480.xE112FF91/",
+          "1280x800" : "https://cdn1.treatwell.net/images/view/v2.i13257823.w1280.h800.xF824DDAA/"
+        }
+      } ],
+      "accolades" : [ ],
+      "type" : {
+        "id" : 48,
+        "name" : "Masažo salonas",
+        "pluralName" : "Masažo salonai",
+        "normalisedName" : "masazo-salonas",
+        "mobile" : false
+      },
+      "subTypes" : [ ],
+      "newVenue" : false,
+      "uri" : {
+        "appUri" : "treatwell://www.treatwell.lt/venue/460612/",
+        "mobileUri" : "https://www.treatwell.lt/salonas/masazo-salonas-1/",
+        "desktopUri" : "https://www.treatwell.lt/salonas/masazo-salonas-1/"
+      },
+      "menuHighlights" : [ {
+        "type" : "treatment",
+        "data" : {
+          "id" : "TR5572980",
+          "name" : "Atpalaiduojantis galvos masažas",
+          "priceRange" : {
+            "minSalePriceAmount" : "12.00",
+            "minFullPriceAmount" : "12.00",
+            "maxSalePriceAmount" : "12.00",
+            "maxFullPriceAmount" : "12.00",
+            "minDiscountPercentage" : 0,
+            "maxDiscountPercentage" : 0,
+            "minSavingAmount" : "0.00",
+            "maxSavingAmount" : "0.00",
+            "minSalePrice" : {
+              "salePriceAmount" : "12.00",
+              "fullPriceAmount" : "12.00",
+              "discountPercentage" : 0,
+              "savingAmount" : "0.00"
+            },
+            "range" : false,
+            "yieldDiscountTypes" : [ ]
+          },
+          "fulfilmentPriceRanges" : {
+            "booking" : {
+              "minSalePriceAmount" : "12.00",
+              "minFullPriceAmount" : "12.00",
+              "maxSalePriceAmount" : "12.00",
+              "maxFullPriceAmount" : "12.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "12.00",
+                "fullPriceAmount" : "12.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            }
+          },
+          "pricingDisplayType" : "total_price",
+          "scorerResults" : [ ],
+          "primaryTreatmentCategoryGroupId" : 37,
+          "treatmentCategoryIds" : [ ],
+          "durationRange" : {
+            "minDurationMinutes" : 15,
+            "maxDurationMinutes" : 15,
+            "durationMix" : "all_durations",
+            "range" : false
+          },
+          "optionGroups" : [ {
+            "name" : "Nugaros",
+            "durationRange" : {
+              "minDurationMinutes" : 15,
+              "maxDurationMinutes" : 15,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "12.00",
+              "minFullPriceAmount" : "12.00",
+              "maxSalePriceAmount" : "12.00",
+              "maxFullPriceAmount" : "12.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "12.00",
+                "fullPriceAmount" : "12.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "12.00",
+                "minFullPriceAmount" : "12.00",
+                "maxSalePriceAmount" : "12.00",
+                "maxFullPriceAmount" : "12.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "12.00",
+                  "fullPriceAmount" : "12.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "10626024",
+              "name" : "Nugaros",
+              "priceRange" : {
+                "minSalePriceAmount" : "12.00",
+                "minFullPriceAmount" : "12.00",
+                "maxSalePriceAmount" : "12.00",
+                "maxFullPriceAmount" : "12.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "12.00",
+                  "fullPriceAmount" : "12.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Masažo Salonas" ],
+              "durationMinutes" : 15,
+              "sortScoreComponents" : { }
+            } ]
+          } ],
+          "multiOptionSelection" : false,
+          "requiresPatchTest" : false
+        }
+      }, {
+        "type" : "treatment",
+        "data" : {
+          "id" : "TR5567993",
+          "name" : "Atpalaiduojantis masažas",
+          "priceRange" : {
+            "minSalePriceAmount" : "23.00",
+            "minFullPriceAmount" : "23.00",
+            "maxSalePriceAmount" : "40.00",
+            "maxFullPriceAmount" : "40.00",
+            "minDiscountPercentage" : 0,
+            "maxDiscountPercentage" : 0,
+            "minSavingAmount" : "0.00",
+            "maxSavingAmount" : "0.00",
+            "minSalePrice" : {
+              "salePriceAmount" : "23.00",
+              "fullPriceAmount" : "23.00",
+              "discountPercentage" : 0,
+              "savingAmount" : "0.00"
+            },
+            "range" : true,
+            "yieldDiscountTypes" : [ ]
+          },
+          "fulfilmentPriceRanges" : {
+            "booking" : {
+              "minSalePriceAmount" : "23.00",
+              "minFullPriceAmount" : "23.00",
+              "maxSalePriceAmount" : "40.00",
+              "maxFullPriceAmount" : "40.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "23.00",
+                "fullPriceAmount" : "23.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : true,
+              "yieldDiscountTypes" : [ ]
+            }
+          },
+          "pricingDisplayType" : "total_price",
+          "scorerResults" : [ ],
+          "primaryTreatmentCategoryGroupId" : 37,
+          "treatmentCategoryIds" : [ ],
+          "durationRange" : {
+            "minDurationMinutes" : 30,
+            "maxDurationMinutes" : 60,
+            "durationMix" : "all_durations",
+            "range" : true
+          },
+          "optionGroups" : [ {
+            "name" : "Nugaros",
+            "durationRange" : {
+              "minDurationMinutes" : 30,
+              "maxDurationMinutes" : 30,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "23.00",
+              "minFullPriceAmount" : "23.00",
+              "maxSalePriceAmount" : "23.00",
+              "maxFullPriceAmount" : "23.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "23.00",
+                "fullPriceAmount" : "23.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "23.00",
+                "minFullPriceAmount" : "23.00",
+                "maxSalePriceAmount" : "23.00",
+                "maxFullPriceAmount" : "23.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "23.00",
+                  "fullPriceAmount" : "23.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "10616643",
+              "name" : "Nugaros",
+              "priceRange" : {
+                "minSalePriceAmount" : "23.00",
+                "minFullPriceAmount" : "23.00",
+                "maxSalePriceAmount" : "23.00",
+                "maxFullPriceAmount" : "23.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "23.00",
+                  "fullPriceAmount" : "23.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Masažo Salonas" ],
+              "durationMinutes" : 30,
+              "sortScoreComponents" : { }
+            } ]
+          }, {
+            "name" : "Viso kūno",
+            "durationRange" : {
+              "minDurationMinutes" : 60,
+              "maxDurationMinutes" : 60,
+              "durationMix" : "all_durations",
+              "range" : false
+            },
+            "priceRange" : {
+              "minSalePriceAmount" : "40.00",
+              "minFullPriceAmount" : "40.00",
+              "maxSalePriceAmount" : "40.00",
+              "maxFullPriceAmount" : "40.00",
+              "minDiscountPercentage" : 0,
+              "maxDiscountPercentage" : 0,
+              "minSavingAmount" : "0.00",
+              "maxSavingAmount" : "0.00",
+              "minSalePrice" : {
+                "salePriceAmount" : "40.00",
+                "fullPriceAmount" : "40.00",
+                "discountPercentage" : 0,
+                "savingAmount" : "0.00"
+              },
+              "range" : false,
+              "yieldDiscountTypes" : [ ]
+            },
+            "fulfilmentPriceRanges" : {
+              "booking" : {
+                "minSalePriceAmount" : "40.00",
+                "minFullPriceAmount" : "40.00",
+                "maxSalePriceAmount" : "40.00",
+                "maxFullPriceAmount" : "40.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "40.00",
+                  "fullPriceAmount" : "40.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              }
+            },
+            "options" : [ {
+              "id" : "10616642",
+              "name" : "Viso kūno",
+              "priceRange" : {
+                "minSalePriceAmount" : "40.00",
+                "minFullPriceAmount" : "40.00",
+                "maxSalePriceAmount" : "40.00",
+                "maxFullPriceAmount" : "40.00",
+                "minDiscountPercentage" : 0,
+                "maxDiscountPercentage" : 0,
+                "minSavingAmount" : "0.00",
+                "maxSavingAmount" : "0.00",
+                "minSalePrice" : {
+                  "salePriceAmount" : "40.00",
+                  "fullPriceAmount" : "40.00",
+                  "discountPercentage" : 0,
+                  "savingAmount" : "0.00"
+                },
+                "range" : false,
+                "yieldDiscountTypes" : [ ]
+              },
+              "fulfilmentTypes" : [ "booking" ],
+              "employees" : [ "Masažo Salonas" ],
+              "durationMinutes" : 60,
+              "sortScoreComponents" : { }
+            } ]
+          } ],
+          "multiOptionSelection" : false,
+          "requiresPatchTest" : false
+        }
+      } ],
+      "treatmentBadges" : [ ]
+    }
+  } ],
+  "specification" : {
+    "treatmentCategoryGroup" : {
+      "id" : 37,
+      "name" : "Masažas",
+      "pluralName" : "Masažas"
+    },
+    "treatmentCategories" : [ {
+      "id" : 753,
+      "name" : "Atpalaiduojantis masažas",
+      "pluralName" : "Atpalaiduojantis masažas"
+    } ],
+    "menuItemTypes" : [ "treatment", "treatment_package" ],
+    "location" : {
+      "tree" : {
+        "id" : 97883,
+        "name" : "Utena",
+        "countryCode" : "LT",
+        "normalisedName" : "utena-lietuva",
+        "type" : "city",
+        "point" : {
+          "lat" : 55.48885,
+          "lon" : 25.614475
+        },
+        "radius" : {
+          "distance" : 5.9717566,
+          "distanceUnit" : "kilometre"
+        }
+      }
+    },
+    "sort" : "recommended"
+  },
+  "implicitModifications" : {
+    "addedCriteria" : { },
+    "droppedCriteria" : { }
+  },
+  "aggregations" : {
+    "treatmentCategoryGroups" : [ ],
+    "treatmentCategories" : [ {
+      "id" : 407,
+      "name" : "Ajurvedinis masažas",
+      "normalisedName" : "ajurvedinis-masazas",
+      "count" : 1
+    }, {
+      "id" : 753,
+      "name" : "Atpalaiduojantis masažas",
+      "normalisedName" : "atpalaiduojantis-masazas",
+      "count" : 2
+    }, {
+      "id" : 209,
+      "name" : "Galvos masažas",
+      "normalisedName" : "galvos-masazas",
+      "count" : 1
+    }, {
+      "id" : 46,
+      "name" : "Giliųjų audinių masažas",
+      "normalisedName" : "giliuju-audiniu-masazas",
+      "count" : 2
+    }, {
+      "id" : 82,
+      "name" : "Gydomieji masažai",
+      "normalisedName" : "gydomasis-masazas",
+      "count" : 1
+    }, {
+      "id" : 79,
+      "name" : "Limfodrenažinis masažas",
+      "normalisedName" : "limfodrenazinis-masazas",
+      "count" : 3
+    }, {
+      "id" : 429,
+      "name" : "Nugaros, kaklo ir pečių masažas",
+      "normalisedName" : "nugaros-kaklo-ir-peciu-masazas",
+      "count" : 2
+    }, {
+      "id" : 191,
+      "name" : "Pėdų masažas",
+      "normalisedName" : "pedu-masazas",
+      "count" : 1
+    }, {
+      "id" : 335,
+      "name" : "Rankų masažas",
+      "normalisedName" : "ranku-masazas",
+      "count" : 1
+    }, {
+      "id" : 114,
+      "name" : "Shiatsu masažas",
+      "normalisedName" : "shiatsu-masazas",
+      "count" : 1
+    }, {
+      "id" : 149,
+      "name" : "Sportinis masažas",
+      "normalisedName" : "sportinis-masazas",
+      "count" : 1
+    }, {
+      "id" : 155,
+      "name" : "Tailandietiškas masažas",
+      "normalisedName" : "tailandietiskas-masazas",
+      "count" : 1
+    }, {
+      "id" : 342,
+      "name" : "Veido masažas",
+      "normalisedName" : "veido-masazas",
+      "count" : 3
+    }, {
+      "id" : 151,
+      "name" : "Švediškas masažas",
+      "normalisedName" : "svediskas-masazas",
+      "count" : 2
+    } ],
+    "locations" : [ {
+      "id" : 99855,
+      "name" : "Alytus",
+      "normalisedName" : "alytus-lt",
+      "count" : 2
+    }, {
+      "id" : 97444,
+      "name" : "Avižieniai",
+      "normalisedName" : "avizieniai-lt",
+      "count" : 2
+    }, {
+      "id" : 99609,
+      "name" : "Jonava",
+      "normalisedName" : "jonava-lt",
+      "count" : 1
+    }, {
+      "id" : 105424,
+      "name" : "Kauno rajonas",
+      "normalisedName" : "kauno-rajonas-lt",
+      "count" : 101
+    }, {
+      "id" : 6054,
+      "name" : "Klaipeda",
+      "normalisedName" : "klaipeda-lt",
+      "count" : 29
+    }, {
+      "id" : 99676,
+      "name" : "Lentvaris",
+      "normalisedName" : "lentvaris-lt",
+      "count" : 1
+    }, {
+      "id" : 98698,
+      "name" : "Palanga",
+      "normalisedName" : "palanga-lt-1",
+      "count" : 12
+    }, {
+      "id" : 104124,
+      "name" : "Panevežio rajonas",
+      "normalisedName" : "panevezio-rajonas-lt",
+      "count" : 2
+    }, {
+      "id" : 99749,
+      "name" : "Taurage",
+      "normalisedName" : "taurage-lt",
+      "count" : 1
+    }, {
+      "id" : 84043,
+      "name" : "Trakai",
+      "normalisedName" : "trakai-lt",
+      "count" : 1
+    }, {
+      "id" : 97813,
+      "name" : "Ukmerge",
+      "normalisedName" : "ukmerge-lietuva",
+      "count" : 1
+    }, {
+      "id" : 97883,
+      "name" : "Utena",
+      "normalisedName" : "utena-lietuva",
+      "count" : 2
+    }, {
+      "id" : 99853,
+      "name" : "Užubaliai",
+      "normalisedName" : "uzubaliai-lt",
+      "count" : 1
+    }, {
+      "id" : 6056,
+      "name" : "Vilnius",
+      "normalisedName" : "vilnius-lt",
+      "count" : 223
+    }, {
+      "id" : 101354,
+      "name" : "Visaginas",
+      "normalisedName" : "visaginas-lt",
+      "count" : 1
+    }, {
+      "id" : 103887,
+      "name" : "Šiauliu rajonas",
+      "normalisedName" : "siauliu-rajonas-lt",
+      "count" : 3
+    }, {
+      "id" : 98433,
+      "name" : "Šilute",
+      "normalisedName" : "silute-lt",
+      "count" : 1
+    } ],
+    "amenities" : [ ],
+    "brands" : [ ],
+    "accolades" : [ {
+      "id" : 151,
+      "name" : "Top Rated 2024",
+      "normalisedName" : "top-rated-2024",
+      "count" : 1
+    }, {
+      "id" : 111,
+      "name" : "Top Rated 2022",
+      "normalisedName" : "top-rated-2022",
+      "count" : 1
+    }, {
+      "id" : 138,
+      "name" : "Top Rated 2023",
+      "normalisedName" : "top-rated-2023",
+      "count" : 1
+    } ]
+  },
+  "locationBreadcrumbs" : [ {
+    "name" : "Treatwell",
+    "uri" : {
+      "appUri" : "treatwell://www.treatwell.lt/",
+      "mobileUri" : "https://www.treatwell.lt/",
+      "desktopUri" : "https://www.treatwell.lt/"
+    }
+  }, {
+    "name" : "Lietuva",
+    "entityId" : 133,
+    "uri" : {
+      "appUri" : "treatwell://www.treatwell.lt/venue/?location.tree.id=133&treatmentCategoryIds=753&menuItemTypes=TREATMENT%2CTREATMENT_PACKAGE&sort=RECOMMENDED",
+      "mobileUri" : "https://www.treatwell.lt/salonai/procedura-atpalaiduojantis-masazas/pasiulymo-tipas-vietinis/kur-lietuva/",
+      "desktopUri" : "https://www.treatwell.lt/salonai/procedura-atpalaiduojantis-masazas/pasiulymo-tipas-vietinis/kur-lietuva/"
+    }
+  }, {
+    "name" : "Utena",
+    "entityId" : 97883,
+    "uri" : {
+      "appUri" : "treatwell://www.treatwell.lt/venue/?location.tree.id=97883&treatmentCategoryIds=753&menuItemTypes=TREATMENT%2CTREATMENT_PACKAGE&sort=RECOMMENDED",
+      "mobileUri" : "https://www.treatwell.lt/salonai/procedura-atpalaiduojantis-masazas/pasiulymo-tipas-vietinis/kur-utena-lietuva/",
+      "desktopUri" : "https://www.treatwell.lt/salonai/procedura-atpalaiduojantis-masazas/pasiulymo-tipas-vietinis/kur-utena-lietuva/"
+    }
+  } ],
+  "indexingForbidden" : false,
+  "searchOptions" : {
+    "sortOptions" : [ "recommended", "review_rating", "price_asc", "price_desc", "discount" ],
+    "validRadius" : [ 0.2, 0.5, 1.0, 3.0, 5.0, 10.0, 20.0 ],
+    "minServicePrice" : 12.00,
+    "maxServicePrice" : 99.00
+  },
+  "relatedTreatments" : [ ]
+}

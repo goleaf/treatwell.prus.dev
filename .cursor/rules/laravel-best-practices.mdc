@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Database & Models
+- Use Eloquent ORM for database operations instead of raw queries
+- Define proper relationships in your models (hasMany, belongsTo, etc.)
+- Use model factories and seeders for testing and development
+- Implement soft deletes when appropriate instead of permanent deletion
+- Use database migrations for all schema changes
+- Leverage model observers for complex model events
+
+## Security
+- Implement proper authentication and authorization using Laravel's built-in systems
+- Use Gates and Policies for permission management
+- Always validate all user input with request validation classes
+- Implement proper CSRF protection on all forms
+- Use prepared statements to prevent SQL injection
+- Store sensitive credentials in environment variables, not in code
+
+## Architecture
+- Keep controllers thin and use service classes for business logic
+- Follow SOLID principles in your code organization
+- Use repositories for data access when dealing with complex queries
+- Implement proper dependency injection using Laravel's service container
+- Use traits to share functionality between classes
+- Implement interfaces for key components to make them swappable
+
+## Performance
+- Use eager loading to avoid N+1 query problems
+- Implement caching strategies for expensive operations
+- Use queued jobs for resource-intensive processes
+- Configure proper indexes on database tables
+- Optimize database queries using query builder or raw queries when necessary
+- Use Laravel's route caching in production
+
+## Development
+- Use Laravel's event system for decoupling components
+- Implement proper error handling and logging
+- Use middleware for request/response filtering
+- Utilize Laravel's built-in validation system
+- Follow PSR standards for code style
+- Document your code properly with PHPDoc comments
