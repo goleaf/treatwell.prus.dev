@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('uri_xlarge')->nullable();
             $table->boolean('is_primary')->default(false);
             $table->timestamps();
-            
+
             $table->foreign('venue_id')->references('id')->on('venues');
         });
     }

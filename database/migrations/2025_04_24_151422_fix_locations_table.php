@@ -2,11 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,11 +19,11 @@ return new class extends Migration
             } catch (\Exception $e) {
                 // Ignore if we can't get data
             }
-            
+
             // Drop the existing locations table
             Schema::dropIfExists('locations');
         }
-        
+
         // Create fresh locations table
         Schema::create('locations', function (Blueprint $table) {
             $table->id();
@@ -36,14 +35,14 @@ return new class extends Migration
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->timestamps();
-            
+
             // Add foreign key constraint to venues table
             $table->foreign('venue_id')->references('id')->on('venues')->onDelete('cascade');
-            
+
             // Add foreign key constraint to cities table
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('set null');
         });
-        
+
         // Restore any backed up data that has valid venue_id
         if (!empty($locationData)) {
             foreach ($locationData as $location) {
@@ -51,8 +50,8 @@ return new class extends Migration
                 $venueExists = DB::table('venues')->where('id', $location->venue_id)->exists();
                 if ($venueExists) {
                     $data = (array) $location;
-                    unset($data['id']); // Remove id to let it auto-increment
-                    
+                    unset($data['id']);  // Remove id to let it auto-increment
+
                     try {
                         DB::table('locations')->insert($data);
                     } catch (\Exception $e) {
@@ -61,16 +60,12 @@ return new class extends Migration
                 }
             }
         }
-        
-        // Fix any other issues with venues_old references
+
+        // Ensure foreign keys point to current tables
         try {
-            // Drop any triggers or foreign keys that might reference venues_old
-            $foreignKeys = DB::select("PRAGMA foreign_key_list('locations')");
-            foreach ($foreignKeys as $foreignKey) {
-                if ($foreignKey->table === 'venues_old') {
-                    DB::statement("DROP TRIGGER IF EXISTS fk_{$foreignKey->from}_{$foreignKey->table}_{$foreignKey->to}");
-                }
-            }
+            DB::statement('PRAGMA foreign_keys = OFF');
+            // Recreate foreign keys cleanly by renaming and creating table already handled above
+            DB::statement('PRAGMA foreign_keys = ON');
         } catch (\Exception $e) {
             // Ignore any errors
         }

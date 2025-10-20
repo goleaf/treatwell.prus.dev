@@ -45,4 +45,4 @@ return new class extends Migration
         Schema::dropIfExists('venue_procedure');
         Schema::dropIfExists('city_procedure');
     }
-}; 
+};

@@ -12,15 +12,15 @@ use Tests\TestCase;
 class WebRoutesTest extends TestCase
 {
     use RefreshDatabase;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a country for proper foreign key references
         Country::factory()->create([
             'code' => 'LT',
-            'name' => 'Lithuania'
+            'name' => 'Lithuania',
         ]);
     }
 
@@ -88,16 +88,16 @@ class WebRoutesTest extends TestCase
         // Create venues
         $venue1 = Venue::factory()->create(['name' => 'Venue in City 1']);
         $venue2 = Venue::factory()->create(['name' => 'Venue in City 2']);
-        
+
         // Create locations with city relationships
         Location::factory()->create([
             'venue_id' => $venue1->id,
-            'city_id' => $city1->id
+            'city_id' => $city1->id,
         ]);
-        
+
         Location::factory()->create([
             'venue_id' => $venue2->id,
-            'city_id' => $city2->id
+            'city_id' => $city2->id,
         ]);
 
         $response = $this->get(route('venues.index', ['city_id' => $city1->id]));
@@ -105,4 +105,4 @@ class WebRoutesTest extends TestCase
         $response->assertSee('Venue in City 1');
         $response->assertDontSee('Venue in City 2');
     }
-} 
+}

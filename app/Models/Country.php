@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Country extends Model
 {
     use HasFactory;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -19,7 +19,7 @@ class Country extends Model
         'name',
         'code',
     ];
-    
+
     /**
      * Get the cities for the country.
      */

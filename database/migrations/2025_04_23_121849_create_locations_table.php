@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('longitude', 10, 7)->nullable();
             $table->integer('map_zoom')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('venue_id')->references('id')->on('venues');
             $table->foreign('city_id')->references('id')->on('cities');
         });

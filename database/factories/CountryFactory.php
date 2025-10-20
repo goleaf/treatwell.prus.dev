@@ -25,7 +25,7 @@ class CountryFactory extends Factory
             'code' => 'LT',
             'name' => 'Lithuania',
             'normalised_name' => 'lithuania',
-            'active' => true
+            'active' => true,
         ];
     }
-} 
+}

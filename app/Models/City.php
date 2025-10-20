@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 
 class City extends Model
 {
     use HasFactory;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -28,7 +28,7 @@ class City extends Model
         'main_city_id',
         'slug',
     ];
-    
+
     /**
      * The attributes that should be cast.
      *
@@ -39,7 +39,7 @@ class City extends Model
         'latitude' => 'float',
         'longitude' => 'float',
     ];
-    
+
     /**
      * Get the country that owns the city.
      */
@@ -47,7 +47,7 @@ class City extends Model
     {
         return $this->belongsTo(Country::class);
     }
-    
+
     /**
      * Get the locations for the city.
      */
@@ -55,7 +55,7 @@ class City extends Model
     {
         return $this->hasMany(Location::class);
     }
-    
+
     /**
      * Get the main city this subregion belongs to
      */
@@ -63,7 +63,7 @@ class City extends Model
     {
         return $this->belongsTo(City::class, 'main_city_id');
     }
-    
+
     /**
      * Get all subregions related to this main city
      */
@@ -71,43 +71,45 @@ class City extends Model
     {
         return $this->hasMany(City::class, 'main_city_id');
     }
-    
+
     /**
      * Scope a query to get top cities with most venues
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $limit
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $limit
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public static function scopeWithMostVenues($query, $limit = 8)
     {
-        return $query->withCount('venues')
-            ->having('venues_count', '>', 0)
+        // SQLite requires GROUP BY before HAVING; prefer exists filter to avoid HAVING
+        return $query
+            ->whereHas('venues')
+            ->withCount('venues')
             ->orderBy('venues_count', 'desc')
             ->limit($limit);
     }
-    
+
     /**
      * Scope a query to only include main cities
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeMainCities($query)
     {
         return $query->where('is_main_city', true);
     }
-    
+
     /**
      * Get all venues associated with this city (including subregions)
      */
     public function getAllVenues()
     {
         $cityIds = $this->subregions()->pluck('id')->push($this->id);
-        
+
         return Venue::whereHas('location', function ($query) use ($cityIds) {
             $query->whereIn('city_id', $cityIds);
-        })->orWhereHas('cities', function($query) use ($cityIds) {
+        })->orWhereHas('cities', function ($query) use ($cityIds) {
             $query->whereIn('city_id', $cityIds);
         });
     }
@@ -145,7 +147,7 @@ class City extends Model
         if (preg_match($pattern, $url, $matches)) {
             return $matches[1];
         }
-        
+
         return '';
     }
 }

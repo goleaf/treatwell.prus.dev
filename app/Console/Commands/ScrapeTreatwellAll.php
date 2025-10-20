@@ -53,7 +53,7 @@ class ScrapeTreatwellAll extends Command
         'kretinga-lt',
         'palanga-lt',
         'radviliškis-lt',
-        'druskininkai-lt'
+        'druskininkai-lt',
     ];
 
     /**
@@ -62,42 +62,42 @@ class ScrapeTreatwellAll extends Command
     public function handle()
     {
         $this->info('Starting comprehensive scraping for all Treatwell data...');
-        
+
         // Setup Lithuania as the main country
         $country = Country::firstOrCreate(
             ['code' => 'LT'],
             [
                 'name' => 'Lithuania',
                 'normalised_name' => 'lithuania',
-                'active' => true
+                'active' => true,
             ]
         );
-        
+
         $this->info("Country setup complete. Country ID: {$country->id}");
-        
+
         // Process each city
         foreach ($this->cities as $location) {
-            $this->info("============================");
+            $this->info('============================');
             $this->info("Starting scraping for location: {$location}");
-            
+
             $this->scrapeLocation($location, $country);
-            
+
             // Sleep between cities to prevent hitting rate limits
             if (next($this->cities) !== false) {
-                $this->info("Waiting before moving to the next city...");
+                $this->info('Waiting before moving to the next city...');
                 sleep(5);
             }
         }
-        
+
         // Display final stats
         $this->displayStats();
-        
-        $this->info("============================");
-        $this->info("All scraping has been completed!");
-        
+
+        $this->info('============================');
+        $this->info('All scraping has been completed!');
+
         return 0;
     }
-    
+
     /**
      * Scrape data for a specific location
      */
@@ -105,136 +105,139 @@ class ScrapeTreatwellAll extends Command
     {
         $page = 1;
         $totalPages = null;
-        
+
         do {
-            $this->info("Fetching page {$page}" . ($totalPages ? " of {$totalPages}" : ""));
-            
+            $this->info("Fetching page {$page}".($totalPages ? " of {$totalPages}" : ''));
+
             $response = $this->fetchPage($location, $page);
-            
-            if (!$response || !isset($response['results'])) {
+
+            if (! $response || ! isset($response['results'])) {
                 $this->error("Failed to fetch data from page {$page}");
+
                 return;
             }
-            
+
             if ($totalPages === null && isset($response['pagination']['totalPages'])) {
                 $totalPages = $response['pagination']['totalPages'];
                 $this->info("Total pages to scrape: {$totalPages}");
             }
-            
+
             // Process results
             $this->processResults($response['results'], $country);
-            
+
             $page++;
-            
+
             // Prevent making too many requests too quickly
             sleep(1);
-            
-        } while ((!$totalPages || $page <= $totalPages));
-        
+
+        } while ((! $totalPages || $page <= $totalPages));
+
         $this->info("Scraping completed for location: {$location}!");
     }
-    
+
     /**
      * Fetch a page of results from the Treatwell API
      */
     protected function fetchPage(string $location, int $page): ?array
     {
-        $url = "https://www.treatwell.lt/api/v1/page/browse";
-        
+        $url = 'https://www.treatwell.lt/api/v1/page/browse';
+
         try {
             $response = Http::get($url, [
                 'page' => $page,
-                'currentBrowseUri' => "/salonai/kur-{$location}/"
+                'currentBrowseUri' => "/salonai/kur-{$location}/",
             ]);
-            
+
             $this->info("Fetching: {$url}?page={$page}&currentBrowseUri=/salonai/kur-{$location}/");
-            
+
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 // Log pagination information
                 if (isset($data['pagination'])) {
                     $pagination = $data['pagination'];
-                    $this->info("Pagination: Page {$pagination['page']} of {$pagination['totalPages']}, showing {$pagination['from']}-" . 
-                        ($pagination['from'] + count($data['results']) - 1) . " of {$pagination['totalElements']} venues");
+                    $this->info("Pagination: Page {$pagination['page']} of {$pagination['totalPages']}, showing {$pagination['from']}-".
+                        ($pagination['from'] + count($data['results']) - 1)." of {$pagination['totalElements']} venues");
                 }
-                
+
                 return $data;
             } else {
-                $this->error("API request failed with status: " . $response->status());
+                $this->error('API request failed with status: '.$response->status());
+
                 return null;
             }
         } catch (\Exception $e) {
-            $this->error("Exception occurred: " . $e->getMessage());
+            $this->error('Exception occurred: '.$e->getMessage());
+
             return null;
         }
     }
-    
+
     /**
      * Process venue results from the API
      */
     protected function processResults(array $results, Country $country): void
     {
         foreach ($results as $result) {
-            if ($result['type'] !== 'venue' || !isset($result['data'])) {
+            if ($result['type'] !== 'venue' || ! isset($result['data'])) {
                 continue;
             }
-            
+
             $venueData = $result['data'];
-            
+
             DB::transaction(function () use ($venueData, $country) {
                 // Create or update the venue
                 $venue = $this->processVenue($venueData);
-                
+
                 // Process location data
                 if (isset($venueData['location'])) {
                     $this->processLocation($venue, $venueData['location'], $country);
                 }
-                
+
                 // Process rating data
                 if (isset($venueData['rating'])) {
                     $this->processRating($venue, $venueData['rating']);
                 }
-                
+
                 // Process opening hours
                 if (isset($venueData['openingHours'])) {
                     $this->processOpeningHours($venue, $venueData['openingHours']);
                 }
-                
+
                 // Process images
                 if (isset($venueData['images'])) {
                     $this->processImages($venue, $venueData['images'], $venueData['primaryImage'] ?? null);
                 } elseif (isset($venueData['primaryImage'])) {
                     $this->processImages($venue, [$venueData['primaryImage']], $venueData['primaryImage']);
                 }
-                
+
                 // Process treatments/menu highlights
                 if (isset($venueData['menuHighlights'])) {
                     $this->processTreatments($venue, $venueData['menuHighlights']);
                 }
             });
-            
+
             $this->line("Processed venue: {$venueData['name']}");
         }
     }
-    
+
     /**
      * Display stats about the database after scraping
      */
     protected function displayStats(): void
     {
         $this->newLine();
-        $this->info("Database Stats:");
-        $this->info("  Countries: " . Country::count());
-        $this->info("  Cities: " . City::count());
-        $this->info("  Venues: " . Venue::count());
-        $this->info("  Locations: " . Location::count());
-        $this->info("  Ratings: " . Rating::count());
-        $this->info("  Opening Hours: " . OpeningHour::count());
-        $this->info("  Images: " . Image::count());
-        $this->info("  Treatments: " . Treatment::count());
+        $this->info('Database Stats:');
+        $this->info('  Countries: '.Country::count());
+        $this->info('  Cities: '.City::count());
+        $this->info('  Venues: '.Venue::count());
+        $this->info('  Locations: '.Location::count());
+        $this->info('  Ratings: '.Rating::count());
+        $this->info('  Opening Hours: '.OpeningHour::count());
+        $this->info('  Images: '.Image::count());
+        $this->info('  Treatments: '.Treatment::count());
     }
-    
+
     /**
      * Process venue data
      */
@@ -252,13 +255,13 @@ class ScrapeTreatwellAll extends Command
                 'mobile_uri' => $venueData['uri']['mobileUri'] ?? null,
                 'app_uri' => $venueData['uri']['appUri'] ?? null,
                 'is_new_venue' => $venueData['newVenue'] ?? false,
-                'raw_data' => $venueData
+                'raw_data' => $venueData,
             ]
         );
-        
+
         return $venue;
     }
-    
+
     /**
      * Process location data
      */
@@ -268,35 +271,35 @@ class ScrapeTreatwellAll extends Command
         $city = null;
         if (isset($locationData['tree'])) {
             $cityData = $locationData['tree'];
-            
+
             // Check if we have subregion information
             $subregion = null;
             $isMainCity = true;
             $mainCityId = null;
-            
+
             // Extract subregion from the name if format is "Subregion, City"
             $cityName = $cityData['name'];
             if (str_contains($cityName, ',')) {
-                list($subregionName, $mainCityName) = array_map('trim', explode(',', $cityName, 2));
-                
+                [$subregionName, $mainCityName] = array_map('trim', explode(',', $cityName, 2));
+
                 // The part after the comma is considered the main city
                 $isMainCity = false;
-                
+
                 // Find the main city by name
                 $mainCity = City::where('name', $mainCityName)
                     ->where('is_main_city', true)
                     ->first();
-                
+
                 if ($mainCity) {
                     $mainCityId = $mainCity->id;
                 }
-                
+
                 $subregion = $subregionName;
             } else {
                 // This is likely a main city
                 $isMainCity = true;
             }
-            
+
             $city = City::updateOrCreate(
                 ['entity_id' => $cityData['id']],
                 [
@@ -313,28 +316,28 @@ class ScrapeTreatwellAll extends Command
                     'radius_unit' => $cityData['radius']['distanceUnit'] ?? null,
                 ]
             );
-            
+
             // If this is a new main city, look for any existing subregions that should point to it
             if ($isMainCity && $city->wasRecentlyCreated) {
                 $this->associateSubregions($city);
             }
         }
-        
+
         // Address data
         $addressLine1 = null;
         $addressLine2 = null;
         $postalCode = null;
-        
+
         if (isset($locationData['address'])) {
             $address = $locationData['address'];
             $postalCode = $address['postalCode'] ?? null;
-            
+
             if (isset($address['addressLines']) && is_array($address['addressLines'])) {
                 $addressLine1 = $address['addressLines'][0] ?? null;
                 $addressLine2 = $address['addressLines'][1] ?? null;
             }
         }
-        
+
         // Create or update location
         Location::updateOrCreate(
             ['venue_id' => $venue->id],
@@ -345,11 +348,11 @@ class ScrapeTreatwellAll extends Command
                 'address_line2' => $addressLine2,
                 'latitude' => $locationData['point']['lat'] ?? null,
                 'longitude' => $locationData['point']['lon'] ?? null,
-                'map_zoom' => $locationData['map']['zoom'] ?? null
+                'map_zoom' => $locationData['map']['zoom'] ?? null,
             ]
         );
     }
-    
+
     /**
      * Associate existing subregions with a main city
      */
@@ -360,13 +363,13 @@ class ScrapeTreatwellAll extends Command
             ->where('is_main_city', false)
             ->whereNull('main_city_id')
             ->get();
-        
+
         foreach ($potentialSubregions as $subregion) {
             $this->info("Associating subregion {$subregion->name} with main city {$mainCity->name}");
             $subregion->update(['main_city_id' => $mainCity->id]);
         }
     }
-    
+
     /**
      * Process rating data
      */
@@ -378,7 +381,7 @@ class ScrapeTreatwellAll extends Command
         $staffCount = 0;
         $atmosphereAvg = null;
         $atmosphereCount = 0;
-        
+
         if (isset($ratingData['dimensions']) && is_array($ratingData['dimensions'])) {
             foreach ($ratingData['dimensions'] as $dimension) {
                 if ($dimension['name'] === 'Švara') {
@@ -393,7 +396,7 @@ class ScrapeTreatwellAll extends Command
                 }
             }
         }
-        
+
         Rating::updateOrCreate(
             ['venue_id' => $venue->id],
             [
@@ -405,11 +408,11 @@ class ScrapeTreatwellAll extends Command
                 'staff_count' => $staffCount,
                 'atmosphere_avg' => $atmosphereAvg,
                 'atmosphere_count' => $atmosphereCount,
-                'display_average' => $ratingData['displayAverage'] ?? null
+                'display_average' => $ratingData['displayAverage'] ?? null,
             ]
         );
     }
-    
+
     /**
      * Process opening hours data
      */
@@ -417,7 +420,7 @@ class ScrapeTreatwellAll extends Command
     {
         // First remove existing opening hours for the venue to avoid duplicates
         $venue->openingHours()->delete();
-        
+
         // Add new opening hours
         foreach ($openingHoursData as $hour) {
             OpeningHour::create([
@@ -425,11 +428,11 @@ class ScrapeTreatwellAll extends Command
                 'day_of_week' => $hour['dayOfWeek'] ?? '',
                 'opening_time' => $hour['from'] ?? null,
                 'closing_time' => $hour['to'] ?? null,
-                'is_open' => $hour['open'] ?? false
+                'is_open' => $hour['open'] ?? false,
             ]);
         }
     }
-    
+
     /**
      * Process images data
      */
@@ -437,10 +440,10 @@ class ScrapeTreatwellAll extends Command
     {
         // First remove existing images for the venue to avoid duplicates
         $venue->images()->delete();
-        
+
         // Keep track of primary image ID
         $primaryImageId = $primaryImage['id'] ?? null;
-        
+
         // Add new images
         foreach ($imagesData as $image) {
             Image::create([
@@ -450,11 +453,11 @@ class ScrapeTreatwellAll extends Command
                 'uri_medium' => $image['uris']['720x480'] ?? null,
                 'uri_large' => $image['uris']['1080x720'] ?? null,
                 'uri_xlarge' => $image['uris']['1280x800'] ?? null,
-                'is_primary' => ($primaryImageId && isset($image['id']) && $image['id'] == $primaryImageId)
+                'is_primary' => ($primaryImageId && isset($image['id']) && $image['id'] == $primaryImageId),
             ]);
         }
     }
-    
+
     /**
      * Process treatments/menu highlights
      */
@@ -462,33 +465,33 @@ class ScrapeTreatwellAll extends Command
     {
         // First remove existing treatments for the venue to avoid duplicates
         $venue->treatments()->delete();
-        
+
         // Add new treatments
         foreach ($treatmentsData as $treatment) {
-            if ($treatment['type'] !== 'treatment' || !isset($treatment['data'])) {
+            if ($treatment['type'] !== 'treatment' || ! isset($treatment['data'])) {
                 continue;
             }
-            
+
             $data = $treatment['data'];
-            
+
             // Extract price info
             $minPrice = null;
             $maxPrice = null;
-            
+
             if (isset($data['priceRange'])) {
                 $minPrice = $data['priceRange']['minSalePriceAmount'] ?? null;
                 $maxPrice = $data['priceRange']['maxSalePriceAmount'] ?? null;
             }
-            
+
             // Extract duration info
             $minDuration = null;
             $maxDuration = null;
-            
+
             if (isset($data['durationRange'])) {
                 $minDuration = $data['durationRange']['minDurationMinutes'] ?? null;
                 $maxDuration = $data['durationRange']['maxDurationMinutes'] ?? null;
             }
-            
+
             Treatment::create([
                 'venue_id' => $venue->id,
                 'external_id' => $data['id'] ?? null,
@@ -499,8 +502,8 @@ class ScrapeTreatwellAll extends Command
                 'max_duration' => $maxDuration,
                 'category_id' => $data['primaryTreatmentCategoryId'] ?? null,
                 'category_name' => null, // Not available in the provided sample
-                'options' => $data['optionGroups'] ?? null
+                'options' => $data['optionGroups'] ?? null,
             ]);
         }
     }
-} 
+}

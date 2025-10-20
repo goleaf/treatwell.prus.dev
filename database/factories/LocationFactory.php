@@ -31,7 +31,7 @@ class LocationFactory extends Factory
             'address_line2' => $this->faker->secondaryAddress(),
             'latitude' => $this->faker->latitude(54.0, 56.0),  // Lithuania's approx. latitude range
             'longitude' => $this->faker->longitude(21.0, 26.0), // Lithuania's approx. longitude range
-            'map_zoom' => $this->faker->numberBetween(12, 16)
+            'map_zoom' => $this->faker->numberBetween(12, 16),
         ];
     }
-} 
+}

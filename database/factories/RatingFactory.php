@@ -25,10 +25,10 @@ class RatingFactory extends Factory
         $cleanlinessAvg = $this->faker->randomFloat(2, 3.0, 5.0);
         $staffAvg = $this->faker->randomFloat(2, 3.0, 5.0);
         $atmosphereAvg = $this->faker->randomFloat(2, 3.0, 5.0);
-        
+
         $count = $this->faker->numberBetween(5, 100);
         $weightedAverage = $this->faker->randomFloat(2, 3.5, 5.0);
-        
+
         return [
             'venue_id' => Venue::factory(),
             'weighted_average' => $weightedAverage,
@@ -39,7 +39,7 @@ class RatingFactory extends Factory
             'staff_count' => $count,
             'atmosphere_avg' => $atmosphereAvg,
             'atmosphere_count' => $count,
-            'display_average' => number_format($weightedAverage, 1)
+            'display_average' => number_format($weightedAverage, 1),
         ];
     }
-} 
+}

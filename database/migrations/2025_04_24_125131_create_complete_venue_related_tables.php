@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Create countries table
-        if (!Schema::hasTable('countries')) {
+        if (! Schema::hasTable('countries')) {
             Schema::create('countries', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -22,7 +22,7 @@ return new class extends Migration
         }
 
         // Create cities table
-        if (!Schema::hasTable('cities')) {
+        if (! Schema::hasTable('cities')) {
             Schema::create('cities', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('country_id')->nullable()->constrained()->nullOnDelete();
@@ -39,7 +39,7 @@ return new class extends Migration
         }
 
         // Create venues table if not exists
-        if (!Schema::hasTable('venues')) {
+        if (! Schema::hasTable('venues')) {
             Schema::create('venues', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -61,7 +61,7 @@ return new class extends Migration
         }
 
         // Create locations table
-        if (!Schema::hasTable('locations')) {
+        if (! Schema::hasTable('locations')) {
             Schema::create('locations', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('venue_id')->constrained()->onDelete('cascade');
@@ -77,7 +77,7 @@ return new class extends Migration
         }
 
         // Create ratings table
-        if (!Schema::hasTable('ratings')) {
+        if (! Schema::hasTable('ratings')) {
             Schema::create('ratings', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('venue_id')->constrained()->onDelete('cascade');
@@ -89,7 +89,7 @@ return new class extends Migration
         }
 
         // Create opening_hours table
-        if (!Schema::hasTable('opening_hours')) {
+        if (! Schema::hasTable('opening_hours')) {
             Schema::create('opening_hours', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('venue_id')->constrained()->onDelete('cascade');
@@ -102,7 +102,7 @@ return new class extends Migration
         }
 
         // Create images table
-        if (!Schema::hasTable('images')) {
+        if (! Schema::hasTable('images')) {
             Schema::create('images', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('venue_id')->constrained()->onDelete('cascade');
@@ -114,7 +114,7 @@ return new class extends Migration
         }
 
         // Create procedures (treatments categories) table
-        if (!Schema::hasTable('procedures')) {
+        if (! Schema::hasTable('procedures')) {
             Schema::create('procedures', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -125,7 +125,7 @@ return new class extends Migration
         }
 
         // Create procedure_venue pivot table
-        if (!Schema::hasTable('procedure_venue')) {
+        if (! Schema::hasTable('procedure_venue')) {
             Schema::create('procedure_venue', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('procedure_id')->constrained()->onDelete('cascade');
@@ -136,7 +136,7 @@ return new class extends Migration
         }
 
         // Create city_venue pivot table
-        if (!Schema::hasTable('city_venue')) {
+        if (! Schema::hasTable('city_venue')) {
             Schema::create('city_venue', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('city_id')->constrained()->onDelete('cascade');
@@ -147,7 +147,7 @@ return new class extends Migration
         }
 
         // Create treatments table
-        if (!Schema::hasTable('treatments')) {
+        if (! Schema::hasTable('treatments')) {
             Schema::create('treatments', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('venue_id')->constrained()->onDelete('cascade');
@@ -166,7 +166,7 @@ return new class extends Migration
         }
 
         // Create city_procedure pivot table
-        if (!Schema::hasTable('city_procedure')) {
+        if (! Schema::hasTable('city_procedure')) {
             Schema::create('city_procedure', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('city_id')->constrained()->onDelete('cascade');

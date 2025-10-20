@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +12,7 @@ return new class extends Migration
     {
         // Drop the table if it exists
         Schema::dropIfExists('treatments');
-        
+
         Schema::create('treatments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('venue_id');
@@ -23,13 +22,16 @@ return new class extends Migration
             $table->decimal('max_price', 10, 2)->nullable();
             $table->integer('min_duration')->nullable();
             $table->integer('max_duration')->nullable();
+            $table->string('category_id')->nullable();
+            $table->string('category_name')->nullable();
+            $table->json('options')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('venue_id')->references('id')->on('venues')->onDelete('cascade');
-            
-            // Add a unique constraint for venue_id and name
-            $table->unique(['venue_id', 'name']);
+
+            // Index for common queries
+            $table->index(['venue_id', 'name']);
         });
     }
 

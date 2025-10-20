@@ -17,14 +17,14 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('website')->nullable();
-            
+
             // Add location fields
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 10, 8)->nullable();
-            
+
             // Add relationship fields
             $table->unsignedBigInteger('location_id')->nullable();
-            
+
             // Add foreign key constraints
             $table->foreign('location_id')->references('id')->on('locations')->onDelete('set null');
         });
@@ -38,16 +38,16 @@ return new class extends Migration
         Schema::table('venues', function (Blueprint $table) {
             // Drop foreign key constraints
             $table->dropForeign(['location_id']);
-            
+
             // Drop columns
             $table->dropColumn([
-                'address', 
-                'phone', 
-                'email', 
-                'website', 
-                'latitude', 
-                'longitude', 
-                'location_id'
+                'address',
+                'phone',
+                'email',
+                'website',
+                'latitude',
+                'longitude',
+                'location_id',
             ]);
         });
     }

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('category_name')->nullable();
             $table->json('options')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('venue_id')->references('id')->on('venues');
         });
     }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Create city_procedure table if it doesn't exist
-        if (!Schema::hasTable('city_procedure')) {
+        if (! Schema::hasTable('city_procedure')) {
             Schema::create('city_procedure', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('city_id');
@@ -23,7 +23,7 @@ return new class extends Migration
         }
 
         // Create venue_procedure table if it doesn't exist
-        if (!Schema::hasTable('venue_procedure')) {
+        if (! Schema::hasTable('venue_procedure')) {
             Schema::create('venue_procedure', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('venue_id');
@@ -34,7 +34,7 @@ return new class extends Migration
         }
 
         // Create city_venue table if it doesn't exist
-        if (!Schema::hasTable('city_venue')) {
+        if (! Schema::hasTable('city_venue')) {
             Schema::create('city_venue', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('city_id');
@@ -54,13 +54,13 @@ return new class extends Migration
         if (Schema::hasTable('city_venue')) {
             Schema::dropIfExists('city_venue');
         }
-        
+
         if (Schema::hasTable('venue_procedure')) {
             Schema::dropIfExists('venue_procedure');
         }
-        
+
         if (Schema::hasTable('city_procedure')) {
             Schema::dropIfExists('city_procedure');
         }
     }
-}; 
+};

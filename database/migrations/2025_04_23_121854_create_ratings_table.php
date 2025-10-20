@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('atmosphere_count')->default(0);
             $table->string('display_average')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('venue_id')->references('id')->on('venues');
         });
     }

@@ -55,14 +55,14 @@ class Procedure extends Model
         if (preg_match($pattern, $url, $matches)) {
             return $matches[1];
         }
-        
+
         return '';
     }
 
     /**
      * Scope a query to get procedures with venues count.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeWithVenuesCount($query)
@@ -73,8 +73,8 @@ class Procedure extends Model
     /**
      * Scope a query to get popular procedures.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $limit
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $limit
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePopular($query, $limit = 10)
@@ -88,18 +88,18 @@ class Procedure extends Model
     /**
      * Scope a query to get procedures for a specific city.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $cityId
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $cityId
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForCity($query, $cityId)
     {
-        return $query->whereHas('cities', function($q) use ($cityId) {
+        return $query->whereHas('cities', function ($q) use ($cityId) {
             $q->where('city_id', $cityId);
-        })->orWhereHas('venues', function($q) use ($cityId) {
-            $q->whereHas('cities', function($sq) use ($cityId) {
+        })->orWhereHas('venues', function ($q) use ($cityId) {
+            $q->whereHas('cities', function ($sq) use ($cityId) {
                 $sq->where('city_id', $cityId);
             });
         });
     }
-} 
+}

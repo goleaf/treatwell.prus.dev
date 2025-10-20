@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Venue extends Model
 {
     use HasFactory;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -31,9 +31,9 @@ class Venue extends Model
         'raw_data',
         'slug',
         'url',
-        'source'
+        'source',
     ];
-    
+
     /**
      * The attributes that should be cast.
      *
@@ -41,9 +41,9 @@ class Venue extends Model
      */
     protected $casts = [
         'raw_data' => 'array',
-        'is_new_venue' => 'boolean'
+        'is_new_venue' => 'boolean',
     ];
-    
+
     /**
      * Get the location for the venue.
      */
@@ -51,7 +51,7 @@ class Venue extends Model
     {
         return $this->hasOne(Location::class);
     }
-    
+
     /**
      * Get the rating for the venue.
      */
@@ -59,7 +59,7 @@ class Venue extends Model
     {
         return $this->hasOne(Rating::class);
     }
-    
+
     /**
      * Get the images for the venue.
      */
@@ -67,7 +67,7 @@ class Venue extends Model
     {
         return $this->hasMany(Image::class);
     }
-    
+
     /**
      * Get the opening hours for the venue.
      */
@@ -75,7 +75,7 @@ class Venue extends Model
     {
         return $this->hasMany(OpeningHour::class);
     }
-    
+
     /**
      * Get the treatments for the venue.
      */
@@ -108,55 +108,51 @@ class Venue extends Model
         if (preg_match('/\/vieta\/([^\/]+)/', $url, $matches)) {
             return $matches[1];
         }
-        
+
         if (preg_match('/\/salonas\/([^\/]+)/', $url, $matches)) {
             return $matches[1];
         }
-        
+
         return '';
     }
-    
+
     /**
      * Get the primary image URL.
-     *
-     * @return string|null
      */
     public function getPrimaryImageUrl(): ?string
     {
         $primaryImage = $this->images()->where('is_primary', true)->first();
+
         return $primaryImage ? $primaryImage->url : null;
     }
-    
+
     /**
      * Get the venue's average rating.
-     *
-     * @return float|null
      */
     public function getAverageRating(): ?float
     {
         return $this->rating ? $this->rating->average : null;
     }
-    
+
     /**
      * Get city name from location or related cities.
-     *
-     * @return string
      */
     public function getCityName(): string
     {
         if ($this->location && $this->location->city) {
             return $this->location->city->name;
         }
-        
+
         $city = $this->cities()->first();
+
         return $city ? $city->name : 'Unknown';
     }
-    
+
     /**
      * Scope a query to filter venues by city.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int|array $cityId
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int|array  $cityId
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByCity($query, $cityId)
@@ -171,12 +167,12 @@ class Venue extends Model
             }
         });
     }
-    
+
     /**
      * Scope a query to filter venues by procedure.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int|array $procedureId
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int|array  $procedureId
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByProcedure($query, $procedureId)

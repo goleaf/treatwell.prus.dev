@@ -19,7 +19,7 @@ return new class extends Migration
             $table->time('closing_time')->nullable();
             $table->boolean('is_open')->default(true);
             $table->timestamps();
-            
+
             $table->foreign('venue_id')->references('id')->on('venues');
         });
     }

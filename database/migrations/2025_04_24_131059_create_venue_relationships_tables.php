@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Create procedure_venue pivot table if it doesn't exist
-        if (!Schema::hasTable('procedure_venue')) {
+        if (! Schema::hasTable('procedure_venue')) {
             Schema::create('procedure_venue', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('procedure_id')->constrained()->onDelete('cascade');
@@ -23,7 +23,7 @@ return new class extends Migration
         }
 
         // Create city_venue pivot table if it doesn't exist
-        if (!Schema::hasTable('city_venue')) {
+        if (! Schema::hasTable('city_venue')) {
             Schema::create('city_venue', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('city_id')->constrained()->onDelete('cascade');
@@ -34,7 +34,7 @@ return new class extends Migration
         }
 
         // Create city_procedure pivot table if it doesn't exist
-        if (!Schema::hasTable('city_procedure')) {
+        if (! Schema::hasTable('city_procedure')) {
             Schema::create('city_procedure', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('city_id')->constrained()->onDelete('cascade');

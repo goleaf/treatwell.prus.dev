@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class SitemapUrl extends Model
 {
     use HasFactory;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -34,7 +34,7 @@ class SitemapUrl extends Model
         'api_response',
         'error_message',
     ];
-    
+
     /**
      * The attributes that should be cast.
      *
@@ -49,7 +49,7 @@ class SitemapUrl extends Model
         'last_processed_at' => 'datetime',
         'downloaded_at' => 'datetime',
     ];
-    
+
     /**
      * Scope a query to only include unprocessed URLs.
      *
@@ -59,9 +59,9 @@ class SitemapUrl extends Model
     public function scopeUnprocessed($query)
     {
         return $query->where('is_processed', false)
-                    ->where('is_valid', true);
+            ->where('is_valid', true);
     }
-    
+
     /**
      * Scope a query to only include valid URLs.
      *
@@ -72,7 +72,7 @@ class SitemapUrl extends Model
     {
         return $query->where('is_valid', true);
     }
-    
+
     /**
      * Scope a query to only include URLs for a specific treatment.
      *
@@ -84,7 +84,7 @@ class SitemapUrl extends Model
     {
         return $query->where('treatment_slug', $treatmentSlug);
     }
-    
+
     /**
      * Scope a query to only include URLs for a specific location.
      *
@@ -96,7 +96,7 @@ class SitemapUrl extends Model
     {
         return $query->where('location_slug', $locationSlug);
     }
-    
+
     /**
      * Get the API endpoint URL for this sitemap URL.
      *
@@ -106,9 +106,10 @@ class SitemapUrl extends Model
     public function getApiEndpoint($page = 0)
     {
         $baseUrl = 'https://www.treatwell.lt/api/v1/page/browse';
-        return "{$baseUrl}?page={$page}&currentBrowseUri=" . urlencode($this->browse_uri);
+
+        return "{$baseUrl}?page={$page}&currentBrowseUri=".urlencode($this->browse_uri);
     }
-    
+
     /**
      * Mark this URL as processed.
      *
@@ -124,10 +125,10 @@ class SitemapUrl extends Model
         $this->api_requests = $apiRequests;
         $this->pages_processed = $pagesProcessed;
         $this->last_processed_at = now();
-        
+
         return $this->save();
     }
-    
+
     /**
      * Mark this URL as invalid.
      *
@@ -138,7 +139,7 @@ class SitemapUrl extends Model
     {
         $this->is_valid = false;
         $this->error_message = $errorMessage;
-        
+
         return $this->save();
     }
 }

@@ -4,8 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\City;
 use App\Models\Venue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ApiTest extends TestCase
@@ -27,8 +25,8 @@ class ApiTest extends TestCase
                 'path',
                 'per_page',
                 'to',
-                'total'
-            ]
+                'total',
+            ],
         ]);
     }
 
@@ -62,7 +60,7 @@ class ApiTest extends TestCase
             'total_venues',
             'total_cities',
             'top_rated_venues',
-            'cities_with_most_venues'
+            'cities_with_most_venues',
         ]);
     }
 
@@ -74,14 +72,14 @@ class ApiTest extends TestCase
         // Test with a venue name query
         if (Venue::count() > 0) {
             $venue = Venue::first();
-            $response = $this->getJson('/api/venues?search=' . urlencode(substr($venue->name, 0, 5)));
+            $response = $this->getJson('/api/venues?search='.urlencode(substr($venue->name, 0, 5)));
             $response->assertStatus(200);
         }
 
         // Test with a city filter
         if (City::count() > 0) {
             $city = City::first();
-            $response = $this->getJson('/api/venues?city_id=' . $city->id);
+            $response = $this->getJson('/api/venues?city_id='.$city->id);
             $response->assertStatus(200);
         }
 
@@ -92,7 +90,7 @@ class ApiTest extends TestCase
         // Test with type filter (if we have venues with types)
         $venueWithType = Venue::whereNotNull('type_name')->first();
         if ($venueWithType) {
-            $response = $this->getJson('/api/venues?type=' . urlencode($venueWithType->type_name));
+            $response = $this->getJson('/api/venues?type='.urlencode($venueWithType->type_name));
             $response->assertStatus(200);
         }
     }
@@ -104,9 +102,9 @@ class ApiTest extends TestCase
     {
         // Test various sorting options
         $sortOptions = ['name', 'name_desc', 'rating', 'rating_asc', 'newest', 'oldest'];
-        
+
         foreach ($sortOptions as $sort) {
-            $response = $this->getJson('/api/venues?sort=' . $sort);
+            $response = $this->getJson('/api/venues?sort='.$sort);
             $response->assertStatus(200);
         }
     }
@@ -120,7 +118,7 @@ class ApiTest extends TestCase
         $response = $this->getJson('/api/venues?per_page=5');
         $response->assertStatus(200);
         $jsonData = $response->json();
-        
+
         // Verify the 'per_page' meta value matches our request
         if (isset($jsonData['meta']) && isset($jsonData['meta']['per_page'])) {
             $this->assertEquals(5, $jsonData['meta']['per_page']);

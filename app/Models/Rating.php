@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Rating extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'venue_id',
         'weighted_average',
@@ -20,9 +20,9 @@ class Rating extends Model
         'staff_count',
         'atmosphere_avg',
         'atmosphere_count',
-        'display_average'
+        'display_average',
     ];
-    
+
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);

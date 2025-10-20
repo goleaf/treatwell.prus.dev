@@ -12,43 +12,43 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('venues', function (Blueprint $table) {
-            if (!Schema::hasColumn('venues', 'description')) {
+            if (! Schema::hasColumn('venues', 'description')) {
                 $table->text('description')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'external_id')) {
+
+            if (! Schema::hasColumn('venues', 'external_id')) {
                 $table->string('external_id')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'raw_data')) {
+
+            if (! Schema::hasColumn('venues', 'raw_data')) {
                 $table->json('raw_data')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'type_id')) {
+
+            if (! Schema::hasColumn('venues', 'type_id')) {
                 $table->string('type_id')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'type_name')) {
+
+            if (! Schema::hasColumn('venues', 'type_name')) {
                 $table->string('type_name')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'normalised_name')) {
+
+            if (! Schema::hasColumn('venues', 'normalised_name')) {
                 $table->string('normalised_name')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'desktop_uri')) {
+
+            if (! Schema::hasColumn('venues', 'desktop_uri')) {
                 $table->string('desktop_uri')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'mobile_uri')) {
+
+            if (! Schema::hasColumn('venues', 'mobile_uri')) {
                 $table->string('mobile_uri')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'app_uri')) {
+
+            if (! Schema::hasColumn('venues', 'app_uri')) {
                 $table->string('app_uri')->nullable();
             }
-            
-            if (!Schema::hasColumn('venues', 'is_new_venue')) {
+
+            if (! Schema::hasColumn('venues', 'is_new_venue')) {
                 $table->boolean('is_new_venue')->default(false);
             }
         });
@@ -70,7 +70,7 @@ return new class extends Migration
                 'desktop_uri',
                 'mobile_uri',
                 'app_uri',
-                'is_new_venue'
+                'is_new_venue',
             ]);
         });
     }

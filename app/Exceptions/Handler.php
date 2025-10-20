@@ -2,16 +2,15 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exceptions\BadRequestException;
-use Illuminate\Http\Exceptions\NotFoundHttpException;
-use Illuminate\Http\Exceptions\MethodNotAllowedHttpException;
-use Illuminate\Http\Exceptions\HttpException;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
-use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\HttpException;
+use Illuminate\Http\Exceptions\MethodNotAllowedHttpException;
+use Illuminate\Http\Exceptions\NotFoundHttpException;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,7 +43,7 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
-        
+
         $this->renderable(function (Throwable $e, $request) {
             if ($request->is('api/*')) {
                 return $this->handleApiException($e, $request);
@@ -89,9 +88,9 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof QueryException) {
             $status = 500;
             $response['message'] = 'Database Query Error';
-            
+
             // Only add SQL error details in non-production environments
-            if (!app()->environment('production')) {
+            if (! app()->environment('production')) {
                 $response['details'] = [
                     'message' => $exception->getMessage(),
                     'exception' => get_class($exception),
@@ -100,9 +99,9 @@ class Handler extends ExceptionHandler
                 ];
             }
         }
-        
+
         // Add details for debugging in non-production environments
-        if (!app()->environment('production') && $status === 500) {
+        if (! app()->environment('production') && $status === 500) {
             $response['details'] = [
                 'message' => $exception->getMessage(),
                 'exception' => get_class($exception),
@@ -113,4 +112,4 @@ class Handler extends ExceptionHandler
 
         return response()->json($response, $status);
     }
-} 
+}

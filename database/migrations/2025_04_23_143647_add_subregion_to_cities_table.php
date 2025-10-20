@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->string('subregion')->nullable()->after('normalised_name');
                 $table->boolean('is_main_city')->default(false)->after('type');
                 $table->unsignedBigInteger('main_city_id')->nullable()->after('is_main_city');
-                
+
                 $table->foreign('main_city_id')->references('id')->on('cities');
             });
         } else {

@@ -2,16 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\City;
+use App\Models\Location;
+use App\Models\Venue;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Venue;
-use App\Models\City;
-use App\Models\Treatment;
-use App\Models\Procedure;
-use App\Models\Image;
-use App\Models\Location;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class ValidateVenuesCommand extends Command
 {
@@ -43,7 +38,7 @@ class ValidateVenuesCommand extends Command
         'venues_with_issues' => 0,
         'fixed_issues' => 0,
         'validation_checks' => [],
-        'issues' => []
+        'issues' => [],
     ];
 
     /**
@@ -59,18 +54,19 @@ class ValidateVenuesCommand extends Command
         // Get command options
         $reportFormat = $this->option('report');
         $outputDir = $this->option('output');
-        $batchSize = (int)$this->option('batch-size');
-        $maxVenues = (int)$this->option('max');
+        $batchSize = (int) $this->option('batch-size');
+        $maxVenues = (int) $this->option('max');
         $fix = $this->option('fix');
 
         // Validate report format
-        if (!in_array($reportFormat, ['console', 'json', 'csv'])) {
+        if (! in_array($reportFormat, ['console', 'json', 'csv'])) {
             $this->error("Invalid report format: {$reportFormat}. Must be 'console', 'json', or 'csv'.");
+
             return 1;
         }
 
         // Ensure output directory exists if needed
-        if ($reportFormat !== 'console' && !Storage::exists($outputDir)) {
+        if ($reportFormat !== 'console' && ! Storage::exists($outputDir)) {
             Storage::makeDirectory($outputDir);
             $this->info("Created output directory: {$outputDir}");
         }
@@ -90,9 +86,10 @@ class ValidateVenuesCommand extends Command
         // Get total count for progress bar
         $totalVenues = $query->count();
         $this->results['total_venues'] = $totalVenues;
-        
+
         if ($totalVenues === 0) {
-            $this->error("No venues found in the database.");
+            $this->error('No venues found in the database.');
+
             return 1;
         }
 
@@ -113,17 +110,17 @@ class ValidateVenuesCommand extends Command
 
         // Process venues in batches
         $processed = 0;
-        
+
         $query->chunk($batchSize, function ($venues) use ($maxVenues, $fix, &$processed, $progressBar) {
             foreach ($venues as $venue) {
                 // Check if we've reached the maximum
                 if ($maxVenues > 0 && $processed >= $maxVenues) {
                     return false;
                 }
-                
+
                 // Validate this venue
                 $this->validateVenue($venue, $fix);
-                
+
                 $processed++;
                 $progressBar->advance();
             }
@@ -134,14 +131,12 @@ class ValidateVenuesCommand extends Command
 
         // Generate report
         $this->generateReport($reportFormat, $outputDir, round(microtime(true) - $startTime, 2));
-        
+
         return $this->results['issues_found'] > 0 ? 1 : 0;
     }
 
     /**
      * Set up validation checks to run
-     *
-     * @return void
      */
     protected function setupValidationChecks(): void
     {
@@ -149,113 +144,111 @@ class ValidateVenuesCommand extends Command
             'missing_name' => [
                 'description' => 'Venue is missing a name',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'missing_location' => [
                 'description' => 'Venue has no associated location',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'missing_city' => [
                 'description' => 'Venue has no associated city',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'missing_slug' => [
                 'description' => 'Venue has no slug',
                 'count' => 0,
-                'fixable' => true
+                'fixable' => true,
             ],
             'missing_treatments' => [
                 'description' => 'Venue has no treatments',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'missing_images' => [
                 'description' => 'Venue has no images',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'invalid_coordinates' => [
                 'description' => 'Venue has invalid coordinates',
                 'count' => 0,
-                'fixable' => true
+                'fixable' => true,
             ],
             'missing_opening_hours' => [
                 'description' => 'Venue has no opening hours',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'broken_images' => [
                 'description' => 'Venue has images with broken URLs',
                 'count' => 0,
-                'fixable' => true
+                'fixable' => true,
             ],
             'missing_email' => [
                 'description' => 'Venue has no email address',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'missing_phone' => [
                 'description' => 'Venue has no phone number',
                 'count' => 0,
-                'fixable' => false
+                'fixable' => false,
             ],
             'inconsistent_city_references' => [
                 'description' => 'Venue has inconsistent city references',
                 'count' => 0,
-                'fixable' => true
-            ]
+                'fixable' => true,
+            ],
         ];
     }
 
     /**
      * Validate a single venue
      *
-     * @param Venue $venue
-     * @param bool $fix Whether to attempt fixes
-     * @return void
+     * @param  bool  $fix  Whether to attempt fixes
      */
     protected function validateVenue(Venue $venue, bool $fix): void
     {
         $venueIssues = [];
         $venueFixed = [];
-        
+
         // Check for missing name
         if (empty($venue->name)) {
             $this->recordIssue('missing_name', $venue);
             $venueIssues[] = 'Missing name';
         }
-        
+
         // Check for missing slug
         if (empty($venue->slug)) {
             $this->recordIssue('missing_slug', $venue);
             $venueIssues[] = 'Missing slug';
-            
+
             // Fix: Generate slug from name
-            if ($fix && !empty($venue->name)) {
+            if ($fix && ! empty($venue->name)) {
                 $venue->slug = \Illuminate\Support\Str::slug($venue->name);
                 $venue->save();
                 $venueFixed[] = 'Generated slug';
                 $this->results['fixed_issues']++;
             }
         }
-        
+
         // Check for missing location
-        if (!$venue->location) {
+        if (! $venue->location) {
             $this->recordIssue('missing_location', $venue);
             $venueIssues[] = 'Missing location';
         }
-        
+
         // Check for missing city relationships
         $hasCityReference = false;
-        
+
         if ($venue->location && $venue->location->city) {
             $hasCityReference = true;
         }
-        
+
         if ($venue->cities->isEmpty()) {
-            if (!$hasCityReference) {
+            if (! $hasCityReference) {
                 $this->recordIssue('missing_city', $venue);
                 $venueIssues[] = 'Missing city';
             }
@@ -264,14 +257,14 @@ class ValidateVenuesCommand extends Command
             if ($hasCityReference && $venue->location->city_id) {
                 $locationCityId = $venue->location->city_id;
                 $relationshipCityIds = $venue->cities->pluck('id')->toArray();
-                
-                if (!in_array($locationCityId, $relationshipCityIds)) {
+
+                if (! in_array($locationCityId, $relationshipCityIds)) {
                     $this->recordIssue('inconsistent_city_references', $venue);
                     $venueIssues[] = 'Inconsistent city references';
-                    
+
                     // Fix: Add location's city to the relationships
                     if ($fix) {
-                        if (!$venue->cities()->where('city_id', $locationCityId)->exists()) {
+                        if (! $venue->cities()->where('city_id', $locationCityId)->exists()) {
                             $venue->cities()->attach($locationCityId);
                             $venueFixed[] = 'Added location city to relationships';
                             $this->results['fixed_issues']++;
@@ -280,13 +273,13 @@ class ValidateVenuesCommand extends Command
                 }
             }
         }
-        
+
         // Check for missing treatments
         if ($venue->treatments->isEmpty()) {
             $this->recordIssue('missing_treatments', $venue);
             $venueIssues[] = 'Missing treatments';
         }
-        
+
         // Check for missing images
         if ($venue->images->isEmpty()) {
             $this->recordIssue('missing_images', $venue);
@@ -295,9 +288,9 @@ class ValidateVenuesCommand extends Command
             // Check for images with broken URLs
             $brokenImages = false;
             foreach ($venue->images as $image) {
-                if (empty($image->url) || !filter_var($image->url, FILTER_VALIDATE_URL)) {
+                if (empty($image->url) || ! filter_var($image->url, FILTER_VALIDATE_URL)) {
                     $brokenImages = true;
-                    
+
                     // Fix: Remove broken images
                     if ($fix) {
                         $image->delete();
@@ -306,25 +299,25 @@ class ValidateVenuesCommand extends Command
                     }
                 }
             }
-            
+
             if ($brokenImages) {
                 $this->recordIssue('broken_images', $venue);
                 $venueIssues[] = 'Has broken images';
             }
         }
-        
+
         // Check for invalid coordinates
         if ($venue->latitude === null || $venue->longitude === null ||
             $venue->latitude == 0 || $venue->longitude == 0) {
-            
+
             // Only mark as issue if location exists but has invalid coords
-            if ($venue->location && 
+            if ($venue->location &&
                 ($venue->location->latitude !== null && $venue->location->longitude !== null) &&
                 ($venue->location->latitude != 0 && $venue->location->longitude != 0)) {
-                
+
                 $this->recordIssue('invalid_coordinates', $venue);
                 $venueIssues[] = 'Invalid coordinates';
-                
+
                 // Fix: Copy coordinates from location
                 if ($fix) {
                     $venue->latitude = $venue->location->latitude;
@@ -335,45 +328,41 @@ class ValidateVenuesCommand extends Command
                 }
             }
         }
-        
+
         // Check for missing opening hours
         if ($venue->openingHours->isEmpty()) {
             $this->recordIssue('missing_opening_hours', $venue);
             $venueIssues[] = 'Missing opening hours';
         }
-        
+
         // Check for missing email
         if (empty($venue->email)) {
             $this->recordIssue('missing_email', $venue);
             $venueIssues[] = 'Missing email';
         }
-        
+
         // Check for missing phone
         if (empty($venue->phone)) {
             $this->recordIssue('missing_phone', $venue);
             $venueIssues[] = 'Missing phone';
         }
-        
+
         // Record venue in issues list if it has any issues
-        if (!empty($venueIssues)) {
+        if (! empty($venueIssues)) {
             $this->results['venues_with_issues']++;
-            
+
             $this->results['issues'][] = [
                 'venue_id' => $venue->id,
                 'external_id' => $venue->external_id,
                 'name' => $venue->name,
                 'issues' => $venueIssues,
-                'fixed' => $venueFixed
+                'fixed' => $venueFixed,
             ];
         }
     }
 
     /**
      * Record an issue in the validation results
-     *
-     * @param string $type
-     * @param Venue $venue
-     * @return void
      */
     protected function recordIssue(string $type, Venue $venue): void
     {
@@ -383,52 +372,47 @@ class ValidateVenuesCommand extends Command
 
     /**
      * Generate validation report
-     *
-     * @param string $format
-     * @param string $outputDir
-     * @param float $executionTime
-     * @return void
      */
     protected function generateReport(string $format, string $outputDir, float $executionTime): void
     {
         $timestamp = date('Y-m-d_His');
-        
+
         switch ($format) {
             case 'json':
                 $filename = "venue_validation_{$timestamp}.json";
-                $filepath = $outputDir . '/' . $filename;
-                
+                $filepath = $outputDir.'/'.$filename;
+
                 $reportData = [
                     'summary' => [
                         'total_venues' => $this->results['total_venues'],
                         'venues_with_issues' => $this->results['venues_with_issues'],
                         'issues_found' => $this->results['issues_found'],
                         'fixed_issues' => $this->results['fixed_issues'],
-                        'execution_time' => $executionTime
+                        'execution_time' => $executionTime,
                     ],
                     'validation_checks' => $this->results['validation_checks'],
-                    'issues' => $this->results['issues']
+                    'issues' => $this->results['issues'],
                 ];
-                
+
                 Storage::put($filepath, json_encode($reportData, JSON_PRETTY_PRINT));
                 $this->info("JSON report saved to {$filepath}");
                 break;
-                
+
             case 'csv':
                 $summaryFilename = "venue_validation_summary_{$timestamp}.csv";
-                $summaryFilepath = $outputDir . '/' . $summaryFilename;
-                
+                $summaryFilepath = $outputDir.'/'.$summaryFilename;
+
                 $issuesFilename = "venue_validation_issues_{$timestamp}.csv";
-                $issuesFilepath = $outputDir . '/' . $issuesFilename;
-                
+                $issuesFilepath = $outputDir.'/'.$issuesFilename;
+
                 // Generate summary CSV
                 $summaryData = "Check,Description,Count\n";
                 foreach ($this->results['validation_checks'] as $key => $check) {
                     $summaryData .= "{$key},\"{$check['description']}\",{$check['count']}\n";
                 }
-                
+
                 Storage::put($summaryFilepath, $summaryData);
-                
+
                 // Generate issues CSV
                 $issuesData = "Venue ID,External ID,Name,Issues,Fixed\n";
                 foreach ($this->results['issues'] as $issue) {
@@ -436,13 +420,13 @@ class ValidateVenuesCommand extends Command
                     $fixed = implode('; ', $issue['fixed'] ?? []);
                     $issuesData .= "{$issue['venue_id']},{$issue['external_id']},\"{$issue['name']}\",\"{$issues}\",\"{$fixed}\"\n";
                 }
-                
+
                 Storage::put($issuesFilepath, $issuesData);
-                
+
                 $this->info("CSV summary report saved to {$summaryFilepath}");
                 $this->info("CSV issues report saved to {$issuesFilepath}");
                 break;
-                
+
             case 'console':
             default:
                 $this->displayConsoleReport($executionTime);
@@ -452,9 +436,6 @@ class ValidateVenuesCommand extends Command
 
     /**
      * Display console report
-     *
-     * @param float $executionTime
-     * @return void
      */
     protected function displayConsoleReport(float $executionTime): void
     {
@@ -467,7 +448,7 @@ class ValidateVenuesCommand extends Command
         $this->line("Issues fixed: {$this->results['fixed_issues']}");
         $this->line("Execution time: {$executionTime} seconds");
         $this->info(str_repeat('-', 60));
-        
+
         $this->info('Issues by Type:');
         $table = [];
         foreach ($this->results['validation_checks'] as $key => $check) {
@@ -475,30 +456,30 @@ class ValidateVenuesCommand extends Command
                 $table[] = [$key, $check['description'], $check['count'], $check['fixable'] ? 'Yes' : 'No'];
             }
         }
-        
-        if (!empty($table)) {
+
+        if (! empty($table)) {
             $this->table(['Issue Type', 'Description', 'Count', 'Fixable'], $table);
         } else {
             $this->info('No issues found!');
         }
-        
+
         if ($this->results['venues_with_issues'] > 0) {
             if ($this->output->isVerbose()) {
                 $this->info('Venues with Issues:');
-                
+
                 $venueTable = [];
                 foreach ($this->results['issues'] as $issue) {
                     $issues = implode(', ', $issue['issues']);
-                    $fixed = !empty($issue['fixed']) ? implode(', ', $issue['fixed']) : '-';
+                    $fixed = ! empty($issue['fixed']) ? implode(', ', $issue['fixed']) : '-';
                     $venueTable[] = [$issue['venue_id'], $issue['name'], $issues, $fixed];
                 }
-                
+
                 $this->table(['ID', 'Name', 'Issues', 'Fixed'], $venueTable);
             } else {
                 $this->info('Run with -v to see detailed venue issues');
             }
         }
-        
+
         $this->info(str_repeat('=', 60));
     }
-} 
+}

@@ -24,24 +24,24 @@ class OpeningHourFactory extends Factory
     {
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         $isOpen = $this->faker->boolean(80); // 80% chance the venue is open
-        
+
         $openingTime = null;
         $closingTime = null;
-        
+
         if ($isOpen) {
             $openingTime = sprintf('%02d:00', $this->faker->numberBetween(8, 12));
             $closingTime = sprintf('%02d:00', $this->faker->numberBetween(17, 22));
         }
-        
+
         return [
             'venue_id' => Venue::factory(),
             'day_of_week' => $this->faker->randomElement($daysOfWeek),
             'opening_time' => $openingTime,
             'closing_time' => $closingTime,
-            'is_open' => $isOpen
+            'is_open' => $isOpen,
         ];
     }
-    
+
     /**
      * Configure the factory to create closed day.
      *
@@ -53,8 +53,8 @@ class OpeningHourFactory extends Factory
             return [
                 'opening_time' => null,
                 'closing_time' => null,
-                'is_open' => false
+                'is_open' => false,
             ];
         });
     }
-} 
+}

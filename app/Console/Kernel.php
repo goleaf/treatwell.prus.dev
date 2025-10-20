@@ -11,26 +11,21 @@ class Kernel extends ConsoleKernel
      * Define the application's command schedule.
      *
      * These schedules are used to run console commands.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
      */
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('venues:fetch --fetch-api --fetch-sitemap')->weekly()->sundays()->at('01:00');
-        
+
         // Run data validation weekly
         $schedule->command('venues:validate --report=json --fix')->weekly()->mondays()->at('03:00');
-        
+
         // Export venue data to JSON monthly for backup
         $schedule->command('venues:export-json --format=single --pretty')->monthly()->at('05:00');
     }
 
     /**
      * Register the commands for the application.
-     *
-     * @return void
      */
     protected function commands(): void
     {
@@ -59,4 +54,4 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ConvertXmlToJsonCommand::class,
         \App\Console\Commands\ValidateVenuesCommand::class,
     ];
-} 
+}

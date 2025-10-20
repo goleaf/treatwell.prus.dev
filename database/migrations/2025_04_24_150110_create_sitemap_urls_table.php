@@ -32,7 +32,7 @@ return new class extends Migration
             $table->text('api_response')->nullable();
             $table->text('error_message')->nullable();
             $table->timestamps();
-            
+
             $table->index('is_processed');
             $table->index('is_valid');
             $table->index(['treatment_slug', 'location_slug']);

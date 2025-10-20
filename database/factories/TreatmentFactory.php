@@ -23,11 +23,11 @@ class TreatmentFactory extends Factory
     public function definition()
     {
         $categoryNames = [
-            'Haircut', 'Massage', 'Manicure', 'Pedicure', 'Facial', 
+            'Haircut', 'Massage', 'Manicure', 'Pedicure', 'Facial',
             'Hair Color', 'Waxing', 'Eyebrow & Eyelash', 'Body Treatment',
-            'Nail Extensions', 'Men\'s Grooming'
+            'Nail Extensions', 'Men\'s Grooming',
         ];
-        
+
         $treatmentNamesByCategory = [
             'Haircut' => ['Women\'s Haircut', 'Men\'s Haircut', 'Children\'s Haircut', 'Haircut & Styling'],
             'Massage' => ['Swedish Massage', 'Deep Tissue Massage', 'Hot Stone Massage', 'Sports Massage', 'Aromatherapy Massage'],
@@ -39,31 +39,31 @@ class TreatmentFactory extends Factory
             'Eyebrow & Eyelash' => ['Eyebrow Tinting', 'Eyelash Extensions', 'Lash Lift', 'Brow Lamination'],
             'Body Treatment' => ['Body Scrub', 'Body Wrap', 'Cellulite Treatment', 'Slimming Treatment'],
             'Nail Extensions' => ['Acrylic Nails', 'Gel Extensions', 'Nail Art', 'Nail Repair'],
-            'Men\'s Grooming' => ['Beard Trim', 'Shave', 'Men\'s Facial', 'Men\'s Hair Color']
+            'Men\'s Grooming' => ['Beard Trim', 'Shave', 'Men\'s Facial', 'Men\'s Hair Color'],
         ];
-        
+
         $category = $this->faker->randomElement($categoryNames);
         $treatmentNames = $treatmentNamesByCategory[$category] ?? ['Standard Treatment'];
         $name = $this->faker->randomElement($treatmentNames);
-        
+
         $minPrice = $this->faker->numberBetween(10, 100);
         $maxPrice = $minPrice + $this->faker->numberBetween(0, 100);
-        
+
         $minDuration = $this->faker->randomElement([15, 30, 45, 60, 90]);
         $maxDuration = $this->faker->boolean(30) ? ($minDuration + 30) : $minDuration;
-        
+
         // Set options as JSON string only if needed for SQLite compatibility
         $options = json_encode([
             [
                 'id' => 1,
                 'name' => 'Duration',
                 'options' => [
-                    ['id' => 1, 'name' => $minDuration . ' minutes', 'price' => $minPrice],
-                    ['id' => 2, 'name' => $maxDuration . ' minutes', 'price' => $maxPrice]
-                ]
-            ]
+                    ['id' => 1, 'name' => $minDuration.' minutes', 'price' => $minPrice],
+                    ['id' => 2, 'name' => $maxDuration.' minutes', 'price' => $maxPrice],
+                ],
+            ],
         ]);
-        
+
         return [
             'venue_id' => Venue::factory(),
             'external_id' => $this->faker->unique()->numerify('T######'),
@@ -74,7 +74,7 @@ class TreatmentFactory extends Factory
             'max_duration' => $maxDuration,
             'category_id' => $this->faker->numberBetween(1, 20),
             'category_name' => $category,
-            'options' => $options
+            'options' => $options,
         ];
     }
-} 
+}

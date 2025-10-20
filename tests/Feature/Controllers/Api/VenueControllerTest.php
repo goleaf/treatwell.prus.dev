@@ -3,64 +3,56 @@
 namespace Tests\Feature\Controllers\Api;
 
 use App\Http\Controllers\Api\VenueController;
-use App\Models\City;
-use App\Models\Location;
-use App\Models\Rating;
 use App\Models\Venue;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Testing\TestCase;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Mockery;
 use Tests\TestCase as BaseTestCase;
 
 class VenueControllerTest extends BaseTestCase
 {
     protected $controller;
+
     protected $mock;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mock = Mockery::mock('overload:' . Venue::class);
-        $this->controller = new VenueController();
+        $this->mock = Mockery::mock('overload:'.Venue::class);
+        $this->controller = new VenueController;
     }
-    
+
     protected function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();
     }
-    
+
     /**
      * Test API routes are accessible.
-     *
-     * @return void
      */
     public function test_api_routes_are_accessible(): void
     {
         $response = $this->getJson('/api/venues');
         $response->assertStatus(200);
-        
+
         $response = $this->getJson('/api/cities');
         $response->assertStatus(200);
-        
+
         $response = $this->getJson('/api/types');
         $response->assertStatus(200);
-        
+
         $response = $this->getJson('/api/stats');
         $response->assertStatus(200);
     }
-    
+
     /**
      * Test API response structure for venues index.
-     *
-     * @return void
      */
     public function test_venues_index_response_structure(): void
     {
         $response = $this->getJson('/api/venues');
-        
+
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'current_page',
@@ -68,8 +60,8 @@ class VenueControllerTest extends BaseTestCase
                 '*' => [
                     'id',
                     'name',
-                    'description'
-                ]
+                    'description',
+                ],
             ],
             'first_page_url',
             'from',
@@ -81,63 +73,55 @@ class VenueControllerTest extends BaseTestCase
             'per_page',
             'prev_page_url',
             'to',
-            'total'
+            'total',
         ]);
     }
-    
+
     /**
      * Test API response structure for cities.
-     *
-     * @return void
      */
     public function test_cities_response_structure(): void
     {
         $response = $this->getJson('/api/cities');
-        
+
         $response->assertStatus(200);
         $response->assertJsonStructure([
             '*' => [
                 'id',
-                'name'
-            ]
+                'name',
+            ],
         ]);
     }
-    
+
     /**
      * Test API response structure for types.
-     *
-     * @return void
      */
     public function test_types_response_structure(): void
     {
         $response = $this->getJson('/api/types');
-        
+
         $response->assertStatus(200);
         $response->assertJsonIsArray();
     }
-    
+
     /**
      * Test API response structure for stats.
-     *
-     * @return void
      */
     public function test_stats_response_structure(): void
     {
         $response = $this->getJson('/api/stats');
-        
+
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'total_venues',
             'total_cities',
             'top_rated_venues',
-            'cities_with_most_venues'
+            'cities_with_most_venues',
         ]);
     }
-    
+
     /**
      * Test the controller can filter venues by search.
-     *
-     * @return void
      */
     public function test_index_filters_venues_by_search(): void
     {
@@ -156,20 +140,18 @@ class VenueControllerTest extends BaseTestCase
             ->andReturn(null);
         $request->shouldReceive('sort')
             ->andReturn(null);
-        
+
         // Get venues from VenueController
         $venues = $this->controller->index($request);
-        
+
         // We can't assert on the results here without database setup, but we can ensure
         // the controller method doesn't throw an exception and returns a response
         $this->assertNotNull($venues);
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $venues);
     }
-    
+
     /**
      * Test the controller can filter venues by type.
-     *
-     * @return void
      */
     public function test_index_filters_venues_by_type(): void
     {
@@ -188,20 +170,18 @@ class VenueControllerTest extends BaseTestCase
             ->andReturn('Spa');
         $request->shouldReceive('sort')
             ->andReturn(null);
-        
+
         // Get venues from VenueController
         $venues = $this->controller->index($request);
-        
+
         // We can't assert on the results here without database setup, but we can ensure
         // the controller method doesn't throw an exception and returns a response
         $this->assertNotNull($venues);
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $venues);
     }
-    
+
     /**
      * Test venue controller index method.
-     *
-     * @return void
      */
     public function test_index_returns_venues(): void
     {
@@ -209,7 +189,7 @@ class VenueControllerTest extends BaseTestCase
         $queryBuilder = Mockery::mock(Builder::class);
         $queryBuilder->shouldReceive('with')->andReturnSelf();
         $queryBuilder->shouldReceive('when')->withAnyArgs()->andReturnSelf();
-        
+
         // Set up a mock paginator
         $venues = new \Illuminate\Pagination\LengthAwarePaginator(
             [$this->makeVenue(1, 'Test Venue 1'), $this->makeVenue(2, 'Test Venue 2')],
@@ -217,34 +197,32 @@ class VenueControllerTest extends BaseTestCase
             15,
             1
         );
-        
+
         $queryBuilder->shouldReceive('paginate')->andReturn($venues);
-        
+
         // Set up the mock to return the query builder
         $this->mock->shouldReceive('with')->andReturn($queryBuilder);
-        
+
         // Create a mock request
         $request = Mockery::mock(Request::class);
         $request->shouldReceive('input')->withAnyArgs()->andReturn(null);
-        
+
         // Call the controller method
         $response = $this->controller->index($request);
-        
+
         // Assert response is correct
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         // Get the data from the response
         $responseData = json_decode($response->getContent(), true);
-        
+
         // Assert that there are 2 venues in the response
         $this->assertCount(2, $responseData['data']);
     }
-    
+
     /**
      * Test the types method returns venue types.
-     *
-     * @return void
      */
     public function test_types_returns_venue_types(): void
     {
@@ -255,39 +233,38 @@ class VenueControllerTest extends BaseTestCase
         $queryBuilder->shouldReceive('distinct')->andReturnSelf();
         $queryBuilder->shouldReceive('orderBy')->with('type_name')->andReturnSelf();
         $queryBuilder->shouldReceive('pluck')->with('type_name')->andReturn(collect(['Spa', 'Salon']));
-        
+
         // Set up the mock to return the query builder
         $this->mock->shouldReceive('select')->andReturn($queryBuilder);
-        
+
         // Call the controller method
         $response = $this->controller->types();
-        
+
         // Assert response is correct
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         // Get the data from the response
         $responseData = json_decode($response->getContent(), true);
-        
+
         // Assert that the response contains the expected types
         $this->assertContains('Spa', $responseData);
         $this->assertContains('Salon', $responseData);
     }
-    
+
     /**
      * Helper method to create a venue model for testing.
      *
-     * @param int $id
-     * @param string $name
-     * @return array
+     * @param  int  $id
+     * @param  string  $name
      */
     private function makeVenue($id, $name): array
     {
         return [
             'id' => $id,
             'name' => $name,
-            'description' => 'Description for ' . $name,
-            'type_name' => 'Spa'
+            'description' => 'Description for '.$name,
+            'type_name' => 'Spa',
         ];
     }
-} 
+}

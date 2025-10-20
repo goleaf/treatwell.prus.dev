@@ -23,18 +23,18 @@ class ImageFactory extends Factory
     public function definition()
     {
         $imageId = $this->faker->unique()->numerify('IMG######');
-        
+
         return [
             'venue_id' => Venue::factory(),
             'external_id' => $imageId,
-            'uri_small' => 'https://cdn1.treatwell.net/images/view/v2.i' . $imageId . '.w360.h240.x' . $this->faker->hexColor() . '/',
-            'uri_medium' => 'https://cdn1.treatwell.net/images/view/v2.i' . $imageId . '.w720.h480.x' . $this->faker->hexColor() . '/',
-            'uri_large' => 'https://cdn1.treatwell.net/images/view/v2.i' . $imageId . '.w1080.h720.x' . $this->faker->hexColor() . '/',
-            'uri_xlarge' => 'https://cdn1.treatwell.net/images/view/v2.i' . $imageId . '.w1280.h800.x' . $this->faker->hexColor() . '/',
-            'is_primary' => $this->faker->boolean(20)
+            'uri_small' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w360.h240.x'.$this->faker->hexColor().'/',
+            'uri_medium' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w720.h480.x'.$this->faker->hexColor().'/',
+            'uri_large' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w1080.h720.x'.$this->faker->hexColor().'/',
+            'uri_xlarge' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w1280.h800.x'.$this->faker->hexColor().'/',
+            'is_primary' => $this->faker->boolean(20),
         ];
     }
-    
+
     /**
      * Configure the factory to create a primary image.
      *
@@ -48,4 +48,4 @@ class ImageFactory extends Factory
             ];
         });
     }
-} 
+}

@@ -14,13 +14,11 @@ class CountryTest extends TestCase
 
     /**
      * Test country has required fillable attributes.
-     *
-     * @return void
      */
     public function test_country_has_fillable_attributes(): void
     {
-        $country = new Country();
-        
+        $country = new Country;
+
         $this->assertContains('name', $country->getFillable());
         $this->assertContains('code', $country->getFillable());
         $this->assertContains('normalised_name', $country->getFillable());
@@ -29,31 +27,27 @@ class CountryTest extends TestCase
 
     /**
      * Test country has many cities relationship.
-     *
-     * @return void
      */
     public function test_country_has_many_cities(): void
     {
-        $country = new Country();
-        
+        $country = new Country;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $country->cities());
     }
 
     /**
      * Test country-cities relationship with actual data.
-     *
-     * @return void
      */
     public function test_country_cities_relationship(): void
     {
         // Create a country
         $country = Country::factory()->create(['name' => 'Lithuania']);
-        
+
         // Create cities for this country
         City::factory()->count(3)->create([
-            'country_id' => $country->id
+            'country_id' => $country->id,
         ]);
-        
+
         // Test the relationship
         $this->assertInstanceOf(Collection::class, $country->cities);
         $this->assertCount(3, $country->cities);
@@ -62,8 +56,6 @@ class CountryTest extends TestCase
 
     /**
      * Test creating a country and verifying database storage.
-     *
-     * @return void
      */
     public function test_creating_country(): void
     {
@@ -72,16 +64,16 @@ class CountryTest extends TestCase
             'name' => 'Lithuania',
             'code' => 'LT',
             'normalised_name' => 'lithuania',
-            'active' => true
+            'active' => true,
         ]);
-        
+
         // Verify it's in the database
         $this->assertDatabaseHas('countries', [
             'id' => $country->id,
             'name' => 'Lithuania',
             'code' => 'LT',
             'normalised_name' => 'lithuania',
-            'active' => 1
+            'active' => 1,
         ]);
     }
-} 
+}

@@ -39,4 +39,4 @@ Route::get('/cities-search', [\App\Http\Controllers\Api\CityController::class, '
 Route::get('/treatments/categories', [TreatmentController::class, 'categories']);
 Route::get('/treatments/venues', [TreatmentController::class, 'venuesByTreatment']);
 Route::get('/treatments/venues/price-range', [TreatmentController::class, 'venuesByPriceRange']);
-Route::get('/treatments/price-stats', [TreatmentController::class, 'priceStats']); 
+Route::get('/treatments/price-stats', [TreatmentController::class, 'priceStats']);

@@ -2,11 +2,9 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\City;
 use App\Models\Image;
 use App\Models\Location;
 use App\Models\OpeningHour;
-use App\Models\Procedure;
 use App\Models\Rating;
 use App\Models\Treatment;
 use App\Models\Venue;
@@ -20,13 +18,11 @@ class VenueTest extends TestCase
 
     /**
      * Test venue has required fillable attributes.
-     *
-     * @return void
      */
     public function test_venue_has_fillable_attributes(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertContains('external_id', $venue->getFillable());
         $this->assertContains('name', $venue->getFillable());
         $this->assertContains('description', $venue->getFillable());
@@ -36,14 +32,12 @@ class VenueTest extends TestCase
 
     /**
      * Test venue has proper casts.
-     *
-     * @return void
      */
     public function test_venue_has_proper_casts(): void
     {
-        $venue = new Venue();
+        $venue = new Venue;
         $casts = $venue->getCasts();
-        
+
         $this->assertArrayHasKey('raw_data', $casts);
         $this->assertEquals('array', $casts['raw_data']);
         $this->assertArrayHasKey('is_new_venue', $casts);
@@ -52,130 +46,112 @@ class VenueTest extends TestCase
 
     /**
      * Test venue has one location.
-     *
-     * @return void
      */
     public function test_venue_has_one_location(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->location());
     }
 
     /**
      * Test venue has one rating.
-     *
-     * @return void
      */
     public function test_venue_has_one_rating(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->rating());
     }
 
     /**
      * Test venue has many images.
-     *
-     * @return void
      */
     public function test_venue_has_many_images(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->images());
     }
 
     /**
      * Test venue has many opening hours.
-     *
-     * @return void
      */
     public function test_venue_has_many_opening_hours(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->openingHours());
     }
 
     /**
      * Test venue has many treatments.
-     *
-     * @return void
      */
     public function test_venue_has_many_treatments(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->treatments());
     }
 
     /**
      * Test venue belongs to many procedures.
-     *
-     * @return void
      */
     public function test_venue_belongs_to_many_procedures(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $venue->procedures());
     }
 
     /**
      * Test venue belongs to many cities.
-     *
-     * @return void
      */
     public function test_venue_belongs_to_many_cities(): void
     {
-        $venue = new Venue();
-        
+        $venue = new Venue;
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $venue->cities());
     }
 
     /**
      * Test extract slug from URL method works correctly.
-     *
-     * @return void
      */
     public function test_extract_slug_from_url(): void
     {
         $url = 'https://www.treatwell.lt/salonas/grozio-salonas-edda/';
-        
+
         $slug = Venue::extractSlugFromUrl($url);
-        
+
         $this->assertEquals('grozio-salonas-edda', $slug);
     }
 
     /**
      * Test venue relationships work with actual data.
-     *
-     * @return void
      */
     public function test_venue_relationships_with_data(): void
     {
         // Create a venue with related models
         $venue = Venue::factory()->create(['name' => 'Test Venue']);
-        
+
         // Create location
         Location::factory()->create(['venue_id' => $venue->id]);
-        
+
         // Create rating
         Rating::factory()->create(['venue_id' => $venue->id]);
-        
+
         // Create images
         Image::factory()->count(3)->create(['venue_id' => $venue->id]);
-        
+
         // Create opening hours
         OpeningHour::factory()->count(7)->create(['venue_id' => $venue->id]);
-        
+
         // Create treatments
         Treatment::factory()->count(5)->create(['venue_id' => $venue->id]);
-        
+
         // Load relationships
         $venue->load('location', 'rating', 'images', 'openingHours', 'treatments');
-        
+
         // Test relationships
         $this->assertInstanceOf(Location::class, $venue->location);
         $this->assertInstanceOf(Rating::class, $venue->rating);
@@ -186,4 +162,4 @@ class VenueTest extends TestCase
         $this->assertInstanceOf(Collection::class, $venue->treatments);
         $this->assertCount(5, $venue->treatments);
     }
-} 
+}

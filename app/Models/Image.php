@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Image extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'venue_id',
         'external_id',
@@ -17,13 +17,13 @@ class Image extends Model
         'uri_medium',
         'uri_large',
         'uri_xlarge',
-        'is_primary'
+        'is_primary',
     ];
-    
+
     protected $casts = [
-        'is_primary' => 'boolean'
+        'is_primary' => 'boolean',
     ];
-    
+
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);

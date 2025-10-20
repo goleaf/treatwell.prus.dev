@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Location extends Model
 {
     use HasFactory;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -23,9 +23,9 @@ class Location extends Model
         'address_line2',
         'latitude',
         'longitude',
-        'map_zoom'
+        'map_zoom',
     ];
-    
+
     /**
      * The attributes that should be cast.
      *
@@ -36,7 +36,7 @@ class Location extends Model
         'longitude' => 'float',
         'map_zoom' => 'integer',
     ];
-    
+
     /**
      * Get the venue that owns the location.
      */
@@ -44,7 +44,7 @@ class Location extends Model
     {
         return $this->belongsTo(Venue::class);
     }
-    
+
     /**
      * Get the city that owns the location.
      */
@@ -52,50 +52,45 @@ class Location extends Model
     {
         return $this->belongsTo(City::class);
     }
-    
+
     /**
      * Get the full address as a string.
-     *
-     * @return string
      */
     public function getFullAddressAttribute(): string
     {
         $address = $this->address_line1;
-        
-        if (!empty($this->address_line2)) {
-            $address .= ', ' . $this->address_line2;
+
+        if (! empty($this->address_line2)) {
+            $address .= ', '.$this->address_line2;
         }
-        
-        if (!empty($this->postal_code) && $this->city) {
-            $address .= ', ' . $this->postal_code . ' ' . $this->city->name;
+
+        if (! empty($this->postal_code) && $this->city) {
+            $address .= ', '.$this->postal_code.' '.$this->city->name;
         } elseif ($this->city) {
-            $address .= ', ' . $this->city->name;
+            $address .= ', '.$this->city->name;
         }
-        
+
         return $address;
     }
-    
+
     /**
      * Calculate distance from coordinates.
      *
-     * @param float $lat
-     * @param float $lng
-     * @param string $unit K for kilometers, M for miles (default: K)
-     * @return float|null
+     * @param  string  $unit  K for kilometers, M for miles (default: K)
      */
     public function distanceFrom(float $lat, float $lng, string $unit = 'K'): ?float
     {
-        if (!$this->latitude || !$this->longitude) {
+        if (! $this->latitude || ! $this->longitude) {
             return null;
         }
-        
+
         $theta = $this->longitude - $lng;
-        $dist = sin(deg2rad($this->latitude)) * sin(deg2rad($lat)) + 
+        $dist = sin(deg2rad($this->latitude)) * sin(deg2rad($lat)) +
                 cos(deg2rad($this->latitude)) * cos(deg2rad($lat)) * cos(deg2rad($theta));
         $dist = acos($dist);
         $dist = rad2deg($dist);
         $miles = $dist * 60 * 1.1515;
-        
+
         if ($unit == 'K') {
             return $miles * 1.609344;
         } else {

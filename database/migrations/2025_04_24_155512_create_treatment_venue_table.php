@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('treatment_id')->constrained()->onDelete('cascade');
             $table->foreignId('venue_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            
+
             // Add a unique constraint to prevent duplicate relationships
             $table->unique(['treatment_id', 'venue_id']);
         });

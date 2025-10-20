@@ -24,6 +24,9 @@ class VenueFactory extends Factory
         return [
             'external_id' => $this->faker->unique()->numerify('######'),
             'name' => $this->faker->company() . ' ' . $this->faker->randomElement(['Salon', 'Spa', 'Beauty', 'Hair']),
+            'slug' => $this->faker->unique()->slug(),
+            'url' => 'https://www.treatwell.lt/salon/' . $this->faker->slug(),
+            'source' => 'treatwell_api',
             'description' => $this->faker->paragraph(),
             'type_id' => $this->faker->numberBetween(1, 10),
             'type_name' => $this->faker->randomElement(['Hair Salon', 'Spa', 'Beauty Salon', 'Nail Salon', 'Massage']),
@@ -38,7 +41,7 @@ class VenueFactory extends Factory
                 'id' => $this->faker->numerify('######'),
                 'name' => $this->faker->company(),
                 'description' => $this->faker->paragraph(),
-            ])
+            ]),
         ];
     }
-} 
+}
