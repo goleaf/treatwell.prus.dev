@@ -1,10 +1,14 @@
-Priority TODOs
+# TODO
 
-1) Run composer update to refresh PHP dependencies [done]
-2) Resolve composer dependency conflicts and lockfile issues [in_progress]
-3) Fix app errors after update and run tests [pending]
+## High Priority
+- [ ] Review Laravel dependency updates and ensure compatibility with PHP 8.3.
+- [ ] Resolve outstanding composer conflicts and regenerate `composer.lock`.
+- [ ] Fix failing application tests after dependency updates.
 
-Notes
-- Target PHP 8.3 and Laravel 12.x compatibility.
-- Align dev tools: Collision ^8.8, PHPUnit ^11.6.
+## Medium Priority
+- [ ] Audit database migrations for consistency across environments.
+- [ ] Update README files with the latest setup instructions.
 
+## Low Priority
+- [ ] Explore opportunities to improve frontend build performance.
+- [ ] Document CI/CD pipeline steps for new contributors.
