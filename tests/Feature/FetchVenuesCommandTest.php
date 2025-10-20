@@ -45,6 +45,7 @@ class FetchVenuesCommandTest extends TestCase
         DB::table('city_venue')->delete();
         DB::table('city_treatment')->delete();
         DB::table('city_procedure')->delete();
+        DB::table('treatment_venue')->delete();
     }
 
     /**
@@ -717,7 +718,9 @@ class FetchVenuesCommandTest extends TestCase
             },
             'locations' => function ($table) {
                 $table->id();
+                $table->string('external_id')->nullable();
                 $table->string('name')->nullable();
+                $table->text('address')->nullable();
                 $table->string('address_line1')->nullable();
                 $table->string('address_line2')->nullable();
                 $table->string('postal_code')->nullable();
@@ -728,8 +731,11 @@ class FetchVenuesCommandTest extends TestCase
             },
             'treatments' => function ($table) {
                 $table->id();
+                $table->unsignedBigInteger('venue_id')->nullable();
                 $table->string('name');
+                $table->string('slug')->nullable();
                 $table->string('external_id')->nullable();
+                $table->text('description')->nullable();
                 $table->decimal('price', 8, 2)->nullable();
                 $table->integer('duration')->nullable();
                 $table->timestamps();
@@ -789,6 +795,7 @@ class FetchVenuesCommandTest extends TestCase
 
         $pivotTables = [
             'venue_treatment',
+            'treatment_venue',
             'city_venue',
             'city_treatment',
             'city_procedure',
@@ -810,6 +817,34 @@ class FetchVenuesCommandTest extends TestCase
                     $table->timestamps();
                 });
             }
+        }
+
+        if (Schema::hasTable('locations')) {
+            Schema::table('locations', function ($table) {
+                if (! Schema::hasColumn('locations', 'external_id')) {
+                    $table->string('external_id')->nullable();
+                }
+
+                if (! Schema::hasColumn('locations', 'address')) {
+                    $table->text('address')->nullable();
+                }
+            });
+        }
+
+        if (Schema::hasTable('treatments')) {
+            Schema::table('treatments', function ($table) {
+                if (! Schema::hasColumn('treatments', 'venue_id')) {
+                    $table->unsignedBigInteger('venue_id')->nullable();
+                }
+
+                if (! Schema::hasColumn('treatments', 'slug')) {
+                    $table->string('slug')->nullable();
+                }
+
+                if (! Schema::hasColumn('treatments', 'description')) {
+                    $table->text('description')->nullable();
+                }
+            });
         }
     }
 

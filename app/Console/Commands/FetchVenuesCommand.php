@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FetchVenuesCommand extends Command
@@ -932,6 +933,7 @@ class FetchVenuesCommand extends Command
                 }
             }
         }
+
     }
 
     /**
@@ -963,13 +965,20 @@ class FetchVenuesCommand extends Command
      */
     private function isTestVenue(string $name): bool
     {
-        $patterns = [
-            'test', 'demo', 'example', 'sample', 'training', 'temporary',
-            'do not book', 'do not use', 'neveikia', 'netikras',
-        ];
+        $nameLower = Str::lower($name);
 
-        foreach ($patterns as $pattern) {
-            if (stripos($name, $pattern) !== false) {
+        $prefixes = ['test', 'demo', 'example', 'sample', 'training', 'temporary'];
+
+        foreach ($prefixes as $prefix) {
+            if (str_starts_with($nameLower, $prefix)) {
+                return true;
+            }
+        }
+
+        $phrases = ['do not book', 'do not use', 'neveikia', 'netikras'];
+
+        foreach ($phrases as $phrase) {
+            if (str_contains($nameLower, $phrase)) {
                 return true;
             }
         }
@@ -1669,6 +1678,25 @@ class FetchVenuesCommand extends Command
     {
         // Get all JSON files from storage/app/xml directory
         $jsonFiles = File::glob(storage_path('app/xml/api_response_*.json'));
+
+        if (empty($jsonFiles)) {
+            $jsonFiles = [];
+            $storageFiles = collect(
+                array_merge(
+                    Storage::disk('local')->files('app/xml'),
+                    Storage::disk('local')->files('xml')
+                )
+            )
+                ->filter(fn ($path) => Str::contains(basename($path), 'api_response_') && Str::endsWith($path, '.json'))
+                ->map(fn ($path) => Storage::disk('local')->path($path))
+                ->all();
+
+            if (! empty($storageFiles)) {
+                $jsonFiles = $storageFiles;
+            }
+        }
+
+        $jsonFiles = array_values(array_unique($jsonFiles));
         $totalFiles = count($jsonFiles);
 
         if ($totalFiles === 0) {
@@ -1824,14 +1852,15 @@ class FetchVenuesCommand extends Command
             $venueSlug = $venueData['slug'] ?? ($venueData['venueSlug'] ?? Str::slug($venueName));
             $venueUrl = $venueData['url'] ?? ($venueData['venueUrl'] ?? ($venueData['businessUrl'] ?? ''));
 
-            // Create or find venue
-            $venue = Venue::firstOrNew(['id' => $venueId]);
+            // Create or find venue using external identifier
+            $venue = Venue::firstOrNew(['external_id' => $venueId]);
 
             // Set venue properties
             $venue->name = $venueName;
             $venue->description = $venueDescription;
             $venue->slug = $venueSlug;
             $venue->url = $venueUrl;
+            $venue->external_id = $venueId;
 
             // Add other venue properties if they exist
             if (isset($venueData['location']['address']['addressLines'])) {
@@ -1888,7 +1917,9 @@ class FetchVenuesCommand extends Command
                 foreach ($venueData['images'] as $imageData) {
                     $this->processImage($imageData, $venue);
                 }
-            } elseif (isset($venueData['primaryImage'])) {
+            }
+
+            if (isset($venueData['primaryImage'])) {
                 $this->processImage($venueData['primaryImage'], $venue);
             }
 
@@ -1930,54 +1961,72 @@ class FetchVenuesCommand extends Command
      */
     private function processLocation(array $locationData, Venue $venue)
     {
-        // Generate a consistent string ID for tracking
-        $locationId = isset($locationData['id']) ? (string) $locationData['id'] : (string) Str::uuid();
+        $locationExternalId = isset($locationData['id']) ? (string) $locationData['id'] : null;
+        $locationName = $locationData['name'] ?? ($locationData['cityName'] ?? 'Unknown');
 
-        if (isset($this->uniqueLocations[$locationId])) {
-            return;
+        $locationCacheKey = $locationExternalId
+            ? $locationExternalId
+            : $venue->id.'|'.Str::slug($locationName ?: 'unknown');
+
+        if (isset($this->uniqueLocations[$locationCacheKey])) {
+            $location = Location::find($this->uniqueLocations[$locationCacheKey]);
         }
 
-        $this->uniqueLocations[$locationId] = true;
+        if (! isset($location) || ! $location) {
+            $lookup = $locationExternalId
+                ? ['external_id' => $locationExternalId]
+                : ['venue_id' => $venue->id, 'name' => $locationName];
 
-        $location = Location::firstOrNew(['id' => $locationId]);
-        $location->name = $locationData['name'] ?? ($locationData['cityName'] ?? 'Unknown');
-        $location->venue_id = $venue->id; // Set the venue_id to properly link location and venue
+            $location = Location::firstOrNew($lookup);
+            $location->venue_id = $venue->id;
+            $location->external_id = $locationExternalId;
+            $location->name = $locationName;
 
-        // Handle address fields - may be in different formats
-        if (isset($locationData['address']['addressLines']) && is_array($locationData['address']['addressLines'])) {
-            // Address comes as an array of lines
-            $address = implode(', ', $locationData['address']['addressLines']);
+            // Handle address fields - may be in different formats
+            if (isset($locationData['address']['addressLines']) && is_array($locationData['address']['addressLines'])) {
+                // Address comes as an array of lines
+                $address = implode(', ', $locationData['address']['addressLines']);
 
-            // Try to split into address_line1 and address_line2
-            $addressLines = $locationData['address']['addressLines'];
-            if (count($addressLines) > 0) {
-                $location->address_line1 = $addressLines[0];
-                if (count($addressLines) > 1) {
-                    $location->address_line2 = $addressLines[1];
+                // Try to split into address_line1 and address_line2
+                $addressLines = $locationData['address']['addressLines'];
+                if (count($addressLines) > 0) {
+                    $location->address_line1 = $addressLines[0];
+                    if (count($addressLines) > 1) {
+                        $location->address_line2 = $addressLines[1];
+                    }
                 }
+
+                // Also save full address to the address field
+                $location->address = $address;
+            } elseif (is_string($locationData['address'] ?? null)) {
+                // Address comes as a single string
+                $location->address = $locationData['address'];
+                $location->address_line1 = $locationData['address'];
             }
 
-            // Also save full address to the address field
-            $location->address = $address;
-        } elseif (is_string($locationData['address'] ?? null)) {
-            // Address comes as a single string
-            $location->address = $locationData['address'];
-            $location->address_line1 = $locationData['address'];
+            $location->postal_code = $locationData['postalCode']
+                ?? ($locationData['zipCode'] ?? ($locationData['address']['postalCode'] ?? ''));
+
+            if (isset($locationData['point'])) {
+                $location->latitude = $locationData['point']['lat'] ?? 0;
+                $location->longitude = $locationData['point']['lon'] ?? 0;
+            } elseif (isset($locationData['coordinates'])) {
+                $location->latitude = $locationData['coordinates']['lat'] ?? 0;
+                $location->longitude = $locationData['coordinates']['lng'] ?? 0;
+            } else {
+                $location->latitude = $locationData['latitude'] ?? 0;
+                $location->longitude = $locationData['longitude'] ?? 0;
+            }
+
+            $wasNewLocation = ! $location->exists;
+            $location->save();
+
+            if ($wasNewLocation) {
+                $this->stats['locations_saved']++;
+            }
+
+            $this->uniqueLocations[$locationCacheKey] = $location->id;
         }
-
-        $location->postal_code = $locationData['postalCode'] ?? ($locationData['zipCode'] ?? '');
-
-        if (isset($locationData['point'])) {
-            $location->latitude = $locationData['point']['lat'] ?? 0;
-            $location->longitude = $locationData['point']['lon'] ?? 0;
-        } else {
-            $location->latitude = $locationData['latitude'] ?? 0;
-            $location->longitude = $locationData['longitude'] ?? 0;
-        }
-
-        $location->save();
-
-        $this->stats['locations_saved']++;
 
         // Link location to venue
         $venue->location_id = $location->id;
@@ -1993,25 +2042,30 @@ class FetchVenuesCommand extends Command
      */
     private function processCity($cityData, Venue $venue)
     {
-        if (is_string($cityData)) {
-            $cityName = $cityData;
-            $cityId = (string) Str::slug($cityName);
-        } else {
-            $cityName = $cityData['name'] ?? 'Unknown';
-            $cityId = isset($cityData['id']) ? (string) $cityData['id'] : (string) Str::slug($cityName);
+        $cityName = is_string($cityData) ? $cityData : ($cityData['name'] ?? 'Unknown');
+        $citySlug = Str::slug($cityName);
+
+        if (isset($this->uniqueCities[$citySlug])) {
+            $city = $this->uniqueCities[$citySlug];
         }
 
-        if (isset($this->uniqueCities[$cityId])) {
-            $city = City::where('id', $cityId)->orWhere('name', $cityName)->first();
-        } else {
-            $this->uniqueCities[$cityId] = true;
+        if (! isset($city) || ! $city) {
+            $lookup = $citySlug !== ''
+                ? ['slug' => $citySlug]
+                : ['name' => $cityName];
 
-            $city = City::firstOrNew(['id' => $cityId]);
+            $city = City::firstOrNew($lookup);
             $city->name = $cityName;
-            $city->slug = Str::slug($cityName);
+            $city->slug = $citySlug;
+
+            $wasNewCity = ! $city->exists;
             $city->save();
 
-            $this->stats['cities_saved']++;
+            if ($wasNewCity) {
+                $this->stats['cities_saved']++;
+            }
+
+            $this->uniqueCities[$citySlug] = $city;
         }
 
         if ($city) {
@@ -2043,29 +2097,38 @@ class FetchVenuesCommand extends Command
             $cityName = trim($nameParts[1] ?? $nameParts[0]); // Assume format is "Neighborhood, City"
             $countryCode = $treeData['countryCode'] ?? null;
 
-            $cityId = (string) Str::slug($cityName.'-'.$countryCode);
+            $citySlug = Str::slug($countryCode ? $cityName.'-'.$countryCode : $cityName);
 
-            if (isset($this->uniqueCities[$cityId])) {
-                $city = City::where('id', $cityId)->orWhere('name', $cityName)->first();
-            } else {
-                $this->uniqueCities[$cityId] = true;
+            if (isset($this->uniqueCities[$citySlug])) {
+                $city = $this->uniqueCities[$citySlug];
+            }
 
-                $city = City::firstOrNew(['id' => $cityId]);
+            if (! isset($city) || ! $city) {
+                $lookup = $citySlug !== ''
+                    ? ['slug' => $citySlug]
+                    : ['name' => $cityName];
+
+                $city = City::firstOrNew($lookup);
                 $city->name = $cityName;
-                $city->slug = Str::slug($cityName);
+                $city->slug = $citySlug;
 
                 if ($countryCode) {
                     // Find or create country
                     $country = Country::firstOrCreate(
                         ['code' => $countryCode],
-                        ['name' => $countryCode] // Just use code as name for now
+                        ['name' => $countryCode]
                     );
                     $city->country_id = $country->id;
                 }
 
+                $wasNewCity = ! $city->exists;
                 $city->save();
 
-                $this->stats['cities_saved']++;
+                if ($wasNewCity) {
+                    $this->stats['cities_saved']++;
+                }
+
+                $this->uniqueCities[$citySlug] = $city;
             }
 
             if ($city) {
@@ -2092,14 +2155,26 @@ class FetchVenuesCommand extends Command
      */
     private function processTreatment(array $treatmentData, Venue $venue)
     {
-        $treatmentId = isset($treatmentData['id']) ? (string) $treatmentData['id'] : (string) Str::uuid();
+        $treatmentId = $treatmentData['id']
+            ?? $treatmentData['externalId']
+            ?? $treatmentData['uuid']
+            ?? null;
 
-        if (isset($this->uniqueTreatments[$treatmentId])) {
-            $treatment = Treatment::where('id', $treatmentId)->first();
-        } else {
-            $this->uniqueTreatments[$treatmentId] = true;
+        if (! $treatmentId) {
+            $treatmentId = $venue->id.'-'.Str::slug($treatmentData['name'] ?? (string) Str::uuid());
+        }
 
-            $treatment = Treatment::firstOrNew(['id' => $treatmentId]);
+        $treatmentId = (string) $treatmentId;
+        $treatmentCacheKey = $treatmentId;
+
+        if (isset($this->uniqueTreatments[$treatmentCacheKey])) {
+            $treatment = $this->uniqueTreatments[$treatmentCacheKey];
+        }
+
+        if (! isset($treatment) || ! $treatment) {
+            $treatment = Treatment::firstOrNew(['external_id' => $treatmentId]);
+            $treatment->external_id = $treatmentId;
+            $treatment->venue_id = $venue->id;
             $treatment->name = $treatmentData['name'] ?? 'Unknown';
             $treatment->description = $treatmentData['description'] ?? '';
 
@@ -2123,10 +2198,14 @@ class FetchVenuesCommand extends Command
                 $treatment->duration = 0;
             }
 
-            $treatment->slug = Str::slug($treatment->name);
+            $wasNewTreatment = ! $treatment->exists;
             $treatment->save();
 
-            $this->stats['treatments_saved']++;
+            if ($wasNewTreatment) {
+                $this->stats['treatments_saved']++;
+            }
+
+            $this->uniqueTreatments[$treatmentCacheKey] = $treatment;
         }
 
         if ($treatment) {
