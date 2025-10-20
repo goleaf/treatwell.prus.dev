@@ -1297,8 +1297,7 @@ class FetchVenuesCommand extends Command
         }
 
         // Check if treatments table has required columns
-        if (! Schema::hasColumn('treatments', 'name') ||
-            ! Schema::hasColumn('treatments', 'slug')) {
+        if (! Schema::hasColumn('treatments', 'name')) {
             $this->error('Schema validation failed. Treatments table is missing required columns.');
 
             return false;
@@ -1668,7 +1667,24 @@ class FetchVenuesCommand extends Command
     private function processJsonFiles(int $batchSize = 20, int $maxFiles = 0): void
     {
         // Get all JSON files from storage/app/xml directory
-        $jsonFiles = File::glob(storage_path('app/xml/api_response_*.json'));
+        $searchPatterns = [
+            storage_path('app/xml/api_response_*.json'),
+            storage_path('app/private/xml/api_response_*.json'),
+            storage_path('app/private/app/xml/api_response_*.json'),
+            storage_path('app/app/xml/api_response_*.json'),
+        ];
+
+        $jsonFiles = [];
+
+        foreach ($searchPatterns as $pattern) {
+            $files = File::glob($pattern) ?: [];
+            if (! empty($files)) {
+                $jsonFiles = array_merge($jsonFiles, $files);
+            }
+        }
+
+        $jsonFiles = array_values(array_unique($jsonFiles));
+        sort($jsonFiles);
         $totalFiles = count($jsonFiles);
 
         if ($totalFiles === 0) {
@@ -1825,12 +1841,13 @@ class FetchVenuesCommand extends Command
             $venueUrl = $venueData['url'] ?? ($venueData['venueUrl'] ?? ($venueData['businessUrl'] ?? ''));
 
             // Create or find venue
-            $venue = Venue::firstOrNew(['id' => $venueId]);
+            $venue = Venue::firstOrNew(['external_id' => $venueId]);
 
             // Set venue properties
+            $venue->external_id = $venueId;
             $venue->name = $venueName;
             $venue->description = $venueDescription;
-            $venue->slug = $venueSlug;
+            $venue->slug = $this->ensureUniqueVenueSlug($venueSlug, $venueId, $venue);
             $venue->url = $venueUrl;
 
             // Add other venue properties if they exist
@@ -1909,6 +1926,47 @@ class FetchVenuesCommand extends Command
             $this->error('Error processing venue: '.$e->getMessage());
             Log::error('Venue processing error: '.$e->getMessage(), ['exception' => $e]);
         }
+    }
+
+    /**
+     * Ensure a unique slug for the venue by appending identifiers when needed.
+     */
+    private function ensureUniqueVenueSlug(string $slug, string $venueId, Venue $venue): string
+    {
+        $baseSlug = Str::slug($slug);
+
+        if ($baseSlug === '') {
+            $baseSlug = Str::slug($venue->name ?? 'venue');
+        }
+
+        if ($baseSlug === '') {
+            $baseSlug = Str::slug($venueId);
+        }
+
+        $uniqueSlug = $baseSlug;
+
+        $conflictQuery = Venue::where('slug', $uniqueSlug);
+
+        if ($venue->exists) {
+            $conflictQuery->where('id', '!=', $venue->id);
+        }
+
+        if (! $conflictQuery->exists()) {
+            return $uniqueSlug;
+        }
+
+        $uniqueSlug = $baseSlug.'-'.$venueId;
+        $counter = 1;
+
+        while (Venue::where('slug', $uniqueSlug)
+            ->when($venue->exists, function ($query) use ($venue) {
+                $query->where('id', '!=', $venue->id);
+            })->exists()) {
+            $uniqueSlug = $baseSlug.'-'.$venueId.'-'.$counter;
+            $counter++;
+        }
+
+        return $uniqueSlug;
     }
 
     /**
@@ -2123,7 +2181,9 @@ class FetchVenuesCommand extends Command
                 $treatment->duration = 0;
             }
 
-            $treatment->slug = Str::slug($treatment->name);
+            if (Schema::hasColumn('treatments', 'slug')) {
+                $treatment->slug = Str::slug($treatment->name);
+            }
             $treatment->save();
 
             $this->stats['treatments_saved']++;
