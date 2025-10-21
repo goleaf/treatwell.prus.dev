@@ -24,6 +24,18 @@ class Image extends Model
         'is_primary' => 'boolean',
     ];
 
+    /**
+     * Accessor for the best available image URL.
+     */
+    public function getPreferredUrlAttribute(): ?string
+    {
+        return $this->uri_xlarge
+            ?? $this->uri_large
+            ?? $this->uri_medium
+            ?? $this->uri_small
+            ?? null;
+    }
+
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);

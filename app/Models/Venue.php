@@ -32,6 +32,13 @@ class Venue extends Model
         'slug',
         'url',
         'source',
+        'address',
+        'phone',
+        'email',
+        'website',
+        'latitude',
+        'longitude',
+        'location_id',
     ];
 
     /**
@@ -42,6 +49,8 @@ class Venue extends Model
     protected $casts = [
         'raw_data' => 'array',
         'is_new_venue' => 'boolean',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 
     /**
@@ -121,9 +130,12 @@ class Venue extends Model
      */
     public function getPrimaryImageUrl(): ?string
     {
-        $primaryImage = $this->images()->where('is_primary', true)->first();
+        $primaryImage = $this->images()
+            ->orderByDesc('is_primary')
+            ->orderBy('id')
+            ->first();
 
-        return $primaryImage ? $primaryImage->url : null;
+        return $primaryImage?->preferred_url;
     }
 
     /**
@@ -131,7 +143,7 @@ class Venue extends Model
      */
     public function getAverageRating(): ?float
     {
-        return $this->rating ? $this->rating->average : null;
+        return $this->rating?->weighted_average;
     }
 
     /**
@@ -184,5 +196,37 @@ class Venue extends Model
                 $q->where('procedure_id', $procedureId);
             }
         });
+    }
+
+    /**
+     * Retrieve the minimum recorded treatment price for the venue.
+     */
+    public function getMinimumPriceAttribute(): ?float
+    {
+        $min = $this->treatments->pluck('min_price')->filter()->min();
+
+        if ($min !== null) {
+            return (float) $min;
+        }
+
+        $fallback = $this->treatments->pluck('max_price')->filter()->min();
+
+        return $fallback !== null ? (float) $fallback : null;
+    }
+
+    /**
+     * Retrieve the maximum recorded treatment price for the venue.
+     */
+    public function getMaximumPriceAttribute(): ?float
+    {
+        $max = $this->treatments->pluck('max_price')->filter()->max();
+
+        if ($max !== null) {
+            return (float) $max;
+        }
+
+        $fallback = $this->treatments->pluck('min_price')->filter()->max();
+
+        return $fallback !== null ? (float) $fallback : null;
     }
 }

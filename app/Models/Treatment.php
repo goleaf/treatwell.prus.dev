@@ -19,10 +19,16 @@ class Treatment extends Model
         'venue_id',
         'procedure_id',
         'name',
+        'slug',
         'description',
-        'price',
-        'duration',
-        'is_available',
+        'min_price',
+        'max_price',
+        'min_duration',
+        'max_duration',
+        'category_id',
+        'category_name',
+        'options',
+        'external_id',
     ];
 
     /**
@@ -31,9 +37,11 @@ class Treatment extends Model
      * @var array
      */
     protected $casts = [
-        'price' => 'float',
-        'duration' => 'integer',
-        'is_available' => 'boolean',
+        'min_price' => 'float',
+        'max_price' => 'float',
+        'min_duration' => 'integer',
+        'max_duration' => 'integer',
+        'options' => 'array',
     ];
 
     /**
@@ -57,7 +65,20 @@ class Treatment extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        return '€'.number_format($this->price, 2);
+        $min = $this->min_price ?? $this->max_price;
+        $max = $this->max_price ?? $this->min_price;
+
+        if ($min === null && $max === null) {
+            return 'N/A';
+        }
+
+        if ($min !== null && $max !== null && (float) $min !== (float) $max) {
+            return sprintf('€%s - €%s', number_format((float) $min, 2), number_format((float) $max, 2));
+        }
+
+        $value = $min ?? $max;
+
+        return '€'.number_format((float) $value, 2);
     }
 
     /**
@@ -65,8 +86,14 @@ class Treatment extends Model
      */
     public function getFormattedDurationAttribute(): string
     {
-        $hours = floor($this->duration / 60);
-        $minutes = $this->duration % 60;
+        $duration = $this->min_duration ?? $this->max_duration;
+
+        if ($duration === null) {
+            return 'N/A';
+        }
+
+        $hours = (int) floor($duration / 60);
+        $minutes = $duration % 60;
 
         $result = '';
         if ($hours > 0) {

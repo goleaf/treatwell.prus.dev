@@ -269,4 +269,11 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
 - Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
+
+## Treatwell Sync Rules
+
+- Use the `App\\Services\\TreatwellSyncService` for any future Treatwell data imports to keep the logic consistent.
+- Prefer the `venues:sync` Artisan command for synchronising data; avoid re-introducing retired commands.
+- Keep venues pages server rendered—do not introduce Livewire or AJAX filtering.
+- Always eager load related entities (cities, treatments, ratings, images) to prevent N+1 queries on listings.
 </laravel-boost-guidelines>

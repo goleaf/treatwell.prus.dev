@@ -14,14 +14,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('venues:fetch --fetch-api --fetch-sitemap')->weekly()->sundays()->at('01:00');
+        $schedule->command('venues:sync --api')
+            ->everyFifteenMinutes()
+            ->withoutOverlapping();
 
-        // Run data validation weekly
-        $schedule->command('venues:validate --report=json --fix')->weekly()->mondays()->at('03:00');
-
-        // Export venue data to JSON monthly for backup
-        $schedule->command('venues:export-json --format=single --pretty')->monthly()->at('05:00');
+        $defaultJsonPath = config('treatwell.default_json_path');
+        if ($defaultJsonPath) {
+            $schedule->command('venues:sync --json='.$defaultJsonPath)
+                ->hourly()
+                ->withoutOverlapping();
+        }
     }
 
     /**
@@ -41,17 +43,6 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\FetchVenuesCommand::class,
-        \App\Console\Commands\ProcessJsonFilesCommand::class,
-        \App\Console\Commands\ProcessAllJsonFilesCommand::class,
-        \App\Console\Commands\ParseVenueUrlCommand::class,
-        \App\Console\Commands\SimpleSaveVenueCommand::class,
-        \App\Console\Commands\SaveSingleVenueCommand::class,
-        \App\Console\Commands\ScrapeAllCities::class,
-        \App\Console\Commands\UpdateCityRelationships::class,
-        \App\Console\Commands\ScrapeTreatwellAll::class,
-        // Newly added commands
-        \App\Console\Commands\ExportVenuesToJsonCommand::class,
-        \App\Console\Commands\ConvertXmlToJsonCommand::class,
-        \App\Console\Commands\ValidateVenuesCommand::class,
+        \App\Console\Commands\SyncTreatwellVenuesCommand::class,
     ];
 }

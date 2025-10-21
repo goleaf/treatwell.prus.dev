@@ -46,7 +46,7 @@
                 </ul>
                 <div class="ms-auto d-flex">
                     <form action="{{ route('venues.index') }}" method="GET" class="d-flex">
-                        <input class="form-control me-2" type="search" name="search" placeholder="Search venues..." aria-label="Search">
+                        <input class="form-control me-2" type="search" name="search" placeholder="Search venues..." aria-label="Search" value="{{ request('search') }}">
                         <button class="btn btn-outline-light" type="submit">Search</button>
                     </form>
                 </div>
