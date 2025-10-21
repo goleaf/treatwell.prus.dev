@@ -6,8 +6,8 @@ use App\Console\Commands\ScrapeAllCities;
 use App\Console\Commands\ScrapeTreatwellAll;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use ReflectionClass;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Tests\TestCase;
 
@@ -170,7 +170,7 @@ class ScraperCommandsTest extends TestCase
                     'location' => [
                         'options' => [
                             ['normalisedName' => 'vilnius-lt', 'name' => 'Vilnius'],
-                            ['normalisedName' => 'kaunas-lt', 'name' => 'Kaunas'],
+                            ['normalisedName' => 'runtime-city-lt', 'name' => 'Runtime City'],
                         ],
                     ],
                 ],
@@ -202,9 +202,15 @@ class ScraperCommandsTest extends TestCase
              */
             public array $calledCommands = [];
 
+            /**
+             * @var array<int, array<string, mixed>>
+             */
+            public array $callArguments = [];
+
             public function call($command, array $arguments = [])
             {
                 $this->calledCommands[] = $command;
+                $this->callArguments[] = $arguments;
 
                 return 0;
             }
@@ -216,6 +222,11 @@ class ScraperCommandsTest extends TestCase
         $this->assertSame(0, $exitCode, 'The scrape:all-cities command should exit with code 0');
 
         $this->assertContains('scrape:treatwell-all', $command->calledCommands, 'The nested scrape command should be triggered for each city run.');
+
+        $this->assertNotEmpty($command->callArguments, 'The nested command should receive arguments.');
+        $citiesPassedToNestedCommand = $command->callArguments[0]['cities'] ?? [];
+
+        $this->assertContains('runtime-city-lt', $citiesPassedToNestedCommand, 'Runtime discovered cities must be forwarded to the nested command.');
     }
 
     /**
@@ -293,6 +304,18 @@ class ScraperCommandsTest extends TestCase
         {
             public bool $sleptBetweenCities = false;
 
+            /**
+             * @var array<int, string>|null
+             */
+            public ?array $receivedCities = null;
+
+            public function handle(): int
+            {
+                $this->receivedCities = (array) $this->argument('cities');
+
+                return parent::handle();
+            }
+
             protected function sleepBetweenCities(): void
             {
                 $this->sleptBetweenCities = true;
@@ -301,18 +324,15 @@ class ScraperCommandsTest extends TestCase
 
         $command->setLaravel($this->app);
 
-        $exitCode = $command->run(new ArrayInput([]), new BufferedOutput);
+        $exitCode = $command->run(new StringInput('vilnius-lt runtime-city-lt'), new BufferedOutput);
 
         $this->assertSame(0, $exitCode, 'The scrape:treatwell-all command should exit with code 0');
 
         $this->assertFalse($command->sleptBetweenCities, 'The command should not throttle between cities in the testing environment.');
 
-        $reflection = new ReflectionClass(ScrapeTreatwellAll::class);
-        $property = $reflection->getProperty('cities');
-        $property->setAccessible(true);
-        $cities = $property->getValue($command);
+        $this->assertSame(['vilnius-lt', 'runtime-city-lt'], $command->receivedCities, 'The command should receive the runtime list of cities.');
 
-        foreach ($cities as $city) {
+        foreach (['vilnius-lt', 'runtime-city-lt'] as $city) {
             Http::assertSent(function (Request $request) use ($city) {
                 if (! str_starts_with($request->url(), 'https://www.treatwell.lt/api/v1/page/browse')) {
                     return false;

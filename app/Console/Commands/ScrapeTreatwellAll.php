@@ -22,7 +22,7 @@ class ScrapeTreatwellAll extends Command
      *
      * @var string
      */
-    protected $signature = 'scrape:treatwell-all';
+    protected $signature = 'scrape:treatwell-all {cities?*}';
 
     /**
      * The console command description.
@@ -32,9 +32,11 @@ class ScrapeTreatwellAll extends Command
     protected $description = 'Scrape all Treatwell data for all Lithuanian cities in one command';
 
     /**
-     * List of Lithuanian cities to scrape
+     * Default list of Lithuanian cities to scrape.
+     *
+     * @var array<int, string>
      */
-    protected $cities = [
+    protected array $defaultCities = [
         'vilnius-lt',
         'kaunas-lt',
         'klaipeda-lt',
@@ -60,9 +62,23 @@ class ScrapeTreatwellAll extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Starting comprehensive scraping for all Treatwell data...');
+
+        $cities = $this->argument('cities');
+
+        if ($cities === [] || $cities === null) {
+            $cities = $this->defaultCities;
+        }
+
+        $cities = array_values(array_unique($cities));
+
+        if ($cities === []) {
+            $this->warn('No cities provided to scrape.');
+
+            return self::SUCCESS;
+        }
 
         // Setup Lithuania as the main country
         $country = Country::firstOrCreate(
@@ -77,9 +93,9 @@ class ScrapeTreatwellAll extends Command
         $this->info("Country setup complete. Country ID: {$country->id}");
 
         // Process each city
-        $lastCityIndex = array_key_last($this->cities);
+        $lastCityIndex = array_key_last($cities);
 
-        foreach ($this->cities as $index => $location) {
+        foreach ($cities as $index => $location) {
             $this->info('============================');
             $this->info("Starting scraping for location: {$location}");
 
