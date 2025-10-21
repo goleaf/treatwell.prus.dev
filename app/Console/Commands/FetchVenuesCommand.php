@@ -1950,6 +1950,17 @@ class FetchVenuesCommand extends Command
             $baseSlug = Str::slug($venueId);
         }
 
+        $identifierSlug = Str::slug($venueId);
+
+        if ($identifierSlug === '') {
+            $identifierSlug = (string) ($venue->id ?: Str::uuid());
+            $identifierSlug = Str::slug($identifierSlug);
+        }
+
+        if ($identifierSlug === '') {
+            $identifierSlug = (string) Str::uuid();
+        }
+
         $uniqueSlug = $baseSlug;
 
         $conflictQuery = Venue::where('slug', $uniqueSlug);
@@ -1962,14 +1973,14 @@ class FetchVenuesCommand extends Command
             return $uniqueSlug;
         }
 
-        $uniqueSlug = $baseSlug.'-'.$venueId;
+        $uniqueSlug = $baseSlug.'-'.$identifierSlug;
         $counter = 1;
 
         while (Venue::where('slug', $uniqueSlug)
             ->when($venue->exists, function ($query) use ($venue) {
                 $query->where('id', '!=', $venue->id);
             })->exists()) {
-            $uniqueSlug = $baseSlug.'-'.$venueId.'-'.$counter;
+            $uniqueSlug = $baseSlug.'-'.$identifierSlug.'-'.$counter;
             $counter++;
         }
 
