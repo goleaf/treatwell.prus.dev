@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
 
 class City extends Model
 {
@@ -20,6 +20,7 @@ class City extends Model
     protected $fillable = [
         'country_id',
         'name',
+        'entity_id',
         'normalised_name',
         'subregion',
         'latitude',
@@ -27,6 +28,9 @@ class City extends Model
         'is_main_city',
         'main_city_id',
         'slug',
+        'type',
+        'radius_distance',
+        'radius_unit',
     ];
 
     /**

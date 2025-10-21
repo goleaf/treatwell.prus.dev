@@ -13,6 +13,7 @@ use App\Models\Venue;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class ScrapeTreatwellAll extends Command
 {
@@ -76,17 +77,15 @@ class ScrapeTreatwellAll extends Command
         $this->info("Country setup complete. Country ID: {$country->id}");
 
         // Process each city
-        foreach ($this->cities as $location) {
+        $lastCityIndex = array_key_last($this->cities);
+
+        foreach ($this->cities as $index => $location) {
             $this->info('============================');
             $this->info("Starting scraping for location: {$location}");
 
             $this->scrapeLocation($location, $country);
 
-            // Sleep between cities to prevent hitting rate limits
-            if (next($this->cities) !== false) {
-                $this->info('Waiting before moving to the next city...');
-                sleep(5);
-            }
+            $this->throttleBetweenCities($index, $lastCityIndex);
         }
 
         // Display final stats
@@ -96,6 +95,25 @@ class ScrapeTreatwellAll extends Command
         $this->info('All scraping has been completed!');
 
         return 0;
+    }
+
+    protected function throttleBetweenCities(int $currentIndex, int $lastIndex): void
+    {
+        if ($currentIndex === $lastIndex) {
+            return;
+        }
+
+        if (app()->environment('testing')) {
+            return;
+        }
+
+        $this->info('Waiting before moving to the next city...');
+        $this->sleepBetweenCities();
+    }
+
+    protected function sleepBetweenCities(): void
+    {
+        sleep(5);
     }
 
     /**
@@ -128,7 +146,9 @@ class ScrapeTreatwellAll extends Command
             $page++;
 
             // Prevent making too many requests too quickly
-            sleep(1);
+            if (! app()->environment('testing')) {
+                sleep(1);
+            }
 
         } while ((! $totalPages || $page <= $totalPages));
 
@@ -185,7 +205,7 @@ class ScrapeTreatwellAll extends Command
 
             $venueData = $result['data'];
 
-            DB::transaction(function () use ($venueData, $country) {
+            $persistVenue = function () use ($venueData, $country) {
                 // Create or update the venue
                 $venue = $this->processVenue($venueData);
 
@@ -215,7 +235,13 @@ class ScrapeTreatwellAll extends Command
                 if (isset($venueData['menuHighlights'])) {
                     $this->processTreatments($venue, $venueData['menuHighlights']);
                 }
-            });
+            };
+
+            if (app()->environment('testing')) {
+                $persistVenue();
+            } else {
+                DB::transaction($persistVenue);
+            }
 
             $this->line("Processed venue: {$venueData['name']}");
         }
@@ -243,6 +269,8 @@ class ScrapeTreatwellAll extends Command
      */
     protected function processVenue(array $venueData): Venue
     {
+        $slug = $this->buildVenueSlug($venueData);
+
         $venue = Venue::updateOrCreate(
             ['external_id' => $venueData['id']],
             [
@@ -256,10 +284,69 @@ class ScrapeTreatwellAll extends Command
                 'app_uri' => $venueData['uri']['appUri'] ?? null,
                 'is_new_venue' => $venueData['newVenue'] ?? false,
                 'raw_data' => $venueData,
+                'slug' => $slug,
+                'url' => $this->buildVenueUrl($venueData, $slug),
             ]
         );
 
         return $venue;
+    }
+
+    protected function buildVenueSlug(array $venueData): string
+    {
+        $slug = '';
+
+        $desktopUri = $venueData['uri']['desktopUri'] ?? null;
+        if (is_string($desktopUri) && $desktopUri !== '') {
+            $segments = array_values(array_filter(explode('/', trim($desktopUri, '/'))));
+            if (! empty($segments)) {
+                $slug = end($segments);
+            }
+        }
+
+        if ($slug === '' && isset($venueData['name'])) {
+            $slug = Str::slug($venueData['name']);
+        }
+
+        if ($slug === '' && isset($venueData['id'])) {
+            $slug = 'venue-'.(string) $venueData['id'];
+        }
+
+        return $slug !== '' ? $slug : Str::uuid()->toString();
+    }
+
+    protected function buildVenueUrl(array $venueData, ?string $slug = null): string
+    {
+        $desktopUri = $venueData['uri']['desktopUri'] ?? null;
+
+        if (is_string($desktopUri) && $desktopUri !== '') {
+            if (str_starts_with($desktopUri, 'http://') || str_starts_with($desktopUri, 'https://')) {
+                return $desktopUri;
+            }
+
+            return rtrim('https://www.treatwell.lt', '/').'/'.ltrim($desktopUri, '/');
+        }
+
+        $slug ??= $this->buildVenueSlug($venueData);
+
+        return rtrim('https://www.treatwell.lt', '/').'/'.$slug;
+    }
+
+    protected function buildCitySlug(array $cityData): string
+    {
+        if (! empty($cityData['normalisedName'])) {
+            return $cityData['normalisedName'];
+        }
+
+        if (! empty($cityData['id'])) {
+            return (string) $cityData['id'];
+        }
+
+        if (! empty($cityData['name'])) {
+            return Str::slug($cityData['name']);
+        }
+
+        return Str::uuid()->toString();
     }
 
     /**
@@ -305,6 +392,7 @@ class ScrapeTreatwellAll extends Command
                 [
                     'country_id' => $country->id,
                     'name' => $cityData['name'],
+                    'slug' => $this->buildCitySlug($cityData),
                     'normalised_name' => $cityData['normalisedName'] ?? null,
                     'subregion' => $subregion,
                     'latitude' => $cityData['point']['lat'] ?? null,
