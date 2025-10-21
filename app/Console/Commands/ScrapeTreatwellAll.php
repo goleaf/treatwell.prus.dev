@@ -77,9 +77,10 @@ class ScrapeTreatwellAll extends Command
         $this->info("Country setup complete. Country ID: {$country->id}");
 
         // Process each city
-        $lastCityIndex = array_key_last($this->cities);
+        $lastCityIndex = count($this->cities) - 1;
 
-        foreach ($this->cities as $index => $location) {
+        for ($index = 0; $index <= $lastCityIndex; $index++) {
+            $location = $this->cities[$index];
             $this->info('============================');
             $this->info("Starting scraping for location: {$location}");
 
