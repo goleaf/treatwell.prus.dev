@@ -104,7 +104,9 @@ class ScrapeAllCities extends Command
         $this->newLine();
 
         // Call the scrape:treatwell-all command which will process all cities
-        $exitCode = $this->call('scrape:treatwell-all');
+        $exitCode = $this->call('scrape:treatwell-all', [
+            'cities' => $this->cities,
+        ]);
 
         if ($exitCode !== 0) {
             $this->warn('There was an issue running the scrape:treatwell-all command');
