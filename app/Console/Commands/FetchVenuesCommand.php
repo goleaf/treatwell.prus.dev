@@ -2006,17 +2006,21 @@ class FetchVenuesCommand extends Command
      */
     private function processLocation(array $locationData, Venue $venue)
     {
-        // Generate a consistent string ID for tracking
-        $locationId = isset($locationData['id']) ? (string) $locationData['id'] : (string) Str::uuid();
+        $locationExternalId = isset($locationData['id']) ? (string) $locationData['id'] : null;
+        $locationName = $locationData['name'] ?? ($locationData['cityName'] ?? 'Unknown');
 
-        if (isset($this->uniqueLocations[$locationId])) {
-            return;
-        }
+        $locationKey = $locationExternalId
+            ? 'external:'.$locationExternalId
+            : 'composite:'.$venue->id.'|'.Str::slug($locationName ?: 'unknown');
 
-        $this->uniqueLocations[$locationId] = true;
+        $location = $locationExternalId
+            ? Location::firstOrNew(['external_id' => $locationExternalId])
+            : Location::firstOrNew(['venue_id' => $venue->id, 'name' => $locationName]);
 
-        $location = Location::firstOrNew(['id' => $locationId]);
-        $location->name = $locationData['name'] ?? ($locationData['cityName'] ?? 'Unknown');
+        $wasRecentlyCreated = ! $location->exists;
+
+        $location->external_id = $locationExternalId;
+        $location->name = $locationName;
         $location->venue_id = $venue->id; // Set the venue_id to properly link location and venue
 
         // Handle address fields - may be in different formats
@@ -2041,7 +2045,8 @@ class FetchVenuesCommand extends Command
             $location->address_line1 = $locationData['address'];
         }
 
-        $location->postal_code = $locationData['postalCode'] ?? ($locationData['zipCode'] ?? '');
+        $location->postal_code = $locationData['postalCode']
+            ?? ($locationData['zipCode'] ?? ($locationData['address']['postalCode'] ?? ''));
 
         if (isset($locationData['point'])) {
             $location->latitude = $locationData['point']['lat'] ?? 0;
@@ -2053,7 +2058,11 @@ class FetchVenuesCommand extends Command
 
         $location->save();
 
-        $this->stats['locations_saved']++;
+        if ($wasRecentlyCreated) {
+            $this->stats['locations_saved']++;
+        }
+
+        $this->uniqueLocations[$locationKey] = $location->id;
 
         // Link location to venue
         $venue->location_id = $location->id;
@@ -2071,24 +2080,33 @@ class FetchVenuesCommand extends Command
     {
         if (is_string($cityData)) {
             $cityName = $cityData;
-            $cityId = (string) Str::slug($cityName);
+            $citySlug = Str::slug($cityName);
         } else {
             $cityName = $cityData['name'] ?? 'Unknown';
-            $cityId = isset($cityData['id']) ? (string) $cityData['id'] : (string) Str::slug($cityName);
+            $citySlug = Str::slug($cityData['slug'] ?? $cityName);
         }
 
-        if (isset($this->uniqueCities[$cityId])) {
-            $city = City::where('id', $cityId)->orWhere('name', $cityName)->first();
+        if ($citySlug === '') {
+            $citySlug = (string) Str::uuid();
+        }
+
+        if (isset($this->uniqueCities[$citySlug])) {
+            $city = $this->uniqueCities[$citySlug];
         } else {
-            $this->uniqueCities[$cityId] = true;
+            $city = City::firstOrNew(['slug' => $citySlug]);
+        }
 
-            $city = City::firstOrNew(['id' => $cityId]);
-            $city->name = $cityName;
-            $city->slug = Str::slug($cityName);
-            $city->save();
+        $wasRecentlyCreated = ! $city->exists;
 
+        $city->name = $cityName;
+        $city->slug = $citySlug;
+        $city->save();
+
+        if ($wasRecentlyCreated) {
             $this->stats['cities_saved']++;
         }
+
+        $this->uniqueCities[$citySlug] = $city;
 
         if ($city) {
             // Link city to venue via pivot table
@@ -2119,30 +2137,40 @@ class FetchVenuesCommand extends Command
             $cityName = trim($nameParts[1] ?? $nameParts[0]); // Assume format is "Neighborhood, City"
             $countryCode = $treeData['countryCode'] ?? null;
 
-            $cityId = (string) Str::slug($cityName.'-'.$countryCode);
+            $citySlugBase = $countryCode ? $cityName.'-'.$countryCode : $cityName;
+            $citySlug = Str::slug($citySlugBase);
 
-            if (isset($this->uniqueCities[$cityId])) {
-                $city = City::where('id', $cityId)->orWhere('name', $cityName)->first();
+            if ($citySlug === '') {
+                $citySlug = (string) Str::uuid();
+            }
+
+            if (isset($this->uniqueCities[$citySlug])) {
+                $city = $this->uniqueCities[$citySlug];
             } else {
-                $this->uniqueCities[$cityId] = true;
+                $city = City::firstOrNew(['slug' => $citySlug]);
+            }
 
-                $city = City::firstOrNew(['id' => $cityId]);
-                $city->name = $cityName;
-                $city->slug = Str::slug($cityName);
+            $wasRecentlyCreated = ! $city->exists;
 
-                if ($countryCode) {
-                    // Find or create country
-                    $country = Country::firstOrCreate(
-                        ['code' => $countryCode],
-                        ['name' => $countryCode] // Just use code as name for now
-                    );
-                    $city->country_id = $country->id;
-                }
+            $city->name = $cityName;
+            $city->slug = $citySlug;
 
-                $city->save();
+            if ($countryCode) {
+                // Find or create country
+                $country = Country::firstOrCreate(
+                    ['code' => $countryCode],
+                    ['name' => $countryCode] // Just use code as name for now
+                );
+                $city->country_id = $country->id;
+            }
 
+            $city->save();
+
+            if ($wasRecentlyCreated) {
                 $this->stats['cities_saved']++;
             }
+
+            $this->uniqueCities[$citySlug] = $city;
 
             if ($city) {
                 // Link city to venue via pivot table
@@ -2168,44 +2196,89 @@ class FetchVenuesCommand extends Command
      */
     private function processTreatment(array $treatmentData, Venue $venue)
     {
-        $treatmentId = isset($treatmentData['id']) ? (string) $treatmentData['id'] : (string) Str::uuid();
+        $treatmentName = $treatmentData['name'] ?? 'Unknown';
+        $treatmentExternalId = isset($treatmentData['id']) ? (string) $treatmentData['id'] : null;
 
-        if (isset($this->uniqueTreatments[$treatmentId])) {
-            $treatment = Treatment::where('id', $treatmentId)->first();
+        if (empty($treatmentExternalId)) {
+            $fallbackSlug = Str::slug($treatmentName);
+
+            if ($fallbackSlug === '') {
+                $fallbackSlug = (string) Str::uuid();
+            }
+
+            $treatmentExternalId = 'generated-'.$venue->id.'-'.$fallbackSlug;
+        }
+
+        if (isset($this->uniqueTreatments[$treatmentExternalId])) {
+            $treatment = $this->uniqueTreatments[$treatmentExternalId];
         } else {
-            $this->uniqueTreatments[$treatmentId] = true;
+            $treatment = Treatment::firstOrNew(['external_id' => $treatmentExternalId]);
+        }
 
-            $treatment = Treatment::firstOrNew(['id' => $treatmentId]);
-            $treatment->name = $treatmentData['name'] ?? 'Unknown';
-            $treatment->description = $treatmentData['description'] ?? '';
+        $wasRecentlyCreated = ! $treatment->exists;
 
-            // Handle different price formats
-            if (isset($treatmentData['price'])) {
-                $treatment->price = $treatmentData['price'];
-            } elseif (isset($treatmentData['priceRange']['minSalePrice']['salePriceAmount'])) {
-                $treatment->price = $treatmentData['priceRange']['minSalePrice']['salePriceAmount'];
-            } elseif (isset($treatmentData['priceRange']['minSalePriceAmount'])) {
-                $treatment->price = $treatmentData['priceRange']['minSalePriceAmount'];
-            } else {
-                $treatment->price = 0;
+        $treatment->external_id = $treatmentExternalId;
+
+        if (Schema::hasColumn('treatments', 'venue_id')) {
+            $treatment->venue_id = $venue->id;
+        }
+        $treatment->name = $treatmentName;
+        $treatment->description = $treatmentData['description'] ?? '';
+
+        // Handle different price formats
+        if (isset($treatmentData['price'])) {
+            $calculatedPrice = $treatmentData['price'];
+        } elseif (isset($treatmentData['priceRange']['minSalePrice']['salePriceAmount'])) {
+            $calculatedPrice = $treatmentData['priceRange']['minSalePrice']['salePriceAmount'];
+        } elseif (isset($treatmentData['priceRange']['minSalePriceAmount'])) {
+            $calculatedPrice = $treatmentData['priceRange']['minSalePriceAmount'];
+        } else {
+            $calculatedPrice = 0;
+        }
+
+        if (Schema::hasColumn('treatments', 'price')) {
+            $treatment->price = $calculatedPrice;
+        } else {
+            if (Schema::hasColumn('treatments', 'min_price')) {
+                $treatment->min_price = $calculatedPrice;
             }
 
-            // Handle different duration formats
-            if (isset($treatmentData['duration'])) {
-                $treatment->duration = $treatmentData['duration'];
-            } elseif (isset($treatmentData['durationRange']['minDurationMinutes'])) {
-                $treatment->duration = $treatmentData['durationRange']['minDurationMinutes'];
-            } else {
-                $treatment->duration = 0;
+            if (Schema::hasColumn('treatments', 'max_price')) {
+                $treatment->max_price = $treatmentData['priceRange']['maxSalePrice']['salePriceAmount'] ?? $calculatedPrice;
+            }
+        }
+
+        // Handle different duration formats
+        if (isset($treatmentData['duration'])) {
+            $calculatedDuration = $treatmentData['duration'];
+        } elseif (isset($treatmentData['durationRange']['minDurationMinutes'])) {
+            $calculatedDuration = $treatmentData['durationRange']['minDurationMinutes'];
+        } else {
+            $calculatedDuration = 0;
+        }
+
+        if (Schema::hasColumn('treatments', 'duration')) {
+            $treatment->duration = $calculatedDuration;
+        } else {
+            if (Schema::hasColumn('treatments', 'min_duration')) {
+                $treatment->min_duration = $calculatedDuration;
             }
 
-            if (Schema::hasColumn('treatments', 'slug')) {
-                $treatment->slug = Str::slug($treatment->name);
+            if (Schema::hasColumn('treatments', 'max_duration')) {
+                $treatment->max_duration = $treatmentData['durationRange']['maxDurationMinutes'] ?? $calculatedDuration;
             }
-            $treatment->save();
+        }
 
+        if (Schema::hasColumn('treatments', 'slug')) {
+            $treatment->slug = Str::slug($treatment->name);
+        }
+        $treatment->save();
+
+        if ($wasRecentlyCreated) {
             $this->stats['treatments_saved']++;
         }
+
+        $this->uniqueTreatments[$treatmentExternalId] = $treatment;
 
         if ($treatment) {
             // Link treatment to venue via the proper pivot table
@@ -2265,8 +2338,29 @@ class FetchVenuesCommand extends Command
 
         $image = new Image;
         $image->venue_id = $venue->id;
-        $image->url = $imageUrl;
-        $image->type = 'venue';
+
+        if (Schema::hasColumn('images', 'url')) {
+            $image->url = $imageUrl;
+        } elseif (Schema::hasColumn('images', 'uri_large')) {
+            $image->uri_large = $imageUrl;
+        }
+
+        if (Schema::hasColumn('images', 'type')) {
+            $image->type = 'venue';
+        }
+
+        if (Schema::hasColumn('images', 'uri_medium') && ! isset($image->uri_medium)) {
+            $image->uri_medium = $imageUrl;
+        }
+
+        if (Schema::hasColumn('images', 'uri_small') && ! isset($image->uri_small)) {
+            $image->uri_small = $imageUrl;
+        }
+
+        if (Schema::hasColumn('images', 'uri_xlarge') && ! isset($image->uri_xlarge)) {
+            $image->uri_xlarge = $imageUrl;
+        }
+
         $image->save();
 
         $this->stats['images_saved']++;
@@ -2296,15 +2390,49 @@ class FetchVenuesCommand extends Command
         ];
 
         $day = $hourData['dayOfWeek'] ?? ($hourData['day'] ?? null);
+        $dayValue = 0;
         if (is_string($day) && isset($dayMap[strtolower($day)])) {
-            $openingHour->day = $dayMap[strtolower($day)];
-        } else {
-            $openingHour->day = $day ?? 0;
+            $dayValue = $dayMap[strtolower($day)];
+        } elseif (is_numeric($day)) {
+            $dayValue = (int) $day;
         }
 
-        $openingHour->open_time = $hourData['from'] ?? ($hourData['openTime'] ?? '00:00:00');
-        $openingHour->close_time = $hourData['to'] ?? ($hourData['closeTime'] ?? '23:59:59');
-        $openingHour->is_closed = ! ($hourData['open'] ?? true);
+        $openTime = $hourData['from'] ?? ($hourData['openTime'] ?? '00:00:00');
+        $closeTime = $hourData['to'] ?? ($hourData['closeTime'] ?? '23:59:59');
+        $isClosed = ! ($hourData['open'] ?? true);
+
+        if (Schema::hasColumn('opening_hours', 'day')) {
+            $openingHour->day = $dayValue;
+        }
+
+        if (Schema::hasColumn('opening_hours', 'day_of_week')) {
+            $openingHour->day_of_week = $dayValue;
+        }
+
+        if (Schema::hasColumn('opening_hours', 'open_time')) {
+            $openingHour->open_time = $openTime;
+        }
+
+        if (Schema::hasColumn('opening_hours', 'close_time')) {
+            $openingHour->close_time = $closeTime;
+        }
+
+        if (Schema::hasColumn('opening_hours', 'opening_time')) {
+            $openingHour->opening_time = $openTime;
+        }
+
+        if (Schema::hasColumn('opening_hours', 'closing_time')) {
+            $openingHour->closing_time = $closeTime;
+        }
+
+        if (Schema::hasColumn('opening_hours', 'is_closed')) {
+            $openingHour->is_closed = $isClosed;
+        }
+
+        if (Schema::hasColumn('opening_hours', 'is_open')) {
+            $openingHour->is_open = ! $isClosed;
+        }
+
         $openingHour->save();
 
         $this->stats['opening_hours_saved']++;
@@ -2328,8 +2456,25 @@ class FetchVenuesCommand extends Command
         }
 
         $rating = Rating::firstOrNew(['venue_id' => $venue->id]);
-        $rating->value = $ratingValue;
+
+        if (Schema::hasColumn('ratings', 'value')) {
+            $rating->value = $ratingValue;
+        }
+
+        if (Schema::hasColumn('ratings', 'weighted_average')) {
+            $rating->weighted_average = $ratingValue;
+        }
+
+        if (Schema::hasColumn('ratings', 'average')) {
+            $rating->average = $ratingValue;
+        }
+
         $rating->count = $ratingCount;
+
+        if (Schema::hasColumn('ratings', 'display_average')) {
+            $rating->display_average = (string) $ratingValue;
+        }
+
         $rating->save();
 
         $this->stats['ratings_saved']++;
