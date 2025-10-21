@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\VenueController;
 use App\Models\Venue;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Mockery;
 use Tests\TestCase as BaseTestCase;
 
@@ -54,30 +55,29 @@ class VenueControllerTest extends BaseTestCase
         $response = $this->getJson('/api/venues');
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'name',
-                    'description',
-                ],
-            ],
-            'links' => [
-                'first',
-                'last',
-                'prev',
-                'next',
-            ],
-            'meta' => [
-                'current_page',
-                'from',
-                'last_page',
-                'path',
-                'per_page',
-                'to',
-                'total',
-            ],
-        ]);
+        $response->assertJson(function (AssertableJson $json) {
+            $json->has('data', function (AssertableJson $json) {
+                $json->each(function (AssertableJson $json) {
+                    $json->hasAll(['id', 'name', 'description'])->etc();
+                });
+            });
+
+            $json->has('links', function (AssertableJson $json) {
+                $json->hasAll(['first', 'last', 'prev', 'next'])->etc();
+            });
+
+            $json->has('meta', function (AssertableJson $json) {
+                $json->hasAll([
+                    'current_page',
+                    'from',
+                    'last_page',
+                    'path',
+                    'per_page',
+                    'to',
+                    'total',
+                ])->etc();
+            })->etc();
+        });
     }
 
     /**
