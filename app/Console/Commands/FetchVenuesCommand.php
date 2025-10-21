@@ -1022,29 +1022,36 @@ class FetchVenuesCommand extends Command
                 // Begin transaction for atomic operations
                 DB::beginTransaction();
 
-                // Prepare venue data for saving
-                $venueModelData = [
-                    'name' => $venueName,
-                    'slug' => $slug,
-                    'url' => $venueUrl,
-                    'source' => 'treatwell_api',
-                    'external_id' => $venueData['id'] ?? null,
-                    'description' => $venueData['description'] ?? null,
-                    'raw_data' => json_encode($venueData, JSON_UNESCAPED_UNICODE),
-                ];
+                $venueExternalId = isset($venueData['id']) ? (string) $venueData['id'] : null;
 
-                // Check if venue exists before attempting to create
-                $venue = Venue::where('slug', $slug)->first();
+                $venue = null;
+
+                if ($venueExternalId !== null) {
+                    $venue = Venue::where('external_id', $venueExternalId)->first();
+                }
 
                 if (! $venue) {
-                    // Create new venue
-                    $venue = new Venue($venueModelData);
-                    $venue->save();
-                } else {
-                    // Update existing venue
-                    $venue->fill($venueModelData);
-                    $venue->save();
+                    $venue = Venue::where('slug', $slug)->first();
                 }
+
+                if (! $venue) {
+                    $venue = new Venue;
+                }
+
+                $venue->name = $venueName;
+                $venue->description = $venueData['description'] ?? null;
+                $venue->url = $venueUrl;
+                $venue->source = 'treatwell_api';
+                $venue->raw_data = $venueData;
+
+                if ($venueExternalId !== null) {
+                    $venue->external_id = $venueExternalId;
+                }
+
+                $slugIdentifier = $venueExternalId ?? (string) ($venue->id ?: Str::uuid());
+                $venue->slug = $this->ensureUniqueVenueSlug($slug, $slugIdentifier, $venue);
+
+                $venue->save();
 
                 // Find or create the city
                 $citySlug = Str::slug($venueCity);
