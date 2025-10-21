@@ -789,10 +789,10 @@ class FetchVenuesCommandTest extends TestCase
         ];
 
         $pivotTables = [
-            'treatment_venue' => ['treatment', 'venue'],
-            'city_venue' => ['city', 'venue'],
-            'city_treatment' => ['city', 'treatment'],
-            'city_procedure' => ['city', 'procedure'],
+            'treatment_venue' => ['treatment_id', 'venue_id'],
+            'city_venue' => ['city_id', 'venue_id'],
+            'city_treatment' => ['city_id', 'treatment_id'],
+            'city_procedure' => ['city_id', 'procedure_id'],
         ];
 
         foreach ($tables as $tableName => $callback) {
@@ -805,12 +805,10 @@ class FetchVenuesCommandTest extends TestCase
             if (! Schema::hasTable($tableName)) {
                 Schema::create($tableName, function ($table) use ($columns) {
                     foreach ($columns as $column) {
-                        $table->unsignedBigInteger($column.'_id');
+                        $table->unsignedBigInteger($column);
                     }
 
-                    $primaryColumns = array_map(fn ($column) => $column.'_id', $columns);
-
-                    $table->primary($primaryColumns);
+                    $table->primary($columns);
                     $table->timestamps();
                 });
             }
