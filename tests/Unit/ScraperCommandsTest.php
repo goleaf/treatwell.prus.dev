@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Console\Commands\ScrapeAllCities;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -11,115 +11,151 @@ class ScraperCommandsTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected string $dynamicCitySlug = 'naujas-miestas-lt';
+
     /**
      * Mock the Treatwell API response with test data.
-     *
-     * @return void
      */
-    protected function mockApiResponse()
+    protected function mockApiResponse(): void
     {
-        Http::fake([
-            'https://www.treatwell.lt/api/v1/page/browse*' => Http::response([
-                'pagination' => [
-                    'page' => 1,
-                    'totalPages' => 2,
-                    'from' => 1,
-                    'totalElements' => 30,
-                ],
-                'results' => [
-                    [
-                        'type' => 'venue',
-                        'data' => [
-                            'id' => '123456',
-                            'name' => 'Test Salon',
-                            'description' => 'A test salon description',
-                            'type' => [
-                                'id' => '1',
-                                'name' => 'Spa',
-                                'normalisedName' => 'spa',
+        Http::fake(function (Request $request) {
+            $query = $request->data();
+            $currentBrowseUri = $query['currentBrowseUri'] ?? '';
+            $page = (int) ($query['page'] ?? 1);
+
+            if ($currentBrowseUri === '/salonai/kur-lietuva/') {
+                return Http::response([
+                    'pagination' => [
+                        'page' => 1,
+                        'totalPages' => 1,
+                        'from' => 1,
+                        'totalElements' => 2,
+                    ],
+                    'results' => [],
+                    'filters' => [
+                        'location' => [
+                            'options' => [
+                                ['normalisedName' => 'vilnius-lt', 'name' => 'Vilnius'],
+                                ['normalisedName' => $this->dynamicCitySlug, 'name' => 'Naujas miestas'],
                             ],
+                        ],
+                    ],
+                    'locationBreadcrumbs' => [
+                        [
+                            'entityId' => 'vilnius-lt',
                             'uri' => [
-                                'desktopUri' => '/salon/test-salon',
-                                'mobileUri' => '/salon/test-salon',
-                                'appUri' => '/salon/test-salon',
+                                'desktopUri' => '/salonai/kur-vilnius-lt/',
                             ],
-                            'newVenue' => false,
-                            'location' => [
-                                'tree' => [
-                                    'id' => 'vilnius-lt',
-                                    'name' => 'Vilnius',
-                                    'normalisedName' => 'vilnius-lt',
-                                    'point' => [
-                                        'lat' => 54.68716,
-                                        'lon' => 25.27965,
-                                    ],
-                                    'type' => 'city',
-                                    'radius' => [
-                                        'distance' => 15,
-                                        'distanceUnit' => 'km',
-                                    ],
-                                ],
-                                'address' => [
-                                    'postalCode' => 'LT-01234',
-                                    'addressLines' => [
-                                        'Gedimino pr. 1',
-                                        'Vilnius',
-                                    ],
-                                ],
+                        ],
+                    ],
+                ], 200);
+            }
+
+            $citySlug = trim(str_replace('/salonai/kur-', '', $currentBrowseUri), '/');
+
+            return Http::response($this->cityResponse($citySlug, $page), 200);
+        });
+    }
+
+    /**
+     * Build a fake response for a specific city page.
+     */
+    protected function cityResponse(string $citySlug, int $page): array
+    {
+        $cityName = ucwords(str_replace('-', ' ', preg_replace('/-lt$/', '', $citySlug)));
+
+        return [
+            'pagination' => [
+                'page' => $page,
+                'totalPages' => 2,
+                'from' => 1,
+                'totalElements' => 30,
+            ],
+            'results' => [
+                [
+                    'type' => 'venue',
+                    'data' => [
+                        'id' => '123456',
+                        'name' => 'Test Salon',
+                        'slug' => 'test-salon',
+                        'description' => 'A test salon description',
+                        'type' => [
+                            'id' => '1',
+                            'name' => 'Spa',
+                            'normalisedName' => 'spa',
+                        ],
+                        'uri' => [
+                            'desktopUri' => '/salon/test-salon',
+                            'mobileUri' => '/salon/test-salon',
+                            'appUri' => '/salon/test-salon',
+                        ],
+                        'newVenue' => false,
+                        'location' => [
+                            'tree' => [
+                                'id' => $citySlug,
+                                'name' => $cityName,
+                                'normalisedName' => $citySlug,
                                 'point' => [
                                     'lat' => 54.68716,
                                     'lon' => 25.27965,
                                 ],
-                                'map' => [
-                                    'zoom' => 15,
+                                'type' => 'city',
+                                'radius' => [
+                                    'distance' => 15,
+                                    'distanceUnit' => 'km',
                                 ],
                             ],
-                            'rating' => [
-                                'weightedAverage' => 4.8,
-                                'count' => 50,
-                                'displayAverage' => '4.8',
-                                'dimensions' => [
-                                    [
-                                        'name' => 'Švara',
-                                        'average' => 4.9,
-                                        'count' => 48,
-                                    ],
-                                    [
-                                        'name' => 'Personalas',
-                                        'average' => 4.7,
-                                        'count' => 50,
-                                    ],
-                                    [
-                                        'name' => 'Atmosfera',
-                                        'average' => 4.8,
-                                        'count' => 45,
-                                    ],
+                            'address' => [
+                                'postalCode' => 'LT-01234',
+                                'addressLines' => [
+                                    'Gedimino pr. 1',
+                                    $cityName,
                                 ],
                             ],
-                            'openingHours' => [
+                            'point' => [
+                                'lat' => 54.68716,
+                                'lon' => 25.27965,
+                            ],
+                            'map' => [
+                                'zoom' => 15,
+                            ],
+                        ],
+                        'rating' => [
+                            'weightedAverage' => 4.8,
+                            'count' => 50,
+                            'displayAverage' => '4.8',
+                            'dimensions' => [
                                 [
-                                    'dayOfWeek' => 'Monday',
-                                    'from' => '09:00',
-                                    'to' => '20:00',
-                                    'open' => true,
+                                    'name' => 'Švara',
+                                    'average' => 4.9,
+                                    'count' => 48,
                                 ],
                                 [
-                                    'dayOfWeek' => 'Sunday',
-                                    'open' => false,
+                                    'name' => 'Personalas',
+                                    'average' => 4.7,
+                                    'count' => 50,
                                 ],
-                            ],
-                            'images' => [
                                 [
-                                    'id' => 'img123',
-                                    'uris' => [
-                                        '360x240' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w360.h240.xE2CA18A7/',
-                                        '720x480' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w720.h480.xE2CA18A7/',
-                                        '1080x720' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w1080.h720.xE2CA18A7/',
-                                        '1280x800' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w1280.h800.xE2CA18A7/',
-                                    ],
+                                    'name' => 'Atmosfera',
+                                    'average' => 4.8,
+                                    'count' => 45,
                                 ],
                             ],
-                            'primaryImage' => [
+                        ],
+                        'openingHours' => [
+                            [
+                                'dayOfWeek' => 'Monday',
+                                'from' => '09:00',
+                                'to' => '20:00',
+                                'open' => true,
+                            ],
+                            [
+                                'dayOfWeek' => 'Sunday',
+                                'open' => false,
+                            ],
+                        ],
+                        'images' => [
+                            [
                                 'id' => 'img123',
                                 'uris' => [
                                     '360x240' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w360.h240.xE2CA18A7/',
@@ -128,46 +164,39 @@ class ScraperCommandsTest extends TestCase
                                     '1280x800' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w1280.h800.xE2CA18A7/',
                                 ],
                             ],
-                            'menuHighlights' => [
-                                [
-                                    'type' => 'treatment',
-                                    'data' => [
-                                        'id' => 't123',
-                                        'name' => 'Swedish Massage',
-                                        'priceRange' => [
-                                            'minSalePriceAmount' => 45,
-                                            'maxSalePriceAmount' => 60,
-                                        ],
-                                        'durationRange' => [
-                                            'minDurationMinutes' => 60,
-                                            'maxDurationMinutes' => 90,
-                                        ],
-                                        'primaryTreatmentCategoryId' => '1',
-                                        'optionGroups' => [],
+                        ],
+                        'primaryImage' => [
+                            'id' => 'img123',
+                            'uris' => [
+                                '360x240' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w360.h240.xE2CA18A7/',
+                                '720x480' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w720.h480.xE2CA18A7/',
+                                '1080x720' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w1080.h720.xE2CA18A7/',
+                                '1280x800' => 'https://cdn1.treatwell.net/images/view/v2.iimg123.w1280.h800.xE2CA18A7/',
+                            ],
+                        ],
+                        'menuHighlights' => [
+                            [
+                                'type' => 'treatment',
+                                'data' => [
+                                    'id' => 't123',
+                                    'name' => 'Swedish Massage',
+                                    'priceRange' => [
+                                        'minSalePriceAmount' => 45,
+                                        'maxSalePriceAmount' => 60,
                                     ],
+                                    'durationRange' => [
+                                        'minDurationMinutes' => 60,
+                                        'maxDurationMinutes' => 90,
+                                    ],
+                                    'primaryTreatmentCategoryId' => '1',
+                                    'optionGroups' => [],
                                 ],
                             ],
                         ],
                     ],
                 ],
-                'filters' => [
-                    'location' => [
-                        'options' => [
-                            ['normalisedName' => 'vilnius-lt', 'name' => 'Vilnius'],
-                            ['normalisedName' => 'kaunas-lt', 'name' => 'Kaunas'],
-                        ],
-                    ],
-                ],
-                'locationBreadcrumbs' => [
-                    [
-                        'entityId' => 'vilnius-lt',
-                        'uri' => [
-                            'desktopUri' => '/salonai/kur-vilnius-lt/',
-                        ],
-                    ],
-                ],
-            ], 200),
-        ]);
+            ],
+        ];
     }
 
     /**
@@ -179,15 +208,25 @@ class ScraperCommandsTest extends TestCase
     {
         $this->mockApiResponse();
 
-        $command = new ScrapeAllCities;
+        $this->artisan('scrape:all-cities')->assertExitCode(0);
 
-        // Mock Artisan::call() method
-        $command->setLaravel(app())->callSilent = function ($command, $arguments) {
-            return 0; // Return success status
-        };
+        $recordedUris = Http::recorded()
+            ->map(function ($interaction) {
+                [$request] = $interaction;
 
-        $result = $this->artisan('scrape:all-cities')
-            ->assertExitCode(0, 'The scrape:all-cities command should exit with code 0');
+                return $request->data()['currentBrowseUri'] ?? null;
+            })
+            ->filter();
+
+        $this->assertContains(
+            '/salonai/kur-'.$this->dynamicCitySlug.'/',
+            $recordedUris,
+            'The dynamic city request should be sent to the Treatwell API.'
+        );
+
+        $this->assertDatabaseHas('cities', [
+            'entity_id' => $this->dynamicCitySlug,
+        ]);
     }
 
     /**
@@ -205,14 +244,14 @@ class ScraperCommandsTest extends TestCase
             'name' => 'Lithuania',
         ]);
 
-        $result = $this->artisan('scrape:treatwell-all')
-            ->assertExitCode(0, 'The scrape:treatwell-all command should exit with code 0');
+        config(['scraping.cities' => ['vilnius-lt', $this->dynamicCitySlug]]);
 
+        $this->artisan('scrape:treatwell-all')->assertExitCode(0);
         // Verify data was saved
         $this->assertDatabaseHas('venues', [
             'external_id' => '123456',
             'name' => 'Test Salon',
-        ], 'The venue Test Salon should be saved to the database');
+        ]);
 
         $this->assertDatabaseHas('cities', [
             'entity_id' => 'vilnius-lt',

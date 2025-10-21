@@ -23,6 +23,13 @@ class Treatment extends Model
         'price',
         'duration',
         'is_available',
+        'min_price',
+        'max_price',
+        'min_duration',
+        'max_duration',
+        'category_id',
+        'category_name',
+        'options',
     ];
 
     /**
@@ -34,6 +41,11 @@ class Treatment extends Model
         'price' => 'float',
         'duration' => 'integer',
         'is_available' => 'boolean',
+        'min_price' => 'float',
+        'max_price' => 'float',
+        'min_duration' => 'integer',
+        'max_duration' => 'integer',
+        'options' => 'array',
     ];
 
     /**

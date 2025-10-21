@@ -33,7 +33,7 @@ class ScrapeTreatwellAll extends Command
     /**
      * List of Lithuanian cities to scrape
      */
-    protected $cities = [
+    protected array $defaultCities = [
         'vilnius-lt',
         'kaunas-lt',
         'klaipeda-lt',
@@ -63,6 +63,15 @@ class ScrapeTreatwellAll extends Command
     {
         $this->info('Starting comprehensive scraping for all Treatwell data...');
 
+        $cities = config('scraping.cities');
+
+        if (! is_array($cities) || empty($cities)) {
+            $cities = $this->defaultCities;
+        }
+
+        $cities = array_values($cities);
+        $totalCities = count($cities);
+
         // Setup Lithuania as the main country
         $country = Country::firstOrCreate(
             ['code' => 'LT'],
@@ -76,16 +85,18 @@ class ScrapeTreatwellAll extends Command
         $this->info("Country setup complete. Country ID: {$country->id}");
 
         // Process each city
-        foreach ($this->cities as $location) {
+        foreach ($cities as $index => $location) {
             $this->info('============================');
             $this->info("Starting scraping for location: {$location}");
 
             $this->scrapeLocation($location, $country);
 
             // Sleep between cities to prevent hitting rate limits
-            if (next($this->cities) !== false) {
+            if ($index < $totalCities - 1) {
                 $this->info('Waiting before moving to the next city...');
-                sleep(5);
+                if (! app()->environment('testing')) {
+                    sleep(5);
+                }
             }
         }
 
@@ -128,7 +139,9 @@ class ScrapeTreatwellAll extends Command
             $page++;
 
             // Prevent making too many requests too quickly
-            sleep(1);
+            if (! app()->environment('testing')) {
+                sleep(1);
+            }
 
         } while ((! $totalPages || $page <= $totalPages));
 
@@ -247,11 +260,13 @@ class ScrapeTreatwellAll extends Command
             ['external_id' => $venueData['id']],
             [
                 'name' => $venueData['name'],
+                'slug' => $venueData['slug'] ?? null,
                 'description' => $venueData['description'] ?? null,
                 'type_id' => $venueData['type']['id'] ?? null,
                 'type_name' => $venueData['type']['name'] ?? null,
                 'normalised_name' => $venueData['type']['normalisedName'] ?? null,
                 'desktop_uri' => $venueData['uri']['desktopUri'] ?? null,
+                'url' => $venueData['uri']['desktopUri'] ?? null,
                 'mobile_uri' => $venueData['uri']['mobileUri'] ?? null,
                 'app_uri' => $venueData['uri']['appUri'] ?? null,
                 'is_new_venue' => $venueData['newVenue'] ?? false,
@@ -301,7 +316,10 @@ class ScrapeTreatwellAll extends Command
             }
 
             $city = City::updateOrCreate(
-                ['entity_id' => $cityData['id']],
+                [
+                    'entity_id' => $cityData['id'] ?? $cityData['normalisedName'] ?? null,
+                    'slug' => $cityData['normalisedName'] ?? null,
+                ],
                 [
                     'country_id' => $country->id,
                     'name' => $cityData['name'],
