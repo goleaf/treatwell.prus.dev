@@ -41,7 +41,7 @@ class FetchVenuesCommandTest extends TestCase
         Rating::query()->delete();
 
         // Also clear any pivot tables
-        DB::table('venue_treatment')->delete();
+        DB::table('treatment_venue')->delete();
         DB::table('city_venue')->delete();
         DB::table('city_treatment')->delete();
         DB::table('city_procedure')->delete();
@@ -789,11 +789,10 @@ class FetchVenuesCommandTest extends TestCase
         ];
 
         $pivotTables = [
-            'venue_treatment',
-            'treatment_venue',
-            'city_venue',
-            'city_treatment',
-            'city_procedure',
+            'treatment_venue' => ['treatment', 'venue'],
+            'city_venue' => ['city', 'venue'],
+            'city_treatment' => ['city', 'treatment'],
+            'city_procedure' => ['city', 'procedure'],
         ];
 
         foreach ($tables as $tableName => $callback) {
@@ -802,13 +801,16 @@ class FetchVenuesCommandTest extends TestCase
             }
         }
 
-        foreach ($pivotTables as $tableName) {
+        foreach ($pivotTables as $tableName => $columns) {
             if (! Schema::hasTable($tableName)) {
-                Schema::create($tableName, function ($table) use ($tableName) {
-                    $parts = explode('_', $tableName);
-                    $table->unsignedBigInteger($parts[0].'_id');
-                    $table->unsignedBigInteger($parts[1].'_id');
-                    $table->primary([$parts[0].'_id', $parts[1].'_id']);
+                Schema::create($tableName, function ($table) use ($columns) {
+                    foreach ($columns as $column) {
+                        $table->unsignedBigInteger($column.'_id');
+                    }
+
+                    $primaryColumns = array_map(fn ($column) => $column.'_id', $columns);
+
+                    $table->primary($primaryColumns);
                     $table->timestamps();
                 });
             }
