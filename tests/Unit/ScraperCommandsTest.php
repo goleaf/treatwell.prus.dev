@@ -321,5 +321,7 @@ class ScraperCommandsTest extends TestCase
                 return ($request->data()['currentBrowseUri'] ?? null) === "/salonai/kur-{$city}/";
             });
         }
+
+        Http::assertSentCount(count($cities) * 2);
     }
 }
