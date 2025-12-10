@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\City;
 use App\Models\Country;
+use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -12,13 +13,23 @@ class VenueCrudTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected User $user;
+
+    protected User $adminUser;
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create test data
         $country = Country::factory()->create();
         $this->city = City::factory()->create(['country_id' => $country->id]);
+
+        // Create users for authentication
+        $this->user = User::factory()->create();
+        $this->adminUser = User::factory()->create([
+            'email' => 'admin@example.com',
+        ]);
     }
 
     /**
@@ -34,7 +45,7 @@ class VenueCrudTest extends TestCase
             'is_active' => true,
         ];
 
-        $response = $this->postJson('/api/venues', $venueData);
+        $response = $this->actingAs($this->user)->postJson('/api/venues', $venueData);
 
         $response->assertStatus(201);
         $response->assertJsonStructure([
@@ -100,7 +111,7 @@ class VenueCrudTest extends TestCase
             'is_active' => true,
         ];
 
-        $response = $this->putJson("/api/venues/{$venue->id}", $updateData);
+        $response = $this->actingAs($this->user)->putJson("/api/venues/{$venue->id}", $updateData);
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -123,11 +134,12 @@ class VenueCrudTest extends TestCase
     {
         $venue = Venue::factory()->create(['city_id' => $this->city->id]);
 
-        $response = $this->deleteJson("/api/venues/{$venue->id}");
+        $response = $this->actingAs($this->adminUser)->deleteJson("/api/venues/{$venue->id}");
 
         $response->assertStatus(204);
 
-        $this->assertDatabaseMissing('venues', [
+        // Check that the venue is soft deleted
+        $this->assertSoftDeleted('venues', [
             'id' => $venue->id,
         ]);
     }

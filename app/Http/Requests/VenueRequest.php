@@ -8,58 +8,56 @@ class VenueRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         // only allow updates if the user is logged in
-        return backpack_auth()->check();
+        return auth()->check();
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'city_id' => 'required|exists:cities,id',
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:venues,slug,'.$this->id,
-            'description' => 'nullable|string',
-            'address' => 'required|string|max:255',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
-            'phone' => 'nullable|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'website' => 'nullable|url|max:255',
-            'is_active' => 'boolean',
+            'city_id' => ['required', 'exists:cities,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:venues,slug,'.$this->route('venue')?->id],
+            'description' => ['nullable', 'string'],
+            'address' => ['required', 'string', 'max:255'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'website' => ['nullable', 'url', 'max:255'],
+            'is_active' => ['boolean'],
         ];
     }
 
     /**
      * Get the validation attributes that apply to the request.
-     *
-     * @return array
      */
-    public function attributes()
+    public function attributes(): array
     {
         return [
-            //
+            'city_id' => 'city',
+            'is_active' => 'active status',
         ];
     }
 
     /**
      * Get the validation messages that apply to the request.
-     *
-     * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
-            //
+            'city_id.required' => 'The city is required.',
+            'city_id.exists' => 'The selected city does not exist.',
+            'name.required' => 'The venue name is required.',
+            'address.required' => 'The address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'website.url' => 'Please enter a valid website URL.',
         ];
     }
 }

@@ -8,13 +8,11 @@ class TreatmentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         // only allow updates if the user is logged in
-        return backpack_auth()->check();
+        return auth()->check();
     }
 
     /**
@@ -26,7 +24,7 @@ class TreatmentRequest extends FormRequest
             'venue_id' => ['required', 'exists:venues,id'],
             'external_id' => ['nullable', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:treatments,slug,'.$this->id],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:treatments,slug,'.$this->route('treatment')?->id],
             'description' => ['nullable', 'string'],
             'duration' => ['nullable', 'integer', 'min:1'],
             'price' => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],

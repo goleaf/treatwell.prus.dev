@@ -69,4 +69,61 @@ class City extends Model
     {
         return $this->hasMany(Location::class);
     }
+
+    /**
+     * Extract slug from URL for city processing.
+     */
+    public static function extractSlugFromUrl(string $url): string
+    {
+        // Look for pattern like "kur-vilnius" in the URL
+        if (preg_match('/kur-([^\/]+)/', $url, $matches)) {
+            return $matches[1];
+        }
+
+        // Fallback to last segment
+        $url = rtrim($url, '/');
+        $segments = explode('/', $url);
+
+        return end($segments);
+    }
+
+    /**
+     * Scope to get only main cities.
+     */
+    public function scopeMainCities($query)
+    {
+        return $query->where('is_main_city', true);
+    }
+
+    /**
+     * Scope to get cities by country.
+     */
+    public function scopeByCountry($query, $countryId)
+    {
+        return $query->where('country_id', $countryId);
+    }
+
+    /**
+     * Get the full display name including country.
+     */
+    public function getFullDisplayName(): string
+    {
+        return $this->name.($this->country ? ', '.$this->country->name : '');
+    }
+
+    /**
+     * Get venues count for this city.
+     */
+    public function getVenuesCount(): int
+    {
+        return $this->venues()->count();
+    }
+
+    /**
+     * Get procedures count for this city.
+     */
+    public function getProceduresCount(): int
+    {
+        return $this->procedures()->count();
+    }
 }

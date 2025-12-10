@@ -2,24 +2,31 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\HandlesApiErrors;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreCityRequest;
 use App\Http\Requests\Api\UpdateCityRequest;
 use App\Http\Resources\CityCollection;
 use App\Http\Resources\CityResource;
 use App\Models\City;
+use App\Models\Country;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class CityController extends Controller
 {
+    use AuthorizesRequests, HandlesApiErrors;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', City::class);
         $query = City::query();
-        
+
         $query->with(['country', 'locations']);
 
         // Search
@@ -64,8 +71,30 @@ class CityController extends Controller
      */
     public function store(StoreCityRequest $request)
     {
-        $city = City::create($request->validated());
-        
+        $this->authorize('create', City::class);
+
+        $data = $request->validated();
+
+        // Validate related models exist
+        $relationshipError = $this->validateRelatedModels($data, [
+            'country_id' => Country::class,
+        ]);
+
+        if ($relationshipError) {
+            return $relationshipError;
+        }
+
+        $city = $this->executeInTransaction(function () use ($data) {
+            $city = City::create($data);
+            $this->logApiOperation('create', $city, $data);
+
+            return $city;
+        });
+
+        if ($city instanceof JsonResponse) {
+            return $city;
+        }
+
         return (new CityResource($city->load(['country', 'locations'])))
             ->response()
             ->setStatusCode(201);
@@ -76,26 +105,81 @@ class CityController extends Controller
      */
     public function show(City $city): CityResource
     {
+        $this->authorize('view', $city);
+
         return new CityResource($city->load(['country', 'locations']));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCityRequest $request, City $city): CityResource
+    public function update(UpdateCityRequest $request, City $city)
     {
-        $city->update($request->validated());
-        
-        return new CityResource($city->load(['country', 'locations']));
+        $this->authorize('update', $city);
+
+        $data = $request->validated();
+
+        // Check for concurrent modifications
+        $concurrencyError = $this->checkConcurrentModification($city, $request->header('If-Unmodified-Since'));
+        if ($concurrencyError) {
+            return $concurrencyError;
+        }
+
+        // Validate related models exist
+        $relationshipError = $this->validateRelatedModels($data, [
+            'country_id' => Country::class,
+        ]);
+
+        if ($relationshipError) {
+            return $relationshipError;
+        }
+
+        $updatedCity = $this->executeInTransaction(function () use ($city, $data) {
+            $city->update($data);
+            $this->logApiOperation('update', $city, $data);
+
+            return $city;
+        });
+
+        if ($updatedCity instanceof JsonResponse) {
+            return $updatedCity;
+        }
+
+        return new CityResource($updatedCity->load(['country', 'locations']));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(City $city): Response
+    public function destroy(City $city)
     {
-        $city->delete();
-        
+        $this->authorize('delete', $city);
+
+        // Validate that the city can be deleted
+        $deletionError = $this->validateDeletion($city);
+        if ($deletionError) {
+            return $deletionError;
+        }
+
+        $result = $this->executeInTransaction(function () use ($city) {
+            $this->logApiOperation('delete', $city);
+            $city->delete();
+
+            return true;
+        });
+
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
         return response()->noContent();
+    }
+
+    /**
+     * Get critical relationships that prevent deletion.
+     */
+    protected function getCriticalRelationships(Model $model): array
+    {
+        return ['locations'];
     }
 }

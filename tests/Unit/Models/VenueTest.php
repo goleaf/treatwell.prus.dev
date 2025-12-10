@@ -61,7 +61,7 @@ class VenueTest extends TestCase
     {
         $venue = new Venue;
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->rating());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->ratingDetails());
     }
 
     /**

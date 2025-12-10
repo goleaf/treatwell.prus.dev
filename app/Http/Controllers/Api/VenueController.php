@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\HandlesApiErrors;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreVenueRequest;
 use App\Http\Requests\Api\UpdateVenueRequest;
@@ -9,16 +10,21 @@ use App\Http\Resources\VenueCollection;
 use App\Http\Resources\VenueResource;
 use App\Models\City;
 use App\Models\Venue;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class VenueController extends Controller
 {
+    use AuthorizesRequests, HandlesApiErrors;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Venue::class);
         $query = Venue::query();
 
         $query->with(['location.city', 'ratingDetails', 'images']);
@@ -95,8 +101,30 @@ class VenueController extends Controller
      */
     public function store(StoreVenueRequest $request)
     {
-        $venue = Venue::create($request->validated());
-        
+        $this->authorize('create', Venue::class);
+
+        $data = $request->validated();
+
+        // Validate related models exist
+        $relationshipError = $this->validateRelatedModels($data, [
+            'city_id' => City::class,
+        ]);
+
+        if ($relationshipError) {
+            return $relationshipError;
+        }
+
+        $venue = $this->executeInTransaction(function () use ($data) {
+            $venue = Venue::create($data);
+            $this->logApiOperation('create', $venue, $data);
+
+            return $venue;
+        });
+
+        if ($venue instanceof JsonResponse) {
+            return $venue;
+        }
+
         return (new VenueResource($venue->load(['location.city', 'ratingDetails', 'images', 'openingHours', 'treatments'])))
             ->response()
             ->setStatusCode(201);
@@ -118,27 +146,82 @@ class VenueController extends Controller
             abort(404, 'Venue not found');
         }
 
+        $this->authorize('view', $venue);
+
         return new VenueResource($venue);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVenueRequest $request, Venue $venue): VenueResource
+    public function update(UpdateVenueRequest $request, Venue $venue)
     {
-        $venue->update($request->validated());
-        
-        return new VenueResource($venue->load(['location.city', 'ratingDetails', 'images', 'openingHours', 'treatments']));
+        $this->authorize('update', $venue);
+
+        $data = $request->validated();
+
+        // Check for concurrent modifications
+        $concurrencyError = $this->checkConcurrentModification($venue, $request->header('If-Unmodified-Since'));
+        if ($concurrencyError) {
+            return $concurrencyError;
+        }
+
+        // Validate related models exist
+        $relationshipError = $this->validateRelatedModels($data, [
+            'city_id' => City::class,
+        ]);
+
+        if ($relationshipError) {
+            return $relationshipError;
+        }
+
+        $updatedVenue = $this->executeInTransaction(function () use ($venue, $data) {
+            $venue->update($data);
+            $this->logApiOperation('update', $venue, $data);
+
+            return $venue;
+        });
+
+        if ($updatedVenue instanceof JsonResponse) {
+            return $updatedVenue;
+        }
+
+        return new VenueResource($updatedVenue->load(['location.city', 'ratingDetails', 'images', 'openingHours', 'treatments']));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Venue $venue): Response
+    public function destroy(Venue $venue)
     {
-        $venue->delete();
-        
+        $this->authorize('delete', $venue);
+
+        // Validate that the venue can be deleted
+        $deletionError = $this->validateDeletion($venue);
+        if ($deletionError) {
+            return $deletionError;
+        }
+
+        $result = $this->executeInTransaction(function () use ($venue) {
+            $this->logApiOperation('delete', $venue);
+            $venue->delete();
+
+            return true;
+        });
+
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
         return response()->noContent();
+    }
+
+    /**
+     * Get critical relationships that prevent deletion.
+     */
+    protected function getCriticalRelationships(Model $model): array
+    {
+        return ['treatments', 'images', 'openingHours'];
     }
 
     /**

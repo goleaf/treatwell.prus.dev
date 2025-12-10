@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\HandlesApiErrors;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreTreatmentRequest;
 use App\Http\Requests\Api\UpdateTreatmentRequest;
@@ -9,18 +10,23 @@ use App\Http\Resources\TreatmentCollection;
 use App\Http\Resources\TreatmentResource;
 use App\Models\Treatment;
 use App\Models\Venue;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class TreatmentController extends Controller
 {
+    use AuthorizesRequests, HandlesApiErrors;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Treatment::class);
         $query = Treatment::query();
-        
+
         $query->with(['venue']);
 
         // Search
@@ -88,8 +94,30 @@ class TreatmentController extends Controller
      */
     public function store(StoreTreatmentRequest $request)
     {
-        $treatment = Treatment::create($request->validated());
-        
+        $this->authorize('create', Treatment::class);
+
+        $data = $request->validated();
+
+        // Validate related models exist
+        $relationshipError = $this->validateRelatedModels($data, [
+            'venue_id' => Venue::class,
+        ]);
+
+        if ($relationshipError) {
+            return $relationshipError;
+        }
+
+        $treatment = $this->executeInTransaction(function () use ($data) {
+            $treatment = Treatment::create($data);
+            $this->logApiOperation('create', $treatment, $data);
+
+            return $treatment;
+        });
+
+        if ($treatment instanceof JsonResponse) {
+            return $treatment;
+        }
+
         return (new TreatmentResource($treatment->load(['venue'])))
             ->response()
             ->setStatusCode(201);
@@ -100,27 +128,83 @@ class TreatmentController extends Controller
      */
     public function show(Treatment $treatment): TreatmentResource
     {
+        $this->authorize('view', $treatment);
+
         return new TreatmentResource($treatment->load(['venue']));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTreatmentRequest $request, Treatment $treatment): TreatmentResource
+    public function update(UpdateTreatmentRequest $request, Treatment $treatment)
     {
-        $treatment->update($request->validated());
-        
-        return new TreatmentResource($treatment->load(['venue']));
+        $this->authorize('update', $treatment);
+
+        $data = $request->validated();
+
+        // Check for concurrent modifications
+        $concurrencyError = $this->checkConcurrentModification($treatment, $request->header('If-Unmodified-Since'));
+        if ($concurrencyError) {
+            return $concurrencyError;
+        }
+
+        // Validate related models exist
+        $relationshipError = $this->validateRelatedModels($data, [
+            'venue_id' => Venue::class,
+        ]);
+
+        if ($relationshipError) {
+            return $relationshipError;
+        }
+
+        $updatedTreatment = $this->executeInTransaction(function () use ($treatment, $data) {
+            $treatment->update($data);
+            $this->logApiOperation('update', $treatment, $data);
+
+            return $treatment;
+        });
+
+        if ($updatedTreatment instanceof JsonResponse) {
+            return $updatedTreatment;
+        }
+
+        return new TreatmentResource($updatedTreatment->load(['venue']));
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource in storage.
      */
-    public function destroy(Treatment $treatment): Response
+    public function destroy(Treatment $treatment)
     {
-        $treatment->delete();
-        
+        $this->authorize('delete', $treatment);
+
+        // Validate that the treatment can be deleted
+        $deletionError = $this->validateDeletion($treatment);
+        if ($deletionError) {
+            return $deletionError;
+        }
+
+        $result = $this->executeInTransaction(function () use ($treatment) {
+            $this->logApiOperation('delete', $treatment);
+            $treatment->delete();
+
+            return true;
+        });
+
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
         return response()->noContent();
+    }
+
+    /**
+     * Get critical relationships that prevent deletion.
+     */
+    protected function getCriticalRelationships(Model $model): array
+    {
+        // Treatments typically don't have critical relationships that prevent deletion
+        return [];
     }
 
     /**

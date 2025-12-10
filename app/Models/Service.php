@@ -6,13 +6,13 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Service extends Model
 {
     /** @use HasFactory<\Database\Factories\ServiceFactory> */
-    use CrudTrait, HasFactory;
+    use CrudTrait, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'venue_id',
@@ -47,19 +47,9 @@ class Service extends Model
         return $this->belongsTo(Venue::class);
     }
 
-    public function treatments(): HasMany
-    {
-        return $this->hasMany(Treatment::class);
-    }
-
     public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
-    }
-
-    public function ratings(): HasMany
-    {
-        return $this->hasMany(Rating::class, 'service_id');
     }
 
     // Scope for active services
