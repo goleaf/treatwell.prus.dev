@@ -428,13 +428,13 @@ class ScrapeTreatwellCommand extends Command
         if (isset($ratingData['dimensions']) && is_array($ratingData['dimensions'])) {
             foreach ($ratingData['dimensions'] as $dimension) {
                 if ($dimension['name'] === 'Švara') {
-                    $cleanlinessAvg = $dimension['average'] ?? null;
+                    $cleanlinessAvg = $this->parseDecimal($dimension['average'] ?? null);
                     $cleanlinessCount = $dimension['count'] ?? 0;
                 } elseif ($dimension['name'] === 'Personalas') {
-                    $staffAvg = $dimension['average'] ?? null;
+                    $staffAvg = $this->parseDecimal($dimension['average'] ?? null);
                     $staffCount = $dimension['count'] ?? 0;
                 } elseif ($dimension['name'] === 'Atmosfera') {
-                    $atmosphereAvg = $dimension['average'] ?? null;
+                    $atmosphereAvg = $this->parseDecimal($dimension['average'] ?? null);
                     $atmosphereCount = $dimension['count'] ?? 0;
                 }
             }
@@ -443,7 +443,7 @@ class ScrapeTreatwellCommand extends Command
         Rating::updateOrCreate(
             ['venue_id' => $venue->id],
             [
-                'weighted_average' => $ratingData['weightedAverage'] ?? null,
+                'weighted_average' => $this->parseDecimal($ratingData['weightedAverage'] ?? null),
                 'count' => $ratingData['count'] ?? 0,
                 'cleanliness_avg' => $cleanlinessAvg,
                 'cleanliness_count' => $cleanlinessCount,
@@ -451,11 +451,26 @@ class ScrapeTreatwellCommand extends Command
                 'staff_count' => $staffCount,
                 'atmosphere_avg' => $atmosphereAvg,
                 'atmosphere_count' => $atmosphereCount,
-                'display_average' => $ratingData['displayAverage'] ?? null,
+                'display_average' => $this->parseDecimal($ratingData['displayAverage'] ?? null),
             ]
         );
 
         $this->stats['ratings_created']++;
+    }
+
+    private function parseDecimal($value): ?float
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (is_float($value)) {
+            return $value;
+        }
+        if (is_int($value)) {
+            return (float) $value;
+        }
+        
+        return (float) str_replace(',', '.', (string) $value);
     }
 
     protected function processOpeningHours(Venue $venue, array $openingHoursData): void
