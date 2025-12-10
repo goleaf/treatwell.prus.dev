@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,20 @@ class ApiCallLog extends Model
 {
     /** @use HasFactory<\Database\Factories\ApiCallLogFactory> */
     use HasFactory;
+
+    // HTTP Status Code Constants
+    public const STATUS_SUCCESS_MIN = 200;
+
+    public const STATUS_SUCCESS_MAX = 299;
+
+    public const STATUS_CLIENT_ERROR_MIN = 400;
+
+    public const STATUS_SERVER_ERROR_MIN = 500;
+
+    // Performance Thresholds
+    public const DEFAULT_SLOW_THRESHOLD_MS = 5000;
+
+    public const MILLISECONDS_TO_NANOSECONDS = 1_000_000;
 
     protected $fillable = [
         'endpoint',
@@ -40,9 +55,17 @@ class ApiCallLog extends Model
     }
 
     /**
+     * Scope to eager load city relationship efficiently.
+     */
+    public function scopeWithCity(Builder $query): Builder
+    {
+        return $query->with('city:slug,name,id');
+    }
+
+    /**
      * Scope to get logs by city slug.
      */
-    public function scopeByCity($query, string $citySlug)
+    public function scopeByCity(Builder $query, string $citySlug): Builder
     {
         return $query->where('city_slug', $citySlug);
     }
@@ -50,7 +73,7 @@ class ApiCallLog extends Model
     /**
      * Scope to get logs by status code.
      */
-    public function scopeByStatusCode($query, int $statusCode)
+    public function scopeByStatusCode(Builder $query, int $statusCode): Builder
     {
         return $query->where('status_code', $statusCode);
     }
@@ -58,23 +81,23 @@ class ApiCallLog extends Model
     /**
      * Scope to get successful calls (2xx status codes).
      */
-    public function scopeSuccessful($query)
+    public function scopeSuccessful(Builder $query): Builder
     {
-        return $query->whereBetween('status_code', [200, 299]);
+        return $query->whereBetween('status_code', [self::STATUS_SUCCESS_MIN, self::STATUS_SUCCESS_MAX]);
     }
 
     /**
      * Scope to get failed calls (4xx and 5xx status codes).
      */
-    public function scopeFailed($query)
+    public function scopeFailed(Builder $query): Builder
     {
-        return $query->where('status_code', '>=', 400);
+        return $query->where('status_code', '>=', self::STATUS_CLIENT_ERROR_MIN);
     }
 
     /**
      * Scope to get logs within a time range.
      */
-    public function scopeWithinTimeRange($query, $startTime, $endTime)
+    public function scopeWithinTimeRange(Builder $query, $startTime, $endTime): Builder
     {
         return $query->whereBetween('called_at', [$startTime, $endTime]);
     }
@@ -82,7 +105,7 @@ class ApiCallLog extends Model
     /**
      * Scope to get logs for a specific endpoint.
      */
-    public function scopeForEndpoint($query, string $endpoint)
+    public function scopeForEndpoint(Builder $query, string $endpoint): Builder
     {
         return $query->where('endpoint', $endpoint);
     }
@@ -90,7 +113,7 @@ class ApiCallLog extends Model
     /**
      * Scope to get slow calls (above threshold).
      */
-    public function scopeSlowCalls($query, int $thresholdMs = 5000)
+    public function scopeSlowCalls(Builder $query, int $thresholdMs = self::DEFAULT_SLOW_THRESHOLD_MS): Builder
     {
         return $query->where('response_time', '>', $thresholdMs);
     }
@@ -118,13 +141,40 @@ class ApiCallLog extends Model
     }
 
     /**
+     * Bulk insert multiple API call logs for better performance.
+     */
+    public static function logBulkCalls(array $calls): bool
+    {
+        $now = now();
+        $data = collect($calls)->map(function ($call) use ($now) {
+            return [
+                'endpoint' => $call['endpoint'],
+                'city_slug' => $call['city_slug'] ?? null,
+                'status_code' => $call['status_code'] ?? null,
+                'response_time' => $call['response_time'] ?? null,
+                'data_points_extracted' => $call['data_points_extracted'] ?? 0,
+                'error_message' => $call['error_message'] ?? null,
+                'called_at' => $call['called_at'] ?? $now,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        })->toArray();
+
+        return self::insert($data);
+    }
+
+    /**
      * Get average response time for an endpoint.
      */
     public static function getAverageResponseTime(string $endpoint): ?float
     {
-        return self::forEndpoint($endpoint)
-            ->whereNotNull('response_time')
-            ->avg('response_time');
+        return cache()->remember(
+            "api_call_log_avg_response_time_{$endpoint}",
+            now()->addMinutes(5),
+            fn () => self::forEndpoint($endpoint)
+                ->whereNotNull('response_time')
+                ->avg('response_time')
+        );
     }
 
     /**
@@ -132,15 +182,22 @@ class ApiCallLog extends Model
      */
     public static function getSuccessRate(string $endpoint): float
     {
-        $total = self::forEndpoint($endpoint)->count();
+        return cache()->remember(
+            "api_call_log_success_rate_{$endpoint}",
+            now()->addMinutes(5),
+            function () use ($endpoint) {
+                $query = self::forEndpoint($endpoint);
+                $total = $query->count();
 
-        if ($total === 0) {
-            return 0.0;
-        }
+                if ($total === 0) {
+                    return 0.0;
+                }
 
-        $successful = self::forEndpoint($endpoint)->successful()->count();
+                $successful = (clone $query)->successful()->count();
 
-        return ($successful / $total) * 100;
+                return ($successful / $total) * 100;
+            }
+        );
     }
 
     /**
@@ -168,30 +225,104 @@ class ApiCallLog extends Model
      */
     public static function getPerformanceStats($startTime, $endTime): array
     {
-        $logs = self::withinTimeRange($startTime, $endTime)->get();
+        // Use database aggregation instead of loading all records into memory
+        $baseQuery = self::withinTimeRange($startTime, $endTime);
 
-        if ($logs->isEmpty()) {
-            return [
-                'total_calls' => 0,
-                'successful_calls' => 0,
-                'failed_calls' => 0,
-                'success_rate' => 0.0,
-                'average_response_time' => null,
-                'total_data_points' => 0,
-            ];
+        $totalCalls = $baseQuery->count();
+
+        if ($totalCalls === 0) {
+            return self::getEmptyPerformanceStats();
         }
 
-        $successful = $logs->where('status_code', '>=', 200)->where('status_code', '<', 300);
-        $failed = $logs->where('status_code', '>=', 400);
-        $responseTimes = $logs->whereNotNull('response_time')->pluck('response_time');
+        $successfulCalls = (clone $baseQuery)->successful()->count();
+        $failedCalls = (clone $baseQuery)->failed()->count();
+        $avgResponseTime = (clone $baseQuery)->whereNotNull('response_time')->avg('response_time');
+        $totalDataPoints = (clone $baseQuery)->sum('data_points_extracted');
 
         return [
-            'total_calls' => $logs->count(),
-            'successful_calls' => $successful->count(),
-            'failed_calls' => $failed->count(),
-            'success_rate' => ($successful->count() / $logs->count()) * 100,
-            'average_response_time' => $responseTimes->avg(),
-            'total_data_points' => $logs->sum('data_points_extracted'),
+            'total_calls' => $totalCalls,
+            'successful_calls' => $successfulCalls,
+            'failed_calls' => $failedCalls,
+            'success_rate' => ($successfulCalls / $totalCalls) * 100,
+            'average_response_time' => $avgResponseTime,
+            'total_data_points' => $totalDataPoints,
         ];
+    }
+
+    /**
+     * Get empty performance statistics structure.
+     */
+    private static function getEmptyPerformanceStats(): array
+    {
+        return [
+            'total_calls' => 0,
+            'successful_calls' => 0,
+            'failed_calls' => 0,
+            'success_rate' => 0.0,
+            'average_response_time' => null,
+            'total_data_points' => 0,
+        ];
+    }
+
+    /**
+     * Check if the API call was successful.
+     */
+    public function isSuccessful(): bool
+    {
+        return $this->status_code >= self::STATUS_SUCCESS_MIN
+            && $this->status_code <= self::STATUS_SUCCESS_MAX;
+    }
+
+    /**
+     * Check if the API call failed.
+     */
+    public function isFailed(): bool
+    {
+        return $this->status_code >= self::STATUS_CLIENT_ERROR_MIN;
+    }
+
+    /**
+     * Check if the API call was slow.
+     */
+    public function isSlow(int $thresholdMs = self::DEFAULT_SLOW_THRESHOLD_MS): bool
+    {
+        return $this->response_time !== null && $this->response_time > $thresholdMs;
+    }
+
+    /**
+     * Get response time in seconds.
+     */
+    public function getResponseTimeInSeconds(): ?float
+    {
+        return $this->response_time ? $this->response_time / 1000 : null;
+    }
+
+    /**
+     * Clear cached statistics for an endpoint.
+     */
+    public static function clearEndpointCache(string $endpoint): void
+    {
+        cache()->forget("api_call_log_avg_response_time_{$endpoint}");
+        cache()->forget("api_call_log_success_rate_{$endpoint}");
+    }
+
+    /**
+     * Boot method to handle cache invalidation on model events.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function ($log) {
+            if ($log->endpoint) {
+                self::clearEndpointCache($log->endpoint);
+            }
+        });
+
+        static::updated(function ($log) {
+            if ($log->endpoint) {
+                self::clearEndpointCache($log->endpoint);
+            }
+        });
     }
 }

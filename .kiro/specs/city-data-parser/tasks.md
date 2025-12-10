@@ -76,7 +76,7 @@ This implementation plan converts the city data parser design into actionable co
     - Implement relationship management between entities
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [x] 4.3 Write property test for data persistence completeness
+  - [ ] 4.3 Write property test for data persistence completeness
     - **Property 4: Data persistence completeness**
     - **Validates: Requirements 1.4, 3.5**
 
@@ -90,36 +90,36 @@ This implementation plan converts the city data parser design into actionable co
     - **Property 3: Graceful error handling**
     - **Validates: Requirements 1.3, 3.4**
 
-- [ ] 5. Create Filament display resources
-  - [ ] 5.1 Create VenueResource for Filament
+- [x] 5. Create Filament display resources
+  - [x] 5.1 Create VenueResource for Filament
     - Implement comprehensive venue display with all collected fields
     - Add search, filter, and sorting capabilities
     - Configure read-only access without authentication
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 5.2 Create CityResource for Filament
+  - [x] 5.2 Create CityResource for Filament
     - Implement city data display with venue relationships
     - Add filtering by country and region
     - Include venue and treatment count statistics
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 5.3 Create TreatmentResource for Filament
+  - [x] 5.3 Create TreatmentResource for Filament
     - Implement treatment display with pricing and duration
     - Add venue and city relationship displays
     - Include search and filtering by category
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 5.4 Write property test for interface data completeness
+  - [x] 5.4 Write property test for interface data completeness
     - **Property 6: Interface data completeness**
     - **Validates: Requirements 2.1, 2.4**
 
-  - [ ] 5.5 Create additional Filament resources
+  - [x] 5.5 Create additional Filament resources
     - Implement LocationResource for address and coordinate display
     - Create RatingResource for review and rating information
     - Add ImageResource for venue image management
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 5.6 Write property test for interface functionality
+  - [x] 5.6 Write property test for interface functionality
     - **Property 7: Interface functionality**
     - **Validates: Requirements 2.2, 2.3**
 

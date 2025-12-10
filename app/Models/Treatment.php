@@ -6,6 +6,7 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -208,8 +209,8 @@ class Treatment extends Model
             'data_completeness' => $this->getDataCompleteness(),
             'has_price_info' => $this->hasPriceInfo(),
             'has_duration_info' => $this->hasDurationInfo(),
-            'has_description' => !empty($this->description),
-            'has_category' => !empty($this->category),
+            'has_description' => ! empty($this->description),
+            'has_category' => ! empty($this->category),
         ];
     }
 
@@ -220,7 +221,7 @@ class Treatment extends Model
     {
         // Extract fillable data
         $fillableData = array_intersect_key($data, array_flip($this->fillable));
-        
+
         // Handle price data
         if (isset($data['pricing'])) {
             $pricing = $data['pricing'];
@@ -228,7 +229,7 @@ class Treatment extends Model
             $fillableData['min_price'] = $pricing['min_price'] ?? null;
             $fillableData['max_price'] = $pricing['max_price'] ?? null;
         }
-        
+
         // Handle duration data
         if (isset($data['duration_info'])) {
             $duration = $data['duration_info'];
@@ -236,7 +237,7 @@ class Treatment extends Model
             $fillableData['min_duration'] = $duration['min_duration'] ?? null;
             $fillableData['max_duration'] = $duration['max_duration'] ?? null;
         }
-        
+
         // Handle category data
         if (isset($data['category_info'])) {
             $category = $data['category_info'];
@@ -244,7 +245,7 @@ class Treatment extends Model
             $fillableData['category_id'] = $category['id'] ?? null;
             $fillableData['category_name'] = $category['display_name'] ?? null;
         }
-        
+
         $this->update($fillableData);
     }
 
@@ -254,21 +255,26 @@ class Treatment extends Model
     public function getDataCompleteness(): float
     {
         $requiredFields = [
-            'name', 'slug', 'description', 'category'
+            'name', 'slug', 'description', 'category',
         ];
-        
+
         $completedFields = 0;
         foreach ($requiredFields as $field) {
-            if (!empty($this->$field)) {
+            if (! empty($this->$field)) {
                 $completedFields++;
             }
         }
-        
+
         // Add points for price and duration info
-        if ($this->hasPriceInfo()) $completedFields++;
-        if ($this->hasDurationInfo()) $completedFields++;
-        
+        if ($this->hasPriceInfo()) {
+            $completedFields++;
+        }
+        if ($this->hasDurationInfo()) {
+            $completedFields++;
+        }
+
         $totalPossible = count($requiredFields) + 2; // 2 bonus categories
+
         return ($completedFields / $totalPossible) * 100;
     }
 
@@ -277,8 +283,8 @@ class Treatment extends Model
      */
     public function hasPriceInfo(): bool
     {
-        return !is_null($this->price) || 
-               (!is_null($this->min_price) && !is_null($this->max_price));
+        return ! is_null($this->price) ||
+               (! is_null($this->min_price) && ! is_null($this->max_price));
     }
 
     /**
@@ -286,8 +292,8 @@ class Treatment extends Model
      */
     public function hasDurationInfo(): bool
     {
-        return !is_null($this->duration) || 
-               (!is_null($this->min_duration) && !is_null($this->max_duration));
+        return ! is_null($this->duration) ||
+               (! is_null($this->min_duration) && ! is_null($this->max_duration));
     }
 
     /**
@@ -304,17 +310,21 @@ class Treatment extends Model
     public function getMissingDataFields(): array
     {
         $requiredFields = ['name', 'slug', 'description', 'category'];
-        
+
         $missing = [];
         foreach ($requiredFields as $field) {
             if (empty($this->$field)) {
                 $missing[] = $field;
             }
         }
-        
-        if (!$this->hasPriceInfo()) $missing[] = 'price_info';
-        if (!$this->hasDurationInfo()) $missing[] = 'duration_info';
-        
+
+        if (! $this->hasPriceInfo()) {
+            $missing[] = 'price_info';
+        }
+        if (! $this->hasDurationInfo()) {
+            $missing[] = 'duration_info';
+        }
+
         return $missing;
     }
 }

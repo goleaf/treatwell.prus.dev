@@ -173,6 +173,7 @@ class City extends Model
     public function getParsingStatus(): string
     {
         $progress = $this->parseProgress()->latest()->first();
+
         return $progress?->status ?? 'pending';
     }
 
@@ -214,7 +215,7 @@ class City extends Model
         $cityFields = ['name', 'slug', 'latitude', 'longitude', 'country_id'];
         foreach ($cityFields as $field) {
             $totalFields++;
-            if (!empty($this->$field)) {
+            if (! empty($this->$field)) {
                 $completedFields++;
             }
         }

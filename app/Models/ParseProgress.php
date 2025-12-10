@@ -160,7 +160,7 @@ class ParseProgress extends Model
      */
     public function getProcessingDuration(): ?int
     {
-        if (!$this->started_at) {
+        if (! $this->started_at) {
             return null;
         }
 

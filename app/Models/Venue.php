@@ -302,7 +302,7 @@ class Venue extends Model
             'has_treatments' => $this->treatments()->exists(),
             'has_location' => $this->location()->exists(),
             'has_opening_hours' => $this->openingHours()->exists(),
-            'has_rating' => !is_null($this->rating),
+            'has_rating' => ! is_null($this->rating),
         ];
     }
 
@@ -313,20 +313,20 @@ class Venue extends Model
     {
         // Store raw data for debugging
         $this->raw_data = $data;
-        
+
         // Extract fillable data
         $fillableData = array_intersect_key($data, array_flip($this->fillable));
-        
+
         // Handle special fields
         if (isset($data['opening_hours']) && is_array($data['opening_hours'])) {
             $fillableData['opening_hours'] = $data['opening_hours'];
         }
-        
+
         if (isset($data['coordinates'])) {
             $fillableData['latitude'] = $data['coordinates']['lat'] ?? null;
             $fillableData['longitude'] = $data['coordinates']['lng'] ?? null;
         }
-        
+
         // Handle location data that might contain coordinates
         if (isset($data['location'])) {
             if (isset($data['location']['coordinates'])) {
@@ -340,7 +340,7 @@ class Venue extends Model
                 $fillableData['longitude'] = $data['location']['longitude'];
             }
         }
-        
+
         $this->update($fillableData);
     }
 
@@ -350,25 +350,34 @@ class Venue extends Model
     public function getDataCompleteness(): float
     {
         $requiredFields = [
-            'name', 'slug', 'address', 'latitude', 'longitude', 
-            'phone', 'email', 'website', 'description'
+            'name', 'slug', 'address', 'latitude', 'longitude',
+            'phone', 'email', 'website', 'description',
         ];
-        
+
         $completedFields = 0;
         foreach ($requiredFields as $field) {
-            if (!empty($this->$field)) {
+            if (! empty($this->$field)) {
                 $completedFields++;
             }
         }
-        
+
         // Add bonus points for related data
         $bonusPoints = 0;
-        if ($this->images()->exists()) $bonusPoints++;
-        if ($this->treatments()->exists()) $bonusPoints++;
-        if ($this->openingHours()->exists()) $bonusPoints++;
-        if ($this->ratingDetails()->exists()) $bonusPoints++;
-        
+        if ($this->images()->exists()) {
+            $bonusPoints++;
+        }
+        if ($this->treatments()->exists()) {
+            $bonusPoints++;
+        }
+        if ($this->openingHours()->exists()) {
+            $bonusPoints++;
+        }
+        if ($this->ratingDetails()->exists()) {
+            $bonusPoints++;
+        }
+
         $totalPossible = count($requiredFields) + 4; // 4 bonus categories
+
         return (($completedFields + $bonusPoints) / $totalPossible) * 100;
     }
 
@@ -386,23 +395,31 @@ class Venue extends Model
     public function getMissingDataFields(): array
     {
         $requiredFields = [
-            'name', 'slug', 'address', 'latitude', 'longitude', 
-            'phone', 'email', 'website', 'description'
+            'name', 'slug', 'address', 'latitude', 'longitude',
+            'phone', 'email', 'website', 'description',
         ];
-        
+
         $missing = [];
         foreach ($requiredFields as $field) {
             if (empty($this->$field)) {
                 $missing[] = $field;
             }
         }
-        
+
         // Check related data
-        if (!$this->images()->exists()) $missing[] = 'images';
-        if (!$this->treatments()->exists()) $missing[] = 'treatments';
-        if (!$this->openingHours()->exists()) $missing[] = 'opening_hours';
-        if (!$this->ratingDetails()->exists()) $missing[] = 'rating_details';
-        
+        if (! $this->images()->exists()) {
+            $missing[] = 'images';
+        }
+        if (! $this->treatments()->exists()) {
+            $missing[] = 'treatments';
+        }
+        if (! $this->openingHours()->exists()) {
+            $missing[] = 'opening_hours';
+        }
+        if (! $this->ratingDetails()->exists()) {
+            $missing[] = 'rating_details';
+        }
+
         return $missing;
     }
 
@@ -411,7 +428,7 @@ class Venue extends Model
      */
     public function syncRelatedDataWithCity(): void
     {
-        if (!$this->city_id) {
+        if (! $this->city_id) {
             return;
         }
 
