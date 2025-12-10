@@ -11,9 +11,20 @@ class Location extends Model
     use CrudTrait;
 
     protected $fillable = [
-        'venue_id', 'city_id', 'name', 'description', 'postal_code',
-        'address_line1', 'address_line2', 'latitude', 'longitude',
-        'map_zoom', 'capacity', 'is_active',
+        'external_id',
+        'venue_id',
+        'city_id',
+        'name',
+        'description',
+        'postal_code',
+        'address_line1',
+        'address_line2',
+        'address',
+        'latitude',
+        'longitude',
+        'map_zoom',
+        'capacity',
+        'is_active',
     ];
 
     protected function casts(): array

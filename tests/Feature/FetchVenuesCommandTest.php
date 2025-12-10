@@ -41,7 +41,7 @@ class FetchVenuesCommandTest extends TestCase
         Rating::query()->delete();
 
         // Also clear any pivot tables
-        DB::table('venue_treatment')->delete();
+        DB::table('treatment_venue')->delete();
         DB::table('city_venue')->delete();
         DB::table('city_treatment')->delete();
         DB::table('city_procedure')->delete();
@@ -730,6 +730,7 @@ class FetchVenuesCommandTest extends TestCase
                 $table->id();
                 $table->string('name');
                 $table->string('external_id')->nullable();
+                $table->string('slug')->nullable();
                 $table->decimal('price', 8, 2)->nullable();
                 $table->integer('duration')->nullable();
                 $table->timestamps();
@@ -788,10 +789,10 @@ class FetchVenuesCommandTest extends TestCase
         ];
 
         $pivotTables = [
-            'venue_treatment',
-            'city_venue',
-            'city_treatment',
-            'city_procedure',
+            'treatment_venue' => ['treatment_id', 'venue_id'],
+            'city_venue' => ['city_id', 'venue_id'],
+            'city_treatment' => ['city_id', 'treatment_id'],
+            'city_procedure' => ['city_id', 'procedure_id'],
         ];
 
         foreach ($tables as $tableName => $callback) {
@@ -800,13 +801,14 @@ class FetchVenuesCommandTest extends TestCase
             }
         }
 
-        foreach ($pivotTables as $tableName) {
+        foreach ($pivotTables as $tableName => $columns) {
             if (! Schema::hasTable($tableName)) {
-                Schema::create($tableName, function ($table) use ($tableName) {
-                    $parts = explode('_', $tableName);
-                    $table->unsignedBigInteger($parts[0].'_id');
-                    $table->unsignedBigInteger($parts[1].'_id');
-                    $table->primary([$parts[0].'_id', $parts[1].'_id']);
+                Schema::create($tableName, function ($table) use ($columns) {
+                    foreach ($columns as $column) {
+                        $table->unsignedBigInteger($column);
+                    }
+
+                    $table->primary($columns);
                     $table->timestamps();
                 });
             }
