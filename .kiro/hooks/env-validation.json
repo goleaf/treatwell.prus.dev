@@ -1,0 +1,13 @@
+{
+  "name": "Environment Validation",
+  "description": "Validates environment configuration when .env files are modified",
+  "trigger": {
+    "type": "file_modified",
+    "pattern": ".env*"
+  },
+  "action": {
+    "type": "command",
+    "command": "php artisan config:clear && php artisan config:cache"
+  },
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Security Audit",
+  "description": "Run security checks on code changes",
+  "trigger": {
+    "type": "manual"
+  },
+  "action": {
+    "type": "sendMessage",
+    "message": "Perform a security audit of the codebase: check for vulnerabilities in dependencies with `composer audit`, review authentication and authorization implementations, validate input sanitization, and ensure CSRF protection is properly implemented."
+  }
+}

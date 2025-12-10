@@ -1,0 +1,290 @@
+{
+  "name": "Intelligent Test Runner v2",
+  "description": "Advanced test execution system that intelligently runs relevant tests based on file changes with comprehensive reporting",
+  "version": "2.0",
+  "enabled": true,
+  "priority": 2,
+  "trigger": {
+    "type": "file_save",
+    "filePattern": "*.php",
+    "excludePatterns": [
+      "vendor/*",
+      "storage/*",
+      "bootstrap/cache/*",
+      "config/cache/*",
+      "*.blade.php"
+    ],
+    "conditions": {
+      "requireGitTracked": true,
+      "skipIfTestFile": false,
+      "debounce": 2000
+    }
+  },
+  "preValidation": [
+    {
+      "type": "environment_check",
+      "checks": [
+        {
+          "command": "php artisan --version",
+          "required": true,
+          "errorMessage": "Laravel Artisan not available"
+        },
+        {
+          "command": "vendor/bin/phpunit --version",
+          "required": false,
+          "fallback": "php artisan test --help"
+        }
+      ]
+    },
+    {
+      "type": "project_validation",
+      "checks": [
+        {
+          "type": "directory_exists",
+          "path": "tests",
+          "errorMessage": "Tests directory not found"
+        },
+        {
+          "type": "file_exists",
+          "path": "phpunit.xml",
+          "errorMessage": "PHPUnit configuration not found"
+        }
+      ]
+    }
+  ],
+  "intelligentTestSelection": {
+    "enabled": true,
+    "strategies": [
+      {
+        "name": "direct_test_mapping",
+        "description": "Map changed files to their corresponding test files",
+        "rules": [
+          {
+            "filePattern": "app/Models/*.php",
+            "testPattern": "tests/Unit/*Test.php",
+            "testPattern2": "tests/Feature/*Test.php"
+          },
+          {
+            "filePattern": "app/Http/Controllers/*.php",
+            "testPattern": "tests/Feature/*Test.php"
+          },
+          {
+            "filePattern": "app/Services/*.php",
+            "testPattern": "tests/Unit/*Test.php"
+          }
+        ]
+      },
+      {
+        "name": "dependency_analysis",
+        "description": "Analyze file dependencies to find related tests",
+        "enabled": true,
+        "maxDepth": 2
+      },
+      {
+        "name": "recent_failures",
+        "description": "Include recently failed tests",
+        "enabled": true,
+        "timeWindow": "24h"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "analyze_changes",
+      "type": "custom_script",
+      "script": "analyze_test_requirements.php",
+      "description": "Analyze file changes to determine test strategy",
+      "onSuccess": {
+        "type": "log",
+        "message": "Test analysis completed for {fileName}"
+      }
+    },
+    {
+      "name": "run_targeted_tests",
+      "type": "shell_command",
+      "command": "php artisan test --filter={testFilter} --stop-on-failure",
+      "workingDirectory": "{projectRoot}",
+      "timeout": 120000,
+      "environment": {
+        "APP_ENV": "testing",
+        "DB_CONNECTION": "sqlite",
+        "DB_DATABASE": ":memory:"
+      },
+      "onSuccess": {
+        "type": "notification",
+        "title": "Tests Passed",
+        "message": "✅ All targeted tests passed for {fileName}",
+        "actions": [
+          {
+            "type": "send_message",
+            "message": "🎉 Tests passed! Your changes look good. Consider running the full test suite before committing: `php artisan test`"
+          },
+          {
+            "type": "update_metrics",
+            "metric": "test_success_rate",
+            "value": 1
+          }
+        ]
+      },
+      "onError": {
+        "type": "notification",
+        "title": "Tests Failed",
+        "message": "❌ Tests failed for {fileName}",
+        "actions": [
+          {
+            "type": "send_message",
+            "message": "🚨 Test failures detected in {fileName}. Review the output and fix issues before proceeding.\n\nRun specific test: `php artisan test --filter={testName}`\nRun with verbose output: `php artisan test --filter={testName} -v`"
+          },
+          {
+            "type": "parse_test_output",
+            "extractFailures": true,
+            "showSuggestions": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "coverage_analysis",
+      "type": "conditional_action",
+      "condition": {
+        "type": "environment_variable",
+        "variable": "ENABLE_COVERAGE",
+        "value": "true"
+      },
+      "action": {
+        "type": "shell_command",
+        "command": "php artisan test --coverage --min=80",
+        "onSuccess": {
+          "type": "send_message",
+          "message": "📊 Code coverage maintained above 80%"
+        },
+        "onError": {
+          "type": "send_message",
+          "message": "📉 Code coverage below threshold. Consider adding more tests."
+        }
+      }
+    }
+  ],
+  "postActions": [
+    {
+      "type": "conditional_action",
+      "condition": {
+        "type": "test_results",
+        "status": "passed"
+      },
+      "actions": [
+        {
+          "type": "update_test_cache",
+          "action": "mark_as_passing"
+        },
+        {
+          "type": "git_integration",
+          "action": "update_commit_status",
+          "status": "success"
+        }
+      ]
+    },
+    {
+      "type": "conditional_action",
+      "condition": {
+        "type": "file_path_matches",
+        "pattern": "database/migrations/*"
+      },
+      "action": {
+        "type": "send_message",
+        "message": "🗄️ Migration file detected. Consider running: `php artisan migrate:fresh --seed` in testing environment"
+      }
+    },
+    {
+      "type": "test_report_generation",
+      "enabled": true,
+      "formats": ["json", "html"],
+      "outputPath": "storage/test-reports/"
+    }
+  ],
+  "testStrategies": {
+    "quick": {
+      "description": "Run only directly related tests",
+      "maxExecutionTime": 30000,
+      "filters": ["unit", "feature-specific"]
+    },
+    "comprehensive": {
+      "description": "Run all related tests including dependencies",
+      "maxExecutionTime": 120000,
+      "filters": ["unit", "feature", "integration"]
+    },
+    "full": {
+      "description": "Run complete test suite",
+      "maxExecutionTime": 300000,
+      "trigger": "manual"
+    }
+  },
+  "notifications": {
+    "testStart": {
+      "title": "Running Tests",
+      "message": "🧪 Executing tests for {fileName}...",
+      "showProgress": true
+    },
+    "testSuccess": {
+      "title": "Tests Passed",
+      "message": "✅ All tests passed ({testCount} tests, {duration}ms)",
+      "icon": "✅",
+      "duration": 4000,
+      "actions": [
+        {
+          "label": "View Report",
+          "action": "open_test_report"
+        }
+      ]
+    },
+    "testFailure": {
+      "title": "Tests Failed",
+      "message": "❌ {failureCount} test(s) failed",
+      "icon": "❌",
+      "duration": 8000,
+      "actions": [
+        {
+          "label": "View Failures",
+          "action": "open_test_output"
+        },
+        {
+          "label": "Debug Test",
+          "action": "open_terminal",
+          "command": "php artisan test --filter={failedTest} -v"
+        }
+      ]
+    }
+  },
+  "analytics": {
+    "trackUsage": true,
+    "metrics": [
+      "test_execution_time",
+      "test_success_rate",
+      "coverage_percentage",
+      "failure_patterns",
+      "most_tested_files"
+    ],
+    "reporting": {
+      "daily": true,
+      "weekly": true,
+      "exportFormats": ["json", "csv"]
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "includeTestOutput": true,
+    "includeTimestamp": true,
+    "separateFailureLogs": true,
+    "rotateDaily": true
+  },
+  "metadata": {
+    "author": "Kiro Development Team",
+    "created": "2024-12-10",
+    "version": "2.0.0",
+    "tags": ["testing", "phpunit", "laravel", "automation", "quality"],
+    "documentation": "Intelligent test runner that analyzes file changes and executes relevant tests with comprehensive reporting and failure analysis.",
+    "dependencies": ["phpunit/phpunit", "laravel/framework"],
+    "compatibleWith": ["Laravel 11+", "PHPUnit 10+"]
+  }
+}

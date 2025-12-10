@@ -1,0 +1,13 @@
+{
+  "name": "View Cache Clear",
+  "description": "Clears view cache when Blade templates are modified",
+  "trigger": {
+    "type": "file_modified",
+    "pattern": "resources/views/**/*.blade.php"
+  },
+  "action": {
+    "type": "command",
+    "command": "php artisan view:clear"
+  },
+  "enabled": true
+}

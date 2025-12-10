@@ -1,0 +1,13 @@
+{
+  "name": "Build Frontend Assets",
+  "description": "Build frontend assets when CSS/JS files are saved",
+  "trigger": {
+    "type": "file_save",
+    "filePattern": "*.css,*.js,*.vue,*.blade.php"
+  },
+  "action": {
+    "type": "agent_message",
+    "message": "Frontend files were modified. Consider running `npm run build` or `composer run dev` to update the compiled assets if you're not already running a dev server."
+  },
+  "enabled": false
+}

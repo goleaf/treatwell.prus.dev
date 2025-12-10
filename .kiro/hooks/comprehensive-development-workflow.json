@@ -1,0 +1,60 @@
+{
+  "name": "Comprehensive Development Workflow",
+  "description": "Complete Laravel 12 development workflow automation with code formatting, testing, and quality checks",
+  "version": "2.0",
+  "triggers": [
+    {
+      "type": "file_saved",
+      "patterns": [
+        "app/**/*.php",
+        "database/**/*.php",
+        "routes/**/*.php",
+        "config/**/*.php",
+        "tests/**/*.php"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "sequence",
+      "steps": [
+        {
+          "type": "command",
+          "command": "vendor/bin/pint --dirty",
+          "description": "Format PHP code with Laravel Pint"
+        },
+        {
+          "type": "command",
+          "command": "php artisan config:clear",
+          "description": "Clear configuration cache",
+          "condition": "file_matches('config/**/*.php')"
+        },
+        {
+          "type": "command",
+          "command": "php artisan route:clear",
+          "description": "Clear route cache",
+          "condition": "file_matches('routes/**/*.php')"
+        },
+        {
+          "type": "command",
+          "command": "php artisan view:clear",
+          "description": "Clear view cache",
+          "condition": "file_matches('resources/views/**/*.blade.php')"
+        },
+        {
+          "type": "message",
+          "content": "Running focused tests for modified files...",
+          "condition": "file_matches('tests/**/*.php')"
+        },
+        {
+          "type": "command",
+          "command": "php artisan test --filter={{test_class_name}}",
+          "description": "Run specific test class",
+          "condition": "file_matches('tests/**/*.php')"
+        }
+      ]
+    }
+  ],
+  "enabled": true,
+  "priority": "high"
+}

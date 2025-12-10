@@ -1,0 +1,11 @@
+{
+  "name": "Migration Check",
+  "description": "Check for pending migrations and run them if needed",
+  "trigger": {
+    "type": "onSessionStart"
+  },
+  "action": {
+    "type": "sendMessage",
+    "message": "Check if there are any pending database migrations that need to be run with `php artisan migrate:status`"
+  }
+}

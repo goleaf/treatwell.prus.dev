@@ -1,0 +1,33 @@
+{
+  "name": "Laravel 12 Migration Workflow",
+  "description": "Automated migration handling with factory and seeder creation reminders for Laravel 12",
+  "version": "2.0",
+  "triggers": [
+    {
+      "type": "file_created",
+      "patterns": ["database/migrations/*.php"]
+    },
+    {
+      "type": "file_modified",
+      "patterns": ["database/migrations/*.php"]
+    }
+  ],
+  "actions": [
+    {
+      "type": "sequence",
+      "steps": [
+        {
+          "type": "message",
+          "content": "🔄 Migration detected! Laravel 12 Migration Checklist:\n\n✅ Run: `php artisan migrate`\n✅ Consider creating factory: `php artisan make:factory ModelFactory`\n✅ Consider creating seeder: `php artisan make:seeder ModelSeeder`\n✅ Update DatabaseSeeder.php if needed\n✅ Test rollback: `php artisan migrate:rollback`\n\n💡 Laravel 12 Tip: Use `casts()` method instead of `$casts` property in models"
+        },
+        {
+          "type": "command",
+          "command": "php artisan migrate:status",
+          "description": "Check migration status"
+        }
+      ]
+    }
+  ],
+  "enabled": true,
+  "priority": "high"
+}

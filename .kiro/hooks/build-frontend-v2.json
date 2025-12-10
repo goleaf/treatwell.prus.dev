@@ -1,0 +1,362 @@
+{
+  "name": "Advanced Frontend Build System v2",
+  "description": "Intelligent frontend asset compilation with optimization, error handling, and performance monitoring",
+  "version": "2.0",
+  "enabled": true,
+  "priority": 3,
+  "trigger": {
+    "type": "file_save",
+    "filePattern": [
+      "resources/js/**/*.js",
+      "resources/js/**/*.ts",
+      "resources/js/**/*.vue",
+      "resources/css/**/*.css",
+      "resources/sass/**/*.scss",
+      "tailwind.config.js",
+      "vite.config.js",
+      "package.json"
+    ],
+    "excludePatterns": [
+      "node_modules/*",
+      "public/build/*",
+      "*.min.js",
+      "*.min.css"
+    ],
+    "conditions": {
+      "debounce": 3000,
+      "requireGitTracked": false,
+      "skipIfBuilding": true
+    }
+  },
+  "preValidation": [
+    {
+      "type": "environment_check",
+      "checks": [
+        {
+          "command": "node --version",
+          "required": true,
+          "minVersion": "18.0.0",
+          "errorMessage": "Node.js 18+ required for frontend builds"
+        },
+        {
+          "command": "npm --version",
+          "required": true,
+          "errorMessage": "npm not found. Please install Node.js and npm"
+        }
+      ]
+    },
+    {
+      "type": "project_validation",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "package.json",
+          "errorMessage": "package.json not found"
+        },
+        {
+          "type": "file_exists",
+          "path": "vite.config.js",
+          "errorMessage": "Vite configuration not found"
+        },
+        {
+          "type": "directory_exists",
+          "path": "node_modules",
+          "errorMessage": "Dependencies not installed. Run: npm install"
+        }
+      ]
+    }
+  ],
+  "buildStrategies": {
+    "development": {
+      "command": "npm run dev",
+      "description": "Development build with hot reloading",
+      "timeout": 60000,
+      "watch": true,
+      "sourceMaps": true,
+      "minify": false
+    },
+    "production": {
+      "command": "npm run build",
+      "description": "Production build with optimization",
+      "timeout": 180000,
+      "watch": false,
+      "sourceMaps": false,
+      "minify": true,
+      "analyze": true
+    },
+    "quick": {
+      "command": "npm run build -- --mode development",
+      "description": "Quick build for testing",
+      "timeout": 30000,
+      "watch": false
+    }
+  },
+  "actions": [
+    {
+      "name": "detect_build_strategy",
+      "type": "custom_logic",
+      "logic": {
+        "if": {
+          "condition": "environment_is_production",
+          "then": "production",
+          "else": {
+            "if": {
+              "condition": "file_matches",
+              "pattern": "package.json|vite.config.js",
+              "then": "quick",
+              "else": "development"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "pre_build_cleanup",
+      "type": "shell_command",
+      "command": "rm -rf public/build/*",
+      "description": "Clean previous build artifacts",
+      "optional": true,
+      "onError": {
+        "type": "log",
+        "level": "warning",
+        "message": "Could not clean build directory"
+      }
+    },
+    {
+      "name": "dependency_check",
+      "type": "shell_command",
+      "command": "npm outdated --json",
+      "description": "Check for outdated dependencies",
+      "optional": true,
+      "onSuccess": {
+        "type": "conditional_action",
+        "condition": {
+          "type": "output_contains",
+          "pattern": "wanted"
+        },
+        "action": {
+          "type": "send_message",
+          "message": "📦 Some npm dependencies are outdated. Consider running: `npm update`"
+        }
+      }
+    },
+    {
+      "name": "execute_build",
+      "type": "shell_command",
+      "command": "{selectedStrategy.command}",
+      "workingDirectory": "{projectRoot}",
+      "timeout": "{selectedStrategy.timeout}",
+      "environment": {
+        "NODE_ENV": "{buildMode}",
+        "VITE_APP_ENV": "{appEnv}"
+      },
+      "progressTracking": {
+        "enabled": true,
+        "patterns": [
+          "building for production",
+          "✓ built in",
+          "chunks transformed",
+          "assets minified"
+        ]
+      },
+      "onSuccess": {
+        "type": "notification",
+        "title": "Build Successful",
+        "message": "✅ Frontend assets compiled successfully",
+        "actions": [
+          {
+            "type": "send_message",
+            "message": "🎨 Frontend build completed successfully! Assets are ready for use.\n\n📊 Build stats:\n- Strategy: {selectedStrategy}\n- Duration: {buildDuration}ms\n- Output size: {outputSize}"
+          },
+          {
+            "type": "analyze_build_output",
+            "generateReport": true
+          }
+        ]
+      },
+      "onError": {
+        "type": "notification",
+        "title": "Build Failed",
+        "message": "❌ Frontend build failed",
+        "actions": [
+          {
+            "type": "send_message",
+            "message": "🚨 Frontend build failed. Common solutions:\n\n1. Check for syntax errors in JS/CSS files\n2. Verify all imports are correct\n3. Run `npm install` to update dependencies\n4. Check Vite configuration\n\nRun manually: `{selectedStrategy.command}`"
+          },
+          {
+            "type": "parse_build_errors",
+            "extractSuggestions": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "asset_optimization",
+      "type": "conditional_action",
+      "condition": {
+        "type": "build_strategy",
+        "value": "production"
+      },
+      "actions": [
+        {
+          "type": "shell_command",
+          "command": "npm run analyze-bundle",
+          "description": "Analyze bundle size",
+          "optional": true
+        },
+        {
+          "type": "image_optimization",
+          "inputPath": "resources/images",
+          "outputPath": "public/images",
+          "formats": ["webp", "avif"]
+        }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "type": "manifest_validation",
+      "manifestPath": "public/build/manifest.json",
+      "onSuccess": {
+        "type": "log",
+        "message": "Vite manifest validated successfully"
+      },
+      "onError": {
+        "type": "send_message",
+        "message": "⚠️ Vite manifest validation failed. Assets may not load correctly."
+      }
+    },
+    {
+      "type": "conditional_action",
+      "condition": {
+        "type": "file_path_matches",
+        "pattern": "tailwind.config.js"
+      },
+      "action": {
+        "type": "send_message",
+        "message": "🎨 Tailwind configuration updated. CSS classes may have changed. Consider purging unused styles."
+      }
+    },
+    {
+      "type": "performance_analysis",
+      "enabled": true,
+      "metrics": [
+        "bundle_size",
+        "chunk_count",
+        "build_time",
+        "asset_count"
+      ],
+      "thresholds": {
+        "maxBundleSize": "500KB",
+        "maxBuildTime": "60s",
+        "maxChunks": 10
+      }
+    },
+    {
+      "type": "cache_invalidation",
+      "targets": [
+        "browser_cache",
+        "cdn_cache",
+        "service_worker"
+      ]
+    }
+  ],
+  "errorHandling": {
+    "commonErrors": {
+      "MODULE_NOT_FOUND": {
+        "message": "Missing module dependency",
+        "suggestion": "Run `npm install {moduleName}` or check import paths"
+      },
+      "SYNTAX_ERROR": {
+        "message": "JavaScript/CSS syntax error",
+        "suggestion": "Check the file for syntax errors and fix them"
+      },
+      "MEMORY_LIMIT": {
+        "message": "Build process ran out of memory",
+        "suggestion": "Increase Node.js memory limit: `export NODE_OPTIONS='--max-old-space-size=4096'`"
+      },
+      "PERMISSION_DENIED": {
+        "message": "File permission error",
+        "suggestion": "Check file permissions and ownership"
+      }
+    },
+    "retryStrategy": {
+      "enabled": true,
+      "maxRetries": 2,
+      "retryDelay": 5000,
+      "exponentialBackoff": true
+    }
+  },
+  "notifications": {
+    "buildStart": {
+      "title": "Building Assets",
+      "message": "🔨 Compiling frontend assets...",
+      "showProgress": true,
+      "estimatedDuration": "{estimatedBuildTime}"
+    },
+    "buildSuccess": {
+      "title": "Build Complete",
+      "message": "✅ Assets compiled ({buildDuration}ms)",
+      "icon": "🎨",
+      "duration": 4000,
+      "actions": [
+        {
+          "label": "View Report",
+          "action": "open_build_report"
+        },
+        {
+          "label": "Open Browser",
+          "action": "open_browser",
+          "url": "{appUrl}"
+        }
+      ]
+    },
+    "buildError": {
+      "title": "Build Failed",
+      "message": "❌ Asset compilation failed",
+      "icon": "🚨",
+      "duration": 10000,
+      "actions": [
+        {
+          "label": "View Errors",
+          "action": "open_build_log"
+        },
+        {
+          "label": "Retry Build",
+          "action": "retry_build"
+        }
+      ]
+    }
+  },
+  "analytics": {
+    "trackUsage": true,
+    "metrics": [
+      "build_frequency",
+      "build_duration",
+      "success_rate",
+      "bundle_size_trends",
+      "error_patterns"
+    ],
+    "reporting": {
+      "daily": true,
+      "includePerformanceMetrics": true
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "includeBuildOutput": true,
+    "includeSourceMaps": false,
+    "rotateDaily": true,
+    "maxFiles": 14
+  },
+  "metadata": {
+    "author": "Kiro Development Team",
+    "created": "2024-12-10",
+    "version": "2.0.0",
+    "tags": ["frontend", "vite", "build", "assets", "optimization"],
+    "documentation": "Advanced frontend build system with intelligent strategy selection, comprehensive error handling, and performance monitoring.",
+    "dependencies": ["vite", "npm", "node.js"],
+    "compatibleWith": ["Vite 4+", "Node.js 18+", "Laravel 11+"]
+  }
+}

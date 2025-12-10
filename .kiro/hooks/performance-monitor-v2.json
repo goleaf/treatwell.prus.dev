@@ -1,0 +1,385 @@
+{
+  "name": "Advanced Performance Monitor v2",
+  "description": "Comprehensive performance analysis system with real-time monitoring, bottleneck detection, and optimization recommendations",
+  "version": "2.0",
+  "enabled": true,
+  "priority": 6,
+  "trigger": {
+    "type": "manual",
+    "additionalTriggers": [
+      {
+        "type": "scheduled",
+        "schedule": "0 */6 * * *",
+        "description": "Performance check every 6 hours"
+      },
+      {
+        "type": "file_save",
+        "filePattern": [
+          "app/Models/*.php",
+          "app/Http/Controllers/*.php",
+          "database/migrations/*.php",
+          "routes/*.php"
+        ],
+        "condition": "performance_impact_likely"
+      }
+    ]
+  },
+  "preValidation": [
+    {
+      "type": "environment_check",
+      "checks": [
+        {
+          "command": "php artisan --version",
+          "required": true,
+          "errorMessage": "Laravel Artisan not available"
+        },
+        {
+          "command": "php -m | grep -i xdebug",
+          "required": false,
+          "warningMessage": "Xdebug detected - may affect performance measurements"
+        }
+      ]
+    },
+    {
+      "type": "performance_tools_check",
+      "tools": [
+        {
+          "name": "telescope",
+          "command": "php artisan telescope:status",
+          "optional": true,
+          "installCommand": "composer require laravel/telescope --dev"
+        },
+        {
+          "name": "debugbar",
+          "command": "php artisan debugbar:clear",
+          "optional": true,
+          "installCommand": "composer require barryvdh/laravel-debugbar --dev"
+        }
+      ]
+    }
+  ],
+  "performanceChecks": {
+    "databasePerformance": {
+      "enabled": true,
+      "priority": "critical",
+      "checks": [
+        {
+          "name": "n_plus_one_detection",
+          "description": "Detect N+1 query problems",
+          "method": "analyze_eloquent_queries",
+          "threshold": 10
+        },
+        {
+          "name": "slow_queries",
+          "description": "Identify slow database queries",
+          "method": "query_performance_analysis",
+          "threshold": "1000ms"
+        },
+        {
+          "name": "missing_indexes",
+          "description": "Find missing database indexes",
+          "method": "index_analysis",
+          "severity": "high"
+        }
+      ]
+    },
+    "applicationPerformance": {
+      "enabled": true,
+      "priority": "high",
+      "checks": [
+        {
+          "name": "memory_usage",
+          "description": "Monitor memory consumption",
+          "threshold": "128MB",
+          "method": "memory_profiling"
+        },
+        {
+          "name": "response_times",
+          "description": "Analyze response time patterns",
+          "threshold": "500ms",
+          "method": "response_time_analysis"
+        },
+        {
+          "name": "cache_efficiency",
+          "description": "Evaluate caching effectiveness",
+          "method": "cache_hit_ratio_analysis"
+        }
+      ]
+    },
+    "codePerformance": {
+      "enabled": true,
+      "priority": "medium",
+      "checks": [
+        {
+          "name": "inefficient_loops",
+          "description": "Detect inefficient loop patterns",
+          "patterns": [
+            "foreach.*->where\\(",
+            "for.*count\\(.*\\$i"
+          ]
+        },
+        {
+          "name": "unnecessary_queries",
+          "description": "Find redundant database calls",
+          "method": "query_redundancy_analysis"
+        }
+      ]
+    }
+  },
+  "actions": [
+    {
+      "name": "database_performance_analysis",
+      "type": "shell_command",
+      "command": "php artisan db:monitor --analyze-queries --detect-n-plus-one",
+      "description": "Comprehensive database performance analysis",
+      "timeout": 60000,
+      "onSuccess": {
+        "type": "parse_performance_data",
+        "extractMetrics": true,
+        "generateRecommendations": true
+      }
+    },
+    {
+      "name": "query_log_analysis",
+      "type": "custom_script",
+      "script": "analyze_query_performance.php",
+      "description": "Analyze recent query logs for performance issues",
+      "inputs": {
+        "logPath": "storage/logs/laravel.log",
+        "timeWindow": "24h",
+        "queryThreshold": "100ms"
+      },
+      "onSuccess": {
+        "type": "conditional_action",
+        "condition": {
+          "type": "slow_queries_found"
+        },
+        "action": {
+          "type": "send_message",
+          "message": "🐌 **Slow Queries Detected**\n\n{slowQueryAnalysis}\n\n**Optimization Suggestions:**\n{optimizationRecommendations}\n\n**Next Steps:**\n1. Add database indexes where needed\n2. Optimize query structure\n3. Consider eager loading for relationships\n4. Review query caching opportunities"
+        }
+      }
+    },
+    {
+      "name": "memory_profiling",
+      "type": "shell_command",
+      "command": "php artisan performance:memory-profile --routes=all",
+      "description": "Profile memory usage across application routes",
+      "onSuccess": {
+        "type": "analyze_memory_usage",
+        "thresholds": {
+          "warning": "64MB",
+          "critical": "128MB"
+        }
+      }
+    },
+    {
+      "name": "cache_analysis",
+      "type": "shell_command",
+      "command": "php artisan cache:analyze --hit-ratio --efficiency",
+      "description": "Analyze cache performance and efficiency",
+      "onSuccess": {
+        "type": "conditional_action",
+        "condition": {
+          "type": "cache_hit_ratio_low",
+          "threshold": 0.8
+        },
+        "action": {
+          "type": "send_message",
+          "message": "📊 **Cache Performance Issues**\n\nCache hit ratio: {hitRatio}%\n\n**Recommendations:**\n1. Review cache keys and TTL values\n2. Implement cache warming strategies\n3. Consider cache tagging for better invalidation\n4. Optimize cache storage driver\n\nAnalyze cache usage: `php artisan cache:table`"
+        }
+      }
+    },
+    {
+      "name": "route_performance_test",
+      "type": "custom_script",
+      "script": "test_route_performance.php",
+      "description": "Test performance of critical application routes",
+      "inputs": {
+        "routes": [
+          "/",
+          "/dashboard",
+          "/api/users",
+          "/api/orders"
+        ],
+        "iterations": 10
+      },
+      "onSuccess": {
+        "type": "generate_performance_report",
+        "includeComparisons": true
+      }
+    }
+  ],
+  "postActions": [
+    {
+      "type": "performance_score_calculation",
+      "factors": [
+        "database_performance",
+        "memory_efficiency",
+        "response_times",
+        "cache_effectiveness"
+      ],
+      "weights": {
+        "database_performance": 0.4,
+        "memory_efficiency": 0.2,
+        "response_times": 0.3,
+        "cache_effectiveness": 0.1
+      }
+    },
+    {
+      "type": "bottleneck_identification",
+      "enabled": true,
+      "prioritize": true,
+      "generateActionPlan": true
+    },
+    {
+      "type": "optimization_recommendations",
+      "categories": [
+        "database_optimization",
+        "caching_strategies",
+        "code_improvements",
+        "infrastructure_scaling"
+      ],
+      "prioritizeByImpact": true
+    },
+    {
+      "type": "performance_trend_analysis",
+      "enabled": true,
+      "compareWithPrevious": true,
+      "identifyRegressions": true
+    }
+  ],
+  "optimizationSuggestions": {
+    "database": {
+      "n_plus_one": {
+        "suggestion": "Use eager loading with ->with() to prevent N+1 queries",
+        "example": "User::with('posts')->get() instead of loading posts in loop"
+      },
+      "missing_indexes": {
+        "suggestion": "Add database indexes for frequently queried columns",
+        "example": "Add index on foreign keys and search columns"
+      },
+      "slow_queries": {
+        "suggestion": "Optimize query structure and consider query caching",
+        "example": "Use select() to limit columns, add proper WHERE clauses"
+      }
+    },
+    "caching": {
+      "low_hit_ratio": {
+        "suggestion": "Implement cache warming and optimize cache keys",
+        "example": "Use cache tags and implement cache warming in queues"
+      },
+      "missing_cache": {
+        "suggestion": "Add caching for expensive operations",
+        "example": "Cache database queries, API responses, and computed values"
+      }
+    },
+    "code": {
+      "memory_leaks": {
+        "suggestion": "Optimize memory usage in loops and large datasets",
+        "example": "Use chunk() for large datasets, unset variables when done"
+      },
+      "inefficient_loops": {
+        "suggestion": "Optimize loop structures and reduce iterations",
+        "example": "Use array functions instead of loops where possible"
+      }
+    }
+  },
+  "notifications": {
+    "analysisStart": {
+      "title": "Performance Analysis Started",
+      "message": "📊 Running comprehensive performance analysis...",
+      "showProgress": true,
+      "estimatedDuration": "2-5 minutes"
+    },
+    "performanceIssues": {
+      "title": "Performance Issues Detected",
+      "message": "⚠️ {issueCount} performance issues found",
+      "icon": "🐌",
+      "duration": 10000,
+      "actions": [
+        {
+          "label": "View Report",
+          "action": "open_performance_report"
+        },
+        {
+          "label": "Apply Fixes",
+          "action": "run_optimization_wizard"
+        }
+      ]
+    },
+    "analysisComplete": {
+      "title": "Performance Analysis Complete",
+      "message": "✅ Performance score: {performanceScore}/100",
+      "icon": "📊",
+      "duration": 6000,
+      "actions": [
+        {
+          "label": "View Details",
+          "action": "open_performance_report"
+        }
+      ]
+    }
+  },
+  "benchmarking": {
+    "enabled": true,
+    "baselineMetrics": {
+      "responseTime": "200ms",
+      "memoryUsage": "32MB",
+      "queryCount": 5,
+      "cacheHitRatio": 0.85
+    },
+    "performanceTargets": {
+      "excellent": {
+        "responseTime": "<100ms",
+        "memoryUsage": "<16MB",
+        "queryCount": "<3"
+      },
+      "good": {
+        "responseTime": "<200ms",
+        "memoryUsage": "<32MB",
+        "queryCount": "<5"
+      },
+      "acceptable": {
+        "responseTime": "<500ms",
+        "memoryUsage": "<64MB",
+        "queryCount": "<10"
+      }
+    }
+  },
+  "analytics": {
+    "trackUsage": true,
+    "metrics": [
+      "analysis_frequency",
+      "performance_trends",
+      "optimization_impact",
+      "bottleneck_patterns",
+      "improvement_rate"
+    ],
+    "reporting": {
+      "daily": true,
+      "weekly": true,
+      "includeComparisons": true,
+      "exportFormats": ["json", "pdf", "html"]
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "includePerformanceMetrics": true,
+    "includeQueryAnalysis": true,
+    "separatePerformanceLogs": true,
+    "rotateDaily": true,
+    "maxFiles": 30
+  },
+  "metadata": {
+    "author": "Kiro Development Team",
+    "created": "2024-12-10",
+    "version": "2.0.0",
+    "tags": ["performance", "monitoring", "optimization", "database", "analysis"],
+    "documentation": "Advanced performance monitoring system with bottleneck detection, optimization recommendations, and trend analysis.",
+    "dependencies": ["laravel/framework", "php-cli"],
+    "compatibleWith": ["Laravel 11+", "PHP 8.3+"],
+    "optionalDependencies": ["laravel/telescope", "barryvdh/laravel-debugbar"]
+  }
+}

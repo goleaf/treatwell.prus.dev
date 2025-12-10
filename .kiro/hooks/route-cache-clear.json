@@ -1,0 +1,13 @@
+{
+  "name": "Route Cache Clear",
+  "description": "Clears route cache when route files are modified",
+  "trigger": {
+    "type": "file_modified",
+    "pattern": "routes/*.php"
+  },
+  "action": {
+    "type": "command",
+    "command": "php artisan route:clear"
+  },
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Deployment Preparation",
+  "description": "Prepare application for deployment",
+  "trigger": {
+    "type": "manual"
+  },
+  "action": {
+    "type": "sendMessage",
+    "message": "Prepare the application for deployment: run code formatting with `vendor/bin/pint --dirty`, execute full test suite, check environment configuration, verify asset compilation, and ensure all caches are optimized."
+  }
+}

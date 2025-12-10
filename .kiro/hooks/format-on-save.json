@@ -1,0 +1,13 @@
+{
+  "name": "Format Code on Save",
+  "description": "Run Laravel Pint to format PHP code when saving",
+  "trigger": {
+    "type": "file_save",
+    "filePattern": "*.php"
+  },
+  "action": {
+    "type": "shell_command",
+    "command": "vendor/bin/pint --dirty"
+  },
+  "enabled": true
+}

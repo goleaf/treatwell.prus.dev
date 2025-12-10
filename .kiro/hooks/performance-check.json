@@ -1,0 +1,11 @@
+{
+  "name": "Performance Check",
+  "description": "Analyze code for performance issues",
+  "trigger": {
+    "type": "manual"
+  },
+  "action": {
+    "type": "sendMessage",
+    "message": "Review the codebase for performance issues: check for N+1 queries, analyze database indexes, review caching strategies, and identify opportunities for optimization. Focus on Eloquent queries and database interactions."
+  }
+}

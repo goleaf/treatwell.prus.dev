@@ -1,0 +1,13 @@
+{
+  "name": "Migration Reminder",
+  "description": "Reminds to run migrations when new migration files are created",
+  "trigger": {
+    "type": "file_created",
+    "pattern": "database/migrations/*.php"
+  },
+  "action": {
+    "type": "message",
+    "content": "New migration file detected. Remember to run `php artisan migrate` to apply database changes. Also consider creating a factory and seeder if this migration creates a new model table."
+  },
+  "enabled": true
+}

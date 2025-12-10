@@ -1,0 +1,285 @@
+{
+  "name": "Advanced Migration Manager v2",
+  "description": "Comprehensive database migration monitoring and management system with rollback capabilities and safety checks",
+  "version": "2.0",
+  "enabled": true,
+  "priority": 4,
+  "trigger": {
+    "type": "session_start",
+    "additionalTriggers": [
+      {
+        "type": "file_save",
+        "filePattern": "database/migrations/*.php"
+      },
+      {
+        "type": "git_pull",
+        "condition": "migrations_changed"
+      }
+    ]
+  },
+  "preValidation": [
+    {
+      "type": "environment_check",
+      "checks": [
+        {
+          "command": "php artisan --version",
+          "required": true,
+          "errorMessage": "Laravel Artisan not available"
+        },
+        {
+          "command": "php artisan migrate:status",
+          "required": true,
+          "errorMessage": "Database connection failed"
+        }
+      ]
+    },
+    {
+      "type": "database_validation",
+      "checks": [
+        {
+          "type": "connection_test",
+          "timeout": 5000,
+          "errorMessage": "Cannot connect to database"
+        },
+        {
+          "type": "permissions_check",
+          "operations": ["SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP"],
+          "errorMessage": "Insufficient database permissions"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "check_migration_status",
+      "type": "shell_command",
+      "command": "php artisan migrate:status --pending",
+      "description": "Check for pending migrations",
+      "parseOutput": true,
+      "outputParser": {
+        "type": "migration_status",
+        "extractPendingCount": true,
+        "extractMigrationNames": true
+      },
+      "onSuccess": {
+        "type": "conditional_action",
+        "condition": {
+          "type": "output_contains",
+          "pattern": "Pending"
+        },
+        "action": {
+          "type": "notification",
+          "title": "Pending Migrations Found",
+          "message": "⚠️ {pendingCount} pending migration(s) detected",
+          "actions": [
+            {
+              "type": "send_message",
+              "message": "🗄️ **Pending Database Migrations Detected**\n\nFound {pendingCount} pending migration(s):\n{migrationList}\n\n**Recommended Actions:**\n1. Review migrations: `php artisan migrate:status`\n2. Run migrations: `php artisan migrate`\n3. Or rollback if needed: `php artisan migrate:rollback`\n\n⚠️ **Important:** Always backup your database before running migrations in production!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "analyze_migration_safety",
+      "type": "custom_script",
+      "script": "analyze_migration_safety.php",
+      "description": "Analyze pending migrations for potential data loss",
+      "inputs": {
+        "migrationFiles": "{pendingMigrations}",
+        "databaseSchema": "{currentSchema}"
+      },
+      "onSuccess": {
+        "type": "conditional_action",
+        "condition": {
+          "type": "safety_analysis",
+          "riskLevel": "high"
+        },
+        "action": {
+          "type": "send_message",
+          "message": "🚨 **HIGH RISK MIGRATIONS DETECTED**\n\nThe following migrations may cause data loss:\n{riskAnalysis}\n\n**Strongly Recommended:**\n1. Create database backup: `php artisan db:backup`\n2. Test in staging environment first\n3. Review migration code carefully\n4. Consider running during maintenance window"
+        }
+      }
+    },
+    {
+      "name": "backup_recommendation",
+      "type": "conditional_action",
+      "condition": {
+        "type": "environment_check",
+        "variable": "APP_ENV",
+        "value": "production"
+      },
+      "action": {
+        "type": "send_message",
+        "message": "🛡️ **Production Environment Detected**\n\nBefore running migrations:\n1. Create database backup\n2. Schedule maintenance window\n3. Test migrations in staging\n4. Prepare rollback plan\n\nBackup command: `php artisan db:backup --compress`"
+      }
+    }
+  ],
+  "postActions": [
+    {
+      "type": "migration_history_tracking",
+      "enabled": true,
+      "trackChanges": true,
+      "generateReport": true,
+      "reportPath": "storage/migration-reports/"
+    },
+    {
+      "type": "conditional_action",
+      "condition": {
+        "type": "no_pending_migrations"
+      },
+      "action": {
+        "type": "send_message",
+        "message": "✅ Database schema is up to date. All migrations have been applied."
+      }
+    },
+    {
+      "type": "schema_validation",
+      "enabled": true,
+      "checks": [
+        "foreign_key_constraints",
+        "index_integrity",
+        "data_consistency"
+      ],
+      "onIssues": {
+        "type": "send_message",
+        "message": "⚠️ Schema validation found potential issues. Run: `php artisan schema:validate`"
+      }
+    }
+  ],
+  "migrationStrategies": {
+    "safe": {
+      "description": "Safe migration execution with backups",
+      "steps": [
+        "create_backup",
+        "run_migrations",
+        "validate_schema",
+        "cleanup_backup"
+      ],
+      "rollbackOnFailure": true
+    },
+    "quick": {
+      "description": "Quick migration for development",
+      "steps": [
+        "run_migrations"
+      ],
+      "rollbackOnFailure": false
+    },
+    "production": {
+      "description": "Production-safe migration process",
+      "steps": [
+        "maintenance_mode_on",
+        "create_backup",
+        "run_migrations",
+        "validate_schema",
+        "maintenance_mode_off"
+      ],
+      "rollbackOnFailure": true,
+      "requireConfirmation": true
+    }
+  },
+  "safetyChecks": {
+    "destructiveOperations": [
+      "DROP TABLE",
+      "DROP COLUMN",
+      "ALTER TABLE.*DROP",
+      "TRUNCATE TABLE"
+    ],
+    "riskAssessment": {
+      "low": {
+        "operations": ["CREATE TABLE", "ADD COLUMN", "CREATE INDEX"],
+        "message": "Low risk operations detected"
+      },
+      "medium": {
+        "operations": ["ALTER COLUMN", "RENAME COLUMN", "DROP INDEX"],
+        "message": "Medium risk operations - review carefully"
+      },
+      "high": {
+        "operations": ["DROP TABLE", "DROP COLUMN", "TRUNCATE"],
+        "message": "HIGH RISK - Potential data loss!"
+      }
+    }
+  },
+  "notifications": {
+    "pendingMigrations": {
+      "title": "Pending Migrations",
+      "message": "⚠️ {count} migration(s) need to be applied",
+      "icon": "🗄️",
+      "duration": 8000,
+      "actions": [
+        {
+          "label": "View Status",
+          "action": "run_command",
+          "command": "php artisan migrate:status"
+        },
+        {
+          "label": "Run Migrations",
+          "action": "run_command",
+          "command": "php artisan migrate",
+          "requireConfirmation": true
+        }
+      ]
+    },
+    "migrationSuccess": {
+      "title": "Migrations Applied",
+      "message": "✅ All migrations completed successfully",
+      "icon": "✅",
+      "duration": 4000
+    },
+    "migrationError": {
+      "title": "Migration Failed",
+      "message": "❌ Migration execution failed",
+      "icon": "🚨",
+      "duration": 10000,
+      "actions": [
+        {
+          "label": "View Logs",
+          "action": "open_logs"
+        },
+        {
+          "label": "Rollback",
+          "action": "run_command",
+          "command": "php artisan migrate:rollback"
+        }
+      ]
+    }
+  },
+  "rollbackCapabilities": {
+    "enabled": true,
+    "autoRollbackOnFailure": false,
+    "maxRollbackSteps": 5,
+    "confirmationRequired": true,
+    "backupBeforeRollback": true
+  },
+  "analytics": {
+    "trackUsage": true,
+    "metrics": [
+      "migration_frequency",
+      "success_rate",
+      "rollback_frequency",
+      "execution_time",
+      "schema_changes"
+    ],
+    "alerting": {
+      "failureThreshold": 2,
+      "notificationChannels": ["email", "slack"]
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "includeMigrationOutput": true,
+    "includeSchemaChanges": true,
+    "rotateDaily": true,
+    "maxFiles": 30
+  },
+  "metadata": {
+    "author": "Kiro Development Team",
+    "created": "2024-12-10",
+    "version": "2.0.0",
+    "tags": ["database", "migrations", "schema", "safety", "automation"],
+    "documentation": "Advanced migration management system with safety checks, rollback capabilities, and comprehensive monitoring.",
+    "dependencies": ["laravel/framework", "database-connection"],
+    "compatibleWith": ["Laravel 11+", "MySQL 8+", "PostgreSQL 13+", "SQLite 3+"]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "environment": "development",
+  "debug": true,
+  "testing": {
+    "database": "sqlite",
+    "memory": true,
+    "parallel": false
+  },
+  "caching": {
+    "enabled": false,
+    "driver": "array"
+  },
+  "queues": {
+    "driver": "sync",
+    "workers": 1
+  },
+  "mail": {
+    "driver": "log",
+    "log_channel": "mail"
+  },
+  "logging": {
+    "level": "debug",
+    "channels": ["single", "daily"]
+  },
+  "assets": {
+    "hot_reload": true,
+    "source_maps": true,
+    "minification": false
+  },
+  "database": {
+    "query_logging": true,
+    "slow_query_threshold": 1000
+  },
+  "security": {
+    "csrf_protection": true,
+    "session_secure": false,
+    "https_only": false
+  }
+}
