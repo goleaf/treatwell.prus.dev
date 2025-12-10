@@ -3,12 +3,126 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreTreatmentRequest;
+use App\Http\Requests\Api\UpdateTreatmentRequest;
+use App\Http\Resources\TreatmentCollection;
+use App\Http\Resources\TreatmentResource;
 use App\Models\Treatment;
 use App\Models\Venue;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TreatmentController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $query = Treatment::query();
+        
+        $query->with(['venue']);
+
+        // Search
+        if ($request->has('search') && $request->input('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // Filter by category
+        if ($request->has('category') && $request->input('category')) {
+            $category = $request->input('category');
+            $query->where('category_name', $category);
+        }
+
+        // Filter by venue
+        if ($request->has('venue_id') && $request->input('venue_id')) {
+            $venueId = $request->input('venue_id');
+            $query->where('venue_id', $venueId);
+        }
+
+        // Filter by price range
+        if ($request->has('min_price') && $request->input('min_price')) {
+            $minPrice = $request->input('min_price');
+            $query->where('min_price', '>=', $minPrice);
+        }
+
+        if ($request->has('max_price') && $request->input('max_price')) {
+            $maxPrice = $request->input('max_price');
+            $query->where('max_price', '<=', $maxPrice);
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'name');
+        switch ($sort) {
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'price':
+                $query->orderBy('min_price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('min_price', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            default:
+                $query->orderBy('name', 'asc');
+        }
+
+        $perPage = $request->input('per_page', 15);
+        $treatments = $query->paginate($perPage);
+
+        return new TreatmentCollection($treatments);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreTreatmentRequest $request)
+    {
+        $treatment = Treatment::create($request->validated());
+        
+        return (new TreatmentResource($treatment->load(['venue'])))
+            ->response()
+            ->setStatusCode(201);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Treatment $treatment): TreatmentResource
+    {
+        return new TreatmentResource($treatment->load(['venue']));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateTreatmentRequest $request, Treatment $treatment): TreatmentResource
+    {
+        $treatment->update($request->validated());
+        
+        return new TreatmentResource($treatment->load(['venue']));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Treatment $treatment): Response
+    {
+        $treatment->delete();
+        
+        return response()->noContent();
+    }
+
     /**
      * Get distinct treatment categories.
      */
@@ -33,7 +147,7 @@ class TreatmentController extends Controller
         ]);
 
         $query = Venue::query();
-        $query->with(['location.city', 'rating', 'images']);
+        $query->with(['location.city', 'ratingDetails', 'images']);
 
         $perPage = $request->input('per_page', 15);
 
@@ -56,7 +170,7 @@ class TreatmentController extends Controller
         // Filter by rating
         if ($request->has('rating') && $request->input('rating')) {
             $rating = $request->input('rating');
-            $query->whereHas('rating', function ($q) use ($rating) {
+            $query->whereHas('ratingDetails', function ($q) use ($rating) {
                 $q->where('weighted_average', '>=', $rating);
             });
         }
@@ -86,7 +200,7 @@ class TreatmentController extends Controller
         ]);
 
         $query = Venue::query();
-        $query->with(['location.city', 'rating', 'images']);
+        $query->with(['location.city', 'ratingDetails', 'images']);
 
         $perPage = $request->input('per_page', 15);
         $minPrice = $request->input('min_price');

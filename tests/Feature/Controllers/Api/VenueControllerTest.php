@@ -40,10 +40,10 @@ class VenueControllerTest extends BaseTestCase
         $response = $this->getJson('/api/cities');
         $response->assertStatus(200);
 
-        $response = $this->getJson('/api/types');
+        $response = $this->getJson('/api/venue-types');
         $response->assertStatus(200);
 
-        $response = $this->getJson('/api/stats');
+        $response = $this->getJson('/api/venue-stats');
         $response->assertStatus(200);
     }
 
@@ -55,29 +55,22 @@ class VenueControllerTest extends BaseTestCase
         $response = $this->getJson('/api/venues');
 
         $response->assertStatus(200);
-        $response->assertJson(function (AssertableJson $json) {
-            $json->has('data', function (AssertableJson $json) {
-                $json->each(function (AssertableJson $json) {
-                    $json->hasAll(['id', 'name', 'description'])->etc();
-                });
-            });
-
-            $json->has('links', function (AssertableJson $json) {
-                $json->hasAll(['first', 'last', 'prev', 'next'])->etc();
-            });
-
-            $json->has('meta', function (AssertableJson $json) {
-                $json->hasAll([
-                    'current_page',
-                    'from',
-                    'last_page',
-                    'path',
-                    'per_page',
-                    'to',
-                    'total',
-                ])->etc();
-            })->etc();
-        });
+        $response->assertJsonStructure([
+            'data',
+            'meta' => [
+                'total',
+                'count',
+                'per_page',
+                'current_page',
+                'total_pages',
+            ],
+            'links' => [
+                'first',
+                'last',
+                'prev',
+                'next',
+            ],
+        ]);
     }
 
     /**
@@ -85,7 +78,7 @@ class VenueControllerTest extends BaseTestCase
      */
     public function test_cities_response_structure(): void
     {
-        $response = $this->getJson('/api/cities');
+        $response = $this->getJson('/api/venue-cities');
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -101,7 +94,7 @@ class VenueControllerTest extends BaseTestCase
      */
     public function test_types_response_structure(): void
     {
-        $response = $this->getJson('/api/types');
+        $response = $this->getJson('/api/venue-types');
 
         $response->assertStatus(200);
         $response->assertJsonIsArray();
@@ -112,7 +105,7 @@ class VenueControllerTest extends BaseTestCase
      */
     public function test_stats_response_structure(): void
     {
-        $response = $this->getJson('/api/stats');
+        $response = $this->getJson('/api/venue-stats');
 
         $response->assertStatus(200);
         $response->assertJsonStructure([

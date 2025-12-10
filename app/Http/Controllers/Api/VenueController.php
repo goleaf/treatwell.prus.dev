@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreVenueRequest;
+use App\Http\Requests\Api\UpdateVenueRequest;
+use App\Http\Resources\VenueCollection;
+use App\Http\Resources\VenueResource;
 use App\Models\City;
 use App\Models\Venue;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class VenueController extends Controller
 {
@@ -16,7 +21,7 @@ class VenueController extends Controller
     {
         $query = Venue::query();
 
-        $query->with(['location.city', 'rating', 'images']);
+        $query->with(['location.city', 'ratingDetails', 'images']);
 
         // Search
         if ($request->has('search') && $request->input('search')) {
@@ -35,7 +40,7 @@ class VenueController extends Controller
         // Filter by rating
         if ($request->has('rating') && $request->input('rating')) {
             $rating = $request->input('rating');
-            $query->whereHas('rating', function ($q) use ($rating) {
+            $query->whereHas('ratingDetails', function ($q) use ($rating) {
                 $q->where('weighted_average', '>=', $rating);
             });
         }
@@ -82,26 +87,58 @@ class VenueController extends Controller
         $perPage = $request->input('per_page', 15);
         $venues = $query->paginate($perPage);
 
-        return response()->json($venues);
+        return new VenueCollection($venues);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreVenueRequest $request)
+    {
+        $venue = Venue::create($request->validated());
+        
+        return (new VenueResource($venue->load(['location.city', 'ratingDetails', 'images', 'openingHours', 'treatments'])))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($id): VenueResource
     {
         // If $id is numeric, find by ID. Otherwise find by slug.
         if (is_numeric($id)) {
-            $venue = Venue::with(['location.city', 'rating', 'images', 'openingHours', 'treatments'])->find($id);
+            $venue = Venue::with(['location.city', 'ratingDetails', 'images', 'openingHours', 'treatments'])->find($id);
         } else {
-            $venue = Venue::with(['location.city', 'rating', 'images', 'openingHours', 'treatments'])->where('slug', $id)->first();
+            $venue = Venue::with(['location.city', 'ratingDetails', 'images', 'openingHours', 'treatments'])->where('slug', $id)->first();
         }
 
         if (! $venue) {
-            return response()->json(['message' => 'Venue not found'], 404);
+            abort(404, 'Venue not found');
         }
 
-        return response()->json($venue);
+        return new VenueResource($venue);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateVenueRequest $request, Venue $venue): VenueResource
+    {
+        $venue->update($request->validated());
+        
+        return new VenueResource($venue->load(['location.city', 'ratingDetails', 'images', 'openingHours', 'treatments']));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Venue $venue): Response
+    {
+        $venue->delete();
+        
+        return response()->noContent();
     }
 
     /**

@@ -63,6 +63,7 @@ class CountryTest extends TestCase
         $country = Country::create([
             'name' => 'Lithuania',
             'code' => 'LT',
+            'slug' => 'lithuania',
             'normalised_name' => 'lithuania',
             'active' => true,
         ]);
@@ -72,6 +73,7 @@ class CountryTest extends TestCase
             'id' => $country->id,
             'name' => 'Lithuania',
             'code' => 'LT',
+            'slug' => 'lithuania',
             'normalised_name' => 'lithuania',
             'active' => 1,
         ]);
