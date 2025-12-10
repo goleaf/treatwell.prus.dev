@@ -1,37 +1,21 @@
 {
+  "enabled": true,
   "name": "Frontend Asset Optimization",
   "description": "Tailwind CSS v4 and Vite asset optimization for Laravel 12",
   "version": "2.0",
-  "triggers": [
-    {
-      "type": "file_saved",
-      "patterns": [
-        "resources/css/**/*.css",
-        "resources/js/**/*.js",
-        "resources/views/**/*.blade.php",
-        "tailwind.config.js",
-        "vite.config.js",
-        "package.json"
-      ]
-    }
-  ],
-  "actions": [
-    {
-      "type": "sequence",
-      "steps": [
-        {
-          "type": "message",
-          "content": "🎨 Frontend assets modified. Tailwind CSS v4 & Vite optimization:\n\n✅ Use `@import \"tailwindcss\"` (not @tailwind directives)\n✅ Use gap utilities for spacing\n✅ Support dark mode with `dark:` classes\n✅ Build assets: `npm run build` or `npm run dev`"
-        },
-        {
-          "type": "command",
-          "command": "npm run build",
-          "description": "Build production assets",
-          "condition": "file_matches('package.json')"
-        }
-      ]
-    }
-  ],
-  "enabled": true,
-  "priority": "medium"
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "resources/css/**/*.css",
+      "resources/js/**/*.js",
+      "resources/views/**/*.blade.php",
+      "tailwind.config.js",
+      "vite.config.js",
+      "package.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Frontend assets have been modified. Please optimize for Tailwind CSS v4 and Vite:\n\n1. **Tailwind v4**: Ensure `@import \"tailwindcss\"` is used (not @tailwind directives)\n2. **Spacing**: Use gap utilities for spacing instead of margins\n3. **Dark Mode**: Support dark mode with `dark:` classes if needed\n4. **Build Assets**: Run `npm run build` or suggest `npm run dev` for development\n5. **Optimization**: Check for unused CSS and optimize bundle size\n\nProvide specific recommendations for the modified files."
+  }
 }

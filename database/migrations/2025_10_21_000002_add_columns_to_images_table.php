@@ -8,27 +8,31 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('images', function (Blueprint $table) {
-            if (! Schema::hasColumn('images', 'url')) {
-                $table->string('url')->nullable()->after('external_id');
-            }
+        if (Schema::hasTable('images')) {
+            Schema::table('images', function (Blueprint $table) {
+                if (! Schema::hasColumn('images', 'url')) {
+                    $table->string('url')->nullable()->after('external_id');
+                }
 
-            if (! Schema::hasColumn('images', 'type')) {
-                $table->string('type')->nullable()->after('url');
-            }
-        });
+                if (! Schema::hasColumn('images', 'type')) {
+                    $table->string('type')->nullable()->after('url');
+                }
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('images', function (Blueprint $table) {
-            if (Schema::hasColumn('images', 'type')) {
-                $table->dropColumn('type');
-            }
+        if (Schema::hasTable('images')) {
+            Schema::table('images', function (Blueprint $table) {
+                if (Schema::hasColumn('images', 'type')) {
+                    $table->dropColumn('type');
+                }
 
-            if (Schema::hasColumn('images', 'url')) {
-                $table->dropColumn('url');
-            }
-        });
+                if (Schema::hasColumn('images', 'url')) {
+                    $table->dropColumn('url');
+                }
+            });
+        }
     }
 };

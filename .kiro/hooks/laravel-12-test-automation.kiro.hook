@@ -1,47 +1,19 @@
 {
+  "enabled": true,
   "name": "Laravel 12 Test Automation",
   "description": "Comprehensive PHPUnit testing workflow for Laravel 12",
   "version": "2.0",
-  "triggers": [
-    {
-      "type": "file_saved",
-      "patterns": [
-        "tests/**/*.php",
-        "app/Http/Controllers/*.php",
-        "app/Models/*.php",
-        "app/Services/*.php"
-      ]
-    }
-  ],
-  "actions": [
-    {
-      "type": "sequence",
-      "steps": [
-        {
-          "type": "message",
-          "content": "🧪 Running Laravel 12 PHPUnit Tests...\n\n✅ Testing happy paths, failure paths, and edge cases\n✅ Using model factories for test data\n✅ Following PHPUnit conventions (not Pest)\n✅ Isolated test execution"
-        },
-        {
-          "type": "command",
-          "command": "php artisan test --filter={{test_method_name}} --stop-on-failure",
-          "description": "Run specific test method",
-          "condition": "file_matches('tests/**/*.php')"
-        },
-        {
-          "type": "command",
-          "command": "php artisan test tests/Feature/{{controller_name}}Test.php",
-          "description": "Run controller tests",
-          "condition": "file_matches('app/Http/Controllers/*.php')"
-        },
-        {
-          "type": "command",
-          "command": "php artisan test tests/Unit/{{model_name}}Test.php",
-          "description": "Run model tests",
-          "condition": "file_matches('app/Models/*.php')"
-        }
-      ]
-    }
-  ],
-  "enabled": true,
-  "priority": "high"
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "tests/**/*.php",
+      "app/Http/Controllers/*.php",
+      "app/Models/*.php",
+      "app/Services/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Code has been modified that requires testing. Please execute Laravel 12 PHPUnit testing workflow:\n\n1. **Test Coverage**: Ensure tests cover happy paths, failure paths, and edge cases\n2. **Model Factories**: Use model factories for consistent test data creation\n3. **PHPUnit Conventions**: Follow PHPUnit conventions (not Pest)\n4. **Test Isolation**: Ensure tests are isolated and don't depend on each other\n5. **Focused Testing**: Run specific tests for modified functionality\n6. **Feature vs Unit**: Use feature tests for HTTP/integration, unit tests for isolated logic\n\nExecute appropriate test commands:\n- `php artisan test --filter={TestMethodName}` for specific tests\n- `php artisan test tests/Feature/{ControllerName}Test.php` for controller tests\n- `php artisan test tests/Unit/{ModelName}Test.php` for model tests"
+  }
 }

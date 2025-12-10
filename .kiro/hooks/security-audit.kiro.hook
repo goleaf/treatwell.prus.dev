@@ -1,11 +1,13 @@
 {
+  "enabled": true,
   "name": "Security Audit",
-  "description": "Run security checks on code changes",
-  "trigger": {
+  "description": "Comprehensive security audit of the codebase",
+  "version": "1.0",
+  "when": {
     "type": "manual"
   },
-  "action": {
-    "type": "sendMessage",
-    "message": "Perform a security audit of the codebase: check for vulnerabilities in dependencies with `composer audit`, review authentication and authorization implementations, validate input sanitization, and ensure CSRF protection is properly implemented."
+  "then": {
+    "type": "askAgent",
+    "prompt": "Perform a comprehensive security audit:\n\n1. **Dependencies**: Run `composer audit` to check for vulnerabilities\n2. **Authentication**: Review authentication and authorization implementations\n3. **Input Validation**: Validate input sanitization and Form Requests\n4. **CSRF Protection**: Ensure CSRF protection is properly implemented\n5. **SQL Injection**: Check for raw SQL queries with user input\n6. **Environment**: Review environment variable security\n\nProvide specific security recommendations and fixes."
   }
 }

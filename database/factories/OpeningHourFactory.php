@@ -17,12 +17,9 @@ class OpeningHourFactory extends Factory
 
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
-    public function definition()
+    public function definition(): array
     {
-        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         $isOpen = $this->faker->boolean(80); // 80% chance the venue is open
 
         $openingTime = null;
@@ -35,7 +32,7 @@ class OpeningHourFactory extends Factory
 
         return [
             'venue_id' => Venue::factory(),
-            'day_of_week' => $this->faker->randomElement($daysOfWeek),
+            'day_of_week' => $this->faker->randomElement(OpeningHour::DAYS_OF_WEEK),
             'opening_time' => $openingTime,
             'closing_time' => $closingTime,
             'is_open' => $isOpen,
@@ -44,10 +41,8 @@ class OpeningHourFactory extends Factory
 
     /**
      * Configure the factory to create closed day.
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
-    public function closed()
+    public function closed(): static
     {
         return $this->state(function (array $attributes) {
             return [
@@ -56,5 +51,15 @@ class OpeningHourFactory extends Factory
                 'is_open' => false,
             ];
         });
+    }
+
+    /**
+     * Configure the factory to create a full week of opening hours.
+     */
+    public function fullWeek(): static
+    {
+        return $this->count(7)->sequence(
+            ...collect(OpeningHour::DAYS_OF_WEEK)->map(fn ($day) => ['day_of_week' => $day])->toArray()
+        );
     }
 }

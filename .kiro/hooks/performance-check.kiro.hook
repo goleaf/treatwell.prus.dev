@@ -1,11 +1,13 @@
 {
+  "enabled": true,
   "name": "Performance Check",
-  "description": "Analyze code for performance issues",
-  "trigger": {
+  "description": "Analyze code for performance issues and optimization opportunities",
+  "version": "1.0",
+  "when": {
     "type": "manual"
   },
-  "action": {
-    "type": "sendMessage",
-    "message": "Review the codebase for performance issues: check for N+1 queries, analyze database indexes, review caching strategies, and identify opportunities for optimization. Focus on Eloquent queries and database interactions."
+  "then": {
+    "type": "askAgent",
+    "prompt": "Perform a comprehensive performance analysis:\n\n1. **Database Queries**: Check for N+1 queries and missing eager loading\n2. **Indexes**: Analyze database indexes and query performance\n3. **Caching**: Review caching strategies and implementation\n4. **Memory Usage**: Identify memory-intensive operations\n5. **Optimization**: Suggest performance improvements\n\nFocus on Eloquent queries, database interactions, and Laravel-specific optimizations."
   }
 }

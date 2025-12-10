@@ -1,29 +1,14 @@
 {
+  "enabled": true,
   "name": "Laravel 12 Controller Creation Workflow",
   "description": "Controller creation with Form Request validation and Laravel 12 conventions",
   "version": "2.0",
-  "triggers": [
-    {
-      "type": "file_created",
-      "patterns": ["app/Http/Controllers/*.php"]
-    }
-  ],
-  "actions": [
-    {
-      "type": "sequence",
-      "steps": [
-        {
-          "type": "message",
-          "content": "🎮 New Controller Created! Laravel 12 Controller Checklist:\n\n✅ Create Form Requests: `php artisan make:request Store{{ModelName}}Request`\n✅ Create Form Requests: `php artisan make:request Update{{ModelName}}Request`\n✅ Use explicit return type declarations\n✅ Keep controllers thin - delegate to services\n✅ Use proper HTTP status codes\n✅ Create API Resources if needed: `php artisan make:resource {{ModelName}}Resource`\n✅ Add proper authorization with policies\n✅ Use route model binding"
-        },
-        {
-          "type": "command",
-          "command": "vendor/bin/pint --dirty",
-          "description": "Format new controller with Pint"
-        }
-      ]
-    }
-  ],
-  "enabled": true,
-  "priority": "high"
+  "when": {
+    "type": "fileCreated",
+    "patterns": ["app/Http/Controllers/*.php"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new controller has been created! Please guide through Laravel 12 controller best practices:\n\n1. **Form Requests**: Create validation classes with `php artisan make:request Store{ModelName}Request` and `php artisan make:request Update{ModelName}Request`\n2. **Type Declarations**: Use explicit return type declarations for all methods\n3. **Thin Controllers**: Keep controllers thin by delegating business logic to services\n4. **HTTP Status Codes**: Use proper HTTP status codes for responses\n5. **API Resources**: Create API resources if needed with `php artisan make:resource {ModelName}Resource`\n6. **Authorization**: Add proper authorization with policies and gates\n7. **Route Model Binding**: Use route model binding for cleaner code\n\nRun `vendor/bin/pint --dirty` to format the new controller."
+  }
 }

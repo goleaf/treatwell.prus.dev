@@ -62,7 +62,7 @@ class ModelRelationshipsTest extends TestCase
         $this->assertContains('type_name', $venue->getFillable());
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->location());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->rating());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->ratingDetails());
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->images());
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->openingHours());
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->treatments());

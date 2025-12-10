@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('locations', function (Blueprint $table) {
-            if (! Schema::hasColumn('locations', 'external_id')) {
-                $table->string('external_id')->nullable()->after('id')->index();
-            }
-        });
+        if (Schema::hasTable('locations')) {
+            Schema::table('locations', function (Blueprint $table) {
+                if (! Schema::hasColumn('locations', 'external_id')) {
+                    $table->string('external_id')->nullable()->after('id')->index();
+                }
+            });
+        }
     }
 
     /**
@@ -23,10 +25,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('locations', function (Blueprint $table) {
-            if (Schema::hasColumn('locations', 'external_id')) {
-                $table->dropColumn('external_id');
-            }
-        });
+        if (Schema::hasTable('locations')) {
+            Schema::table('locations', function (Blueprint $table) {
+                if (Schema::hasColumn('locations', 'external_id')) {
+                    $table->dropColumn('external_id');
+                }
+            });
+        }
     }
 };

@@ -1,29 +1,14 @@
 {
+  "enabled": true,
   "name": "Laravel 12 Model Creation Workflow",
   "description": "Comprehensive model creation workflow with Laravel 12 best practices",
   "version": "2.0",
-  "triggers": [
-    {
-      "type": "file_created",
-      "patterns": ["app/Models/*.php"]
-    }
-  ],
-  "actions": [
-    {
-      "type": "sequence",
-      "steps": [
-        {
-          "type": "message",
-          "content": "🏗️ New Model Created! Laravel 12 Model Checklist:\n\n✅ Use `casts()` method instead of `$casts` property\n✅ Add proper return types to relationships\n✅ Create factory: `php artisan make:factory {{ModelName}}Factory`\n✅ Create seeder: `php artisan make:seeder {{ModelName}}Seeder`\n✅ Create migration if needed: `php artisan make:migration create_{{table_name}}_table`\n✅ Add proper PHPDoc blocks\n✅ Use constructor property promotion\n✅ Prevent N+1 queries with eager loading"
-        },
-        {
-          "type": "command",
-          "command": "vendor/bin/pint --dirty",
-          "description": "Format new model with Pint"
-        }
-      ]
-    }
-  ],
-  "enabled": true,
-  "priority": "high"
+  "when": {
+    "type": "fileCreated",
+    "patterns": ["app/Models/*.php"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "New model has been created! Please guide through Laravel 12 model best practices:\n\n1. **Casts Method**: Use `casts()` method instead of `$casts` property\n2. **Relationship Types**: Add proper return types to all relationships\n3. **Factory Creation**: Create factory with `php artisan make:factory {ModelName}Factory`\n4. **Seeder Creation**: Create seeder with `php artisan make:seeder {ModelName}Seeder`\n5. **Migration**: Create migration if needed with `php artisan make:migration create_{table_name}_table`\n6. **PHPDoc Blocks**: Add proper PHPDoc blocks for properties and methods\n7. **Constructor Promotion**: Use constructor property promotion where applicable\n8. **Eager Loading**: Prevent N+1 queries with proper eager loading\n\nRun `vendor/bin/pint --dirty` to format the new model."
+  }
 }

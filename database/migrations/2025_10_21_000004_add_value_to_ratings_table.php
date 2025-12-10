@@ -8,19 +8,23 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('ratings', function (Blueprint $table) {
-            if (! Schema::hasColumn('ratings', 'value')) {
-                $table->decimal('value', 4, 2)->nullable()->after('venue_id');
-            }
-        });
+        if (Schema::hasTable('ratings')) {
+            Schema::table('ratings', function (Blueprint $table) {
+                if (! Schema::hasColumn('ratings', 'value')) {
+                    $table->decimal('value', 4, 2)->nullable()->after('venue_id');
+                }
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('ratings', function (Blueprint $table) {
-            if (Schema::hasColumn('ratings', 'value')) {
-                $table->dropColumn('value');
-            }
-        });
+        if (Schema::hasTable('ratings')) {
+            Schema::table('ratings', function (Blueprint $table) {
+                if (Schema::hasColumn('ratings', 'value')) {
+                    $table->dropColumn('value');
+                }
+            });
+        }
     }
 };

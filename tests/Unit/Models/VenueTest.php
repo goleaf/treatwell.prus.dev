@@ -150,11 +150,11 @@ class VenueTest extends TestCase
         Treatment::factory()->count(5)->create(['venue_id' => $venue->id]);
 
         // Load relationships
-        $venue->load('location', 'rating', 'images', 'openingHours', 'treatments');
+        $venue->load('location', 'ratingDetails', 'images', 'openingHours', 'treatments');
 
         // Test relationships
         $this->assertInstanceOf(Location::class, $venue->location);
-        $this->assertInstanceOf(Rating::class, $venue->rating);
+        $this->assertInstanceOf(Rating::class, $venue->ratingDetails);
         $this->assertInstanceOf(Collection::class, $venue->images);
         $this->assertCount(3, $venue->images);
         $this->assertInstanceOf(Collection::class, $venue->openingHours);

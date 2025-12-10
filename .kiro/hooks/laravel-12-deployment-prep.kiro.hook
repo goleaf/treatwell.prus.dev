@@ -1,67 +1,13 @@
 {
+  "enabled": true,
   "name": "Laravel 12 Deployment Preparation",
   "description": "Pre-deployment checklist and optimization for Laravel 12",
   "version": "2.0",
-  "triggers": [
-    {
-      "type": "manual",
-      "button_text": "Prepare for Deployment"
-    },
-    {
-      "type": "file_saved",
-      "patterns": [".env.example", "composer.json", "package.json"]
-    }
-  ],
-  "actions": [
-    {
-      "type": "sequence",
-      "steps": [
-        {
-          "type": "message",
-          "content": "🚀 Laravel 12 Deployment Preparation:\n\n📋 Pre-Deployment Checklist:\n✅ Run full test suite\n✅ Format code with Pint\n✅ Build production assets\n✅ Clear and cache configurations\n✅ Optimize autoloader\n✅ Set production environment variables\n✅ Backup database\n✅ Plan rollback strategy"
-        },
-        {
-          "type": "command",
-          "command": "php artisan test",
-          "description": "Run full test suite"
-        },
-        {
-          "type": "command",
-          "command": "vendor/bin/pint",
-          "description": "Format all code"
-        },
-        {
-          "type": "command",
-          "command": "npm run build",
-          "description": "Build production assets"
-        },
-        {
-          "type": "command",
-          "command": "php artisan config:cache",
-          "description": "Cache configuration"
-        },
-        {
-          "type": "command",
-          "command": "php artisan route:cache",
-          "description": "Cache routes"
-        },
-        {
-          "type": "command",
-          "command": "php artisan view:cache",
-          "description": "Cache views"
-        },
-        {
-          "type": "command",
-          "command": "composer install --optimize-autoloader --no-dev",
-          "description": "Optimize autoloader for production"
-        },
-        {
-          "type": "message",
-          "content": "✅ Deployment preparation complete! Remember to:\n\n🔧 Set APP_ENV=production\n🔧 Set APP_DEBUG=false\n🔧 Configure proper database credentials\n🔧 Set up SSL certificates\n🔧 Configure server permissions\n🔧 Set up monitoring and logging"
-        }
-      ]
-    }
-  ],
-  "enabled": true,
-  "priority": "critical"
+  "when": {
+    "type": "manual"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Execute comprehensive Laravel 12 deployment preparation:\n\n**Pre-Deployment Checklist:**\n1. **Testing**: Run full test suite with `php artisan test`\n2. **Code Quality**: Format code with `vendor/bin/pint`\n3. **Assets**: Build production assets with `npm run build`\n4. **Caching**: Cache configurations, routes, and views\n5. **Optimization**: Optimize autoloader with `composer install --optimize-autoloader --no-dev`\n6. **Environment**: Verify production environment variables\n7. **Database**: Backup database and plan rollback strategy\n8. **Security**: Review security settings and SSL configuration\n\nExecute each step and provide deployment readiness confirmation."
+  }
 }

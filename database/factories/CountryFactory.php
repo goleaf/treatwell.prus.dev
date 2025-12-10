@@ -21,10 +21,13 @@ class CountryFactory extends Factory
      */
     public function definition()
     {
+        $name = $this->faker->country();
+        
         return [
-            'code' => 'LT',
-            'name' => 'Lithuania',
-            'normalised_name' => 'lithuania',
+            'code' => $this->faker->unique()->countryCode(),
+            'name' => $name,
+            'slug' => \Illuminate\Support\Str::slug($name),
+            'normalised_name' => strtolower($name),
             'active' => true,
         ];
     }

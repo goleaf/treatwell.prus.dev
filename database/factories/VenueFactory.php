@@ -23,19 +23,17 @@ class VenueFactory extends Factory
     {
         return [
             'external_id' => $this->faker->unique()->numerify('######'),
-            'name' => $this->faker->company() . ' ' . $this->faker->randomElement(['Salon', 'Spa', 'Beauty', 'Hair']),
+            'name' => $this->faker->company().' '.$this->faker->randomElement(['Salon', 'Spa', 'Beauty', 'Hair']),
             'slug' => $this->faker->unique()->slug(),
-            'url' => 'https://www.treatwell.lt/salon/' . $this->faker->slug(),
-            'source' => 'treatwell_api',
             'description' => $this->faker->paragraph(),
             'type_id' => $this->faker->numberBetween(1, 10),
             'type_name' => $this->faker->randomElement(['Hair Salon', 'Spa', 'Beauty Salon', 'Nail Salon', 'Massage']),
             'normalised_name' => function (array $attributes) {
                 return strtolower(str_replace(' ', '-', $attributes['type_name']));
             },
-            'desktop_uri' => '/salon/' . $this->faker->slug(),
-            'mobile_uri' => '/salon/' . $this->faker->slug(),
-            'app_uri' => '/salon/' . $this->faker->slug(),
+            'desktop_uri' => '/salon/'.$this->faker->slug(),
+            'mobile_uri' => '/salon/'.$this->faker->slug(),
+            'app_uri' => '/salon/'.$this->faker->slug(),
             'is_new_venue' => $this->faker->boolean(20),
             'raw_data' => json_encode([
                 'id' => $this->faker->numerify('######'),

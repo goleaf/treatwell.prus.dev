@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class City extends Model
 {
-    use CrudTrait;
+    /** @use HasFactory<\Database\Factories\CityFactory> */
+    use CrudTrait, HasFactory;
 
     protected function casts(): array
     {
@@ -44,9 +45,14 @@ class City extends Model
         return $this->belongsTo(Country::class);
     }
 
-    public function venues(): HasMany
+    public function venues(): BelongsToMany
     {
-        return $this->hasMany(Venue::class);
+        return $this->belongsToMany(Venue::class);
+    }
+
+    public function procedures(): BelongsToMany
+    {
+        return $this->belongsToMany(Procedure::class);
     }
 
     public function mainCity(): BelongsTo

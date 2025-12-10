@@ -26,6 +26,10 @@ class ImageFactory extends Factory
 
         return [
             'venue_id' => Venue::factory(),
+            'imageable_type' => Venue::class,
+            'imageable_id' => function (array $attributes) {
+                return $attributes['venue_id'];
+            },
             'external_id' => $imageId,
             'uri_small' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w360.h240.x'.$this->faker->hexColor().'/',
             'uri_medium' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w720.h480.x'.$this->faker->hexColor().'/',

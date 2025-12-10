@@ -10,8 +10,8 @@ tags: [crud, resource, laravel, api]
 This spec provides a structured approach to creating complete CRUD (Create, Read, Update, Delete) resources in Laravel with proper validation, testing, and API endpoints.
 
 ## Requirements Analysis
-- [ ] Model with relationships and factories
-- [ ] Database migration with proper indexes
+- [x] Model with relationships and factories
+- [-] Database migration with proper indexes
 - [ ] Form Request validation classes
 - [ ] Resource Controller with all CRUD methods
 - [ ] API Resource classes for JSON responses
@@ -33,7 +33,7 @@ php artisan make:model {ModelName} -mfsr
 ```
 - [ ] Define fillable attributes
 - [ ] Add relationships with return types
-- [ ] Implement casts() method
+- [x] Implement casts() method
 - [ ] Add any custom methods
 
 ### 2. Migration

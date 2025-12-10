@@ -3,14 +3,17 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Venue extends Model
 {
-    use CrudTrait;
+    /** @use HasFactory<\Database\Factories\VenueFactory> */
+    use CrudTrait, HasFactory;
 
     protected $fillable = [
         'city_id', 'external_id', 'name', 'slug', 'description', 'address',
@@ -47,28 +50,38 @@ class Venue extends Model
         return $this->hasMany(Treatment::class);
     }
 
-    public function ratings(): HasMany
+    public function ratingDetails(): HasOne
     {
-        return $this->hasMany(Rating::class);
+        return $this->hasOne(Rating::class);
     }
 
-    public function rating(): BelongsTo
+    public function location(): HasOne
     {
-        return $this->belongsTo(Rating::class);
+        return $this->hasOne(Location::class);
     }
 
-    public function location(): BelongsTo
+    public function images(): HasMany
     {
-        return $this->belongsTo(Location::class);
-    }
-
-    public function images(): MorphMany
-    {
-        return $this->morphMany(Image::class, 'imageable');
+        return $this->hasMany(Image::class);
     }
 
     public function openingHours(): HasMany
     {
         return $this->hasMany(OpeningHour::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function procedures(): BelongsToMany
+    {
+        return $this->belongsToMany(Procedure::class);
+    }
+
+    public function cities(): BelongsToMany
+    {
+        return $this->belongsToMany(City::class);
     }
 }
