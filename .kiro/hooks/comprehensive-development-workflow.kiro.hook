@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Comprehensive Development Workflow",
+  "description": "Complete Laravel 12 development workflow automation with code formatting, testing, and quality checks",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.php",
+      "database/**/*.php",
+      "routes/**/*.php",
+      "config/**/*.php",
+      "tests/**/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A PHP file has been modified. Please:\n\n1. **Format Code**: Run `vendor/bin/pint --dirty` to format the code\n2. **Clear Caches**: Clear relevant caches (config, route, view) if needed\n3. **Run Tests**: Execute focused tests for the modified functionality\n4. **Quality Check**: Verify Laravel 12 conventions are followed\n\nProvide specific commands and verify the changes maintain code quality."
+  }
+}

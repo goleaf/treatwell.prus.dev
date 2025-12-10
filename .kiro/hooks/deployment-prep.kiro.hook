@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Deployment Preparation",
+  "description": "Prepare application for deployment with comprehensive checks",
+  "version": "1.0",
+  "when": {
+    "type": "manual"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Prepare the application for deployment by:\n\n1. **Code Quality**: Run `vendor/bin/pint --dirty` for formatting\n2. **Testing**: Execute full test suite with `php artisan test`\n3. **Environment**: Check configuration and environment variables\n4. **Assets**: Verify asset compilation with `npm run build`\n5. **Optimization**: Cache routes, config, and views\n6. **Security**: Review security settings and dependencies\n\nProvide a deployment checklist and execute necessary commands."
+  }
+}
