@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class TreatmentController extends Controller
 {
     /**
-     * Get a list of all treatment categories
+     * Get distinct treatment categories.
      */
     public function categories()
     {
@@ -24,108 +24,102 @@ class TreatmentController extends Controller
     }
 
     /**
-     * Get venues offering a specific treatment category or name
+     * Get venues filtered by treatment.
      */
     public function venuesByTreatment(Request $request)
     {
         $request->validate([
-            'category' => 'nullable|string',
-            'name' => 'nullable|string',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|max:100',
         ]);
 
-        $perPage = $request->input('per_page', 20);
-        $category = $request->input('category');
-        $name = $request->input('name');
+        $query = Venue::query();
+        $query->with(['location.city', 'rating', 'images']);
 
-        $venues = Venue::whereHas('treatments', function ($query) use ($category, $name) {
-            if ($category) {
-                $query->where('category_name', $category);
-            }
+        $perPage = $request->input('per_page', 15);
 
-            if ($name) {
-                $query->where('name', 'like', "%{$name}%");
-            }
-        })
-            ->with(['location.city', 'rating', 'images' => function ($query) {
-                $query->where('is_primary', true);
-            }])
-            ->when($request->input('rating'), function ($query, $rating) {
-                $query->whereHas('rating', function ($q) use ($rating) {
-                    $q->where('weighted_average', '>=', $rating);
-                });
-            })
-            ->when($request->input('city_id'), function ($query, $cityId) {
-                $query->whereHas('location', function ($q) use ($cityId) {
-                    $q->where('city_id', $cityId);
-                });
-            })
-            ->paginate($perPage);
+        // Filter by treatment category
+        if ($request->has('category') && $request->input('category')) {
+            $category = $request->input('category');
+            $query->whereHas('treatments', function ($q) use ($category) {
+                $q->where('category_name', $category);
+            });
+        }
+
+        // Filter by treatment name
+        if ($request->has('name') && $request->input('name')) {
+            $name = $request->input('name');
+            $query->whereHas('treatments', function ($q) use ($name) {
+                $q->where('name', 'like', "%{$name}%");
+            });
+        }
+
+        // Filter by rating
+        if ($request->has('rating') && $request->input('rating')) {
+            $rating = $request->input('rating');
+            $query->whereHas('rating', function ($q) use ($rating) {
+                $q->where('weighted_average', '>=', $rating);
+            });
+        }
+
+        // Filter by city
+        if ($request->has('city_id') && $request->input('city_id')) {
+            $cityId = $request->input('city_id');
+            $query->whereHas('location', function ($q) use ($cityId) {
+                $q->where('city_id', $cityId);
+            });
+        }
+
+        $venues = $query->paginate($perPage);
 
         return response()->json($venues);
     }
 
     /**
-     * Get venues by price range for treatments
+     * Get venues filtered by price range.
      */
     public function venuesByPriceRange(Request $request)
     {
         $request->validate([
             'min_price' => 'nullable|numeric|min:0',
             'max_price' => 'nullable|numeric|min:0',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|max:100',
         ]);
 
-        $perPage = $request->input('per_page', 20);
+        $query = Venue::query();
+        $query->with(['location.city', 'rating', 'images']);
+
+        $perPage = $request->input('per_page', 15);
         $minPrice = $request->input('min_price');
         $maxPrice = $request->input('max_price');
 
-        $venues = Venue::whereHas('treatments', function ($query) use ($minPrice, $maxPrice) {
-            if ($minPrice !== null) {
-                $query->where('min_price', '>=', $minPrice);
-            }
-
-            if ($maxPrice !== null) {
-                $query->where('max_price', '<=', $maxPrice);
-            }
-        })
-            ->with(['location.city', 'rating', 'images' => function ($query) {
-                $query->where('is_primary', true);
-            }, 'treatments' => function ($query) use ($minPrice, $maxPrice) {
-                if ($minPrice !== null) {
-                    $query->where('min_price', '>=', $minPrice);
+        if ($minPrice || $maxPrice) {
+            $query->whereHas('treatments', function ($q) use ($minPrice, $maxPrice) {
+                if ($minPrice) {
+                    $q->where('min_price', '>=', $minPrice);
                 }
-
-                if ($maxPrice !== null) {
-                    $query->where('max_price', '<=', $maxPrice);
+                if ($maxPrice) {
+                    $q->where('max_price', '<=', $maxPrice);
                 }
-            }])
-            ->when($request->input('rating'), function ($query, $rating) {
-                $query->whereHas('rating', function ($q) use ($rating) {
-                    $q->where('weighted_average', '>=', $rating);
-                });
-            })
-            ->when($request->input('city_id'), function ($query, $cityId) {
-                $query->whereHas('location', function ($q) use ($cityId) {
-                    $q->where('city_id', $cityId);
-                });
-            })
-            ->paginate($perPage);
+            });
+        }
+
+        $venues = $query->paginate($perPage);
 
         return response()->json($venues);
     }
 
     /**
-     * Get average, minimum and maximum prices for treatments
+     * Get price statistics.
      */
     public function priceStats()
     {
-        $stats = [
-            'min_price' => Treatment::min('min_price'),
-            'max_price' => Treatment::max('max_price'),
-            'avg_price' => Treatment::avg('min_price'),
-        ];
+        $stats = Treatment::selectRaw('MIN(min_price) as min_price, MAX(max_price) as max_price, AVG(min_price) as avg_price')
+            ->first();
 
-        return response()->json($stats);
+        return response()->json([
+            'min_price' => (float) $stats->min_price,
+            'max_price' => (float) $stats->max_price,
+            'avg_price' => (float) $stats->avg_price,
+        ]);
     }
 }

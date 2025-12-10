@@ -189,4 +189,44 @@ class CityTest extends TestCase
 
         $this->assertEquals('vilnius-lt', $slug);
     }
+
+    public function test_country(): void
+    {
+        $this->markTestIncomplete('Test for country needs implementation');
+    }
+
+    public function test_locations(): void
+    {
+        $this->markTestIncomplete('Test for locations needs implementation');
+    }
+
+    public function test_main_city(): void
+    {
+        $this->markTestIncomplete('Test for mainCity needs implementation');
+    }
+
+    public function test_subregions(): void
+    {
+        $this->markTestIncomplete('Test for subregions needs implementation');
+    }
+
+    public function test_scope_main_cities(): void
+    {
+        $this->markTestIncomplete('Test for scopeMainCities needs implementation');
+    }
+
+    public function test_venues(): void
+    {
+        $this->markTestIncomplete('Test for venues needs implementation');
+    }
+
+    public function test_procedures(): void
+    {
+        $this->markTestIncomplete('Test for procedures needs implementation');
+    }
+
+    public function test_treatments(): void
+    {
+        $this->markTestIncomplete('Test for treatments needs implementation');
+    }
 }

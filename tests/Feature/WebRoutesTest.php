@@ -5,14 +5,12 @@ namespace Tests\Feature;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Location;
-use App\Models\Venue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
 class WebRoutesTest extends TestCase
 {
-    use RefreshDatabase;
-
+    use DatabaseMigrations;
     protected function setUp(): void
     {
         parent::setUp();

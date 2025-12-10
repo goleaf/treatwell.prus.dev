@@ -162,4 +162,64 @@ class VenueTest extends TestCase
         $this->assertInstanceOf(Collection::class, $venue->treatments);
         $this->assertCount(5, $venue->treatments);
     }
+
+    public function test_location(): void
+    {
+        $this->markTestIncomplete('Test for location needs implementation');
+    }
+
+    public function test_rating(): void
+    {
+        $this->markTestIncomplete('Test for rating needs implementation');
+    }
+
+    public function test_images(): void
+    {
+        $this->markTestIncomplete('Test for images needs implementation');
+    }
+
+    public function test_opening_hours(): void
+    {
+        $this->markTestIncomplete('Test for openingHours needs implementation');
+    }
+
+    public function test_treatments(): void
+    {
+        $this->markTestIncomplete('Test for treatments needs implementation');
+    }
+
+    public function test_procedures(): void
+    {
+        $this->markTestIncomplete('Test for procedures needs implementation');
+    }
+
+    public function test_cities(): void
+    {
+        $this->markTestIncomplete('Test for cities needs implementation');
+    }
+
+    public function test_get_primary_image_url(): void
+    {
+        $this->markTestIncomplete('Test for getPrimaryImageUrl needs implementation');
+    }
+
+    public function test_get_average_rating(): void
+    {
+        $this->markTestIncomplete('Test for getAverageRating needs implementation');
+    }
+
+    public function test_get_city_name(): void
+    {
+        $this->markTestIncomplete('Test for getCityName needs implementation');
+    }
+
+    public function test_scope_by_city(): void
+    {
+        $this->markTestIncomplete('Test for scopeByCity needs implementation');
+    }
+
+    public function test_scope_by_procedure(): void
+    {
+        $this->markTestIncomplete('Test for scopeByProcedure needs implementation');
+    }
 }

@@ -76,4 +76,9 @@ class CountryTest extends TestCase
             'active' => 1,
         ]);
     }
+
+    public function test_cities(): void
+    {
+        $this->markTestIncomplete('Test for cities needs implementation');
+    }
 }

@@ -2,92 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Treatment extends Model
 {
-    use HasFactory;
+    use CrudTrait;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'venue_id',
-        'procedure_id',
-        'name',
-        'description',
-        'price',
-        'duration',
-        'is_available',
+        'venue_id', 'external_id', 'name', 'slug', 'description',
+        'duration', 'price', 'min_price', 'max_price',
+        'min_duration', 'max_duration', 'category_id', 'category_name',
+        'category', 'options', 'is_active',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'price' => 'float',
-        'duration' => 'integer',
-        'is_available' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'min_price' => 'decimal:2',
+            'max_price' => 'decimal:2',
+            'options' => 'array',
+            'is_active' => 'boolean',
+        ];
+    }
 
-    /**
-     * Get the venue that owns the treatment.
-     */
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);
-    }
-
-    /**
-     * Get the procedure that owns the treatment.
-     */
-    public function procedure(): BelongsTo
-    {
-        return $this->belongsTo(Procedure::class);
-    }
-
-    /**
-     * Format the price with currency symbol.
-     */
-    public function getFormattedPriceAttribute(): string
-    {
-        return '€'.number_format($this->price, 2);
-    }
-
-    /**
-     * Format the duration in hours and minutes.
-     */
-    public function getFormattedDurationAttribute(): string
-    {
-        $hours = floor($this->duration / 60);
-        $minutes = $this->duration % 60;
-
-        $result = '';
-        if ($hours > 0) {
-            $result .= $hours.'h ';
-        }
-
-        if ($minutes > 0 || $hours == 0) {
-            $result .= $minutes.'min';
-        }
-
-        return trim($result);
-    }
-
-    /**
-     * Scope a query to only include available treatments.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeAvailable($query)
-    {
-        return $query->where('is_available', true);
     }
 }

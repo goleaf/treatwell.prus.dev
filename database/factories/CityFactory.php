@@ -32,8 +32,7 @@ class CityFactory extends Factory
                     ['code' => 'LT'],
                     [
                         'name' => 'Lithuania',
-                        'normalised_name' => 'lithuania',
-                        'active' => true,
+                        'slug' => 'lithuania',
                     ]
                 )->id;
             },

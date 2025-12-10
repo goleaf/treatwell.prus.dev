@@ -2,30 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Image extends Model
 {
-    use HasFactory;
+    use CrudTrait;
 
     protected $fillable = [
-        'venue_id',
-        'external_id',
-        'uri_small',
-        'uri_medium',
-        'uri_large',
-        'uri_xlarge',
-        'is_primary',
+        'imageable_type', 'imageable_id', 'external_id',
+        'path', 'uri_small', 'uri_medium', 'uri_large', 'uri_xlarge',
+        'is_primary', 'alt_text', 'sort_order',
     ];
 
-    protected $casts = [
-        'is_primary' => 'boolean',
-    ];
-
-    public function venue(): BelongsTo
+    protected function casts(): array
     {
-        return $this->belongsTo(Venue::class);
+        return [
+            'is_primary' => 'boolean',
+        ];
+    }
+
+    public function imageable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

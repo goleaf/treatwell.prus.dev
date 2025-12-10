@@ -4,10 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\City;
 use App\Models\Venue;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ApiTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * Test venues API endpoint
      */

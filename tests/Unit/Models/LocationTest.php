@@ -99,4 +99,24 @@ class LocationTest extends TestCase
         $this->assertEquals(54.687156, $dbLocation->latitude);
         $this->assertEquals(25.279651, $dbLocation->longitude);
     }
+
+    public function test_venue(): void
+    {
+        $this->markTestIncomplete('Test for venue needs implementation');
+    }
+
+    public function test_city(): void
+    {
+        $this->markTestIncomplete('Test for city needs implementation');
+    }
+
+    public function test_get_full_address_attribute(): void
+    {
+        $this->markTestIncomplete('Test for getFullAddressAttribute needs implementation');
+    }
+
+    public function test_distance_from(): void
+    {
+        $this->markTestIncomplete('Test for distanceFrom needs implementation');
+    }
 }

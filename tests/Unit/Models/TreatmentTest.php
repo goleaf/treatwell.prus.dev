@@ -71,4 +71,19 @@ class TreatmentTest extends TestCase
         $this->assertEquals(80, $dbTreatment->max_price);
         $this->assertEquals('Massage', $dbTreatment->category_name);
     }
+
+    public function test_venue(): void
+    {
+        $this->markTestIncomplete('Test for venue needs implementation');
+    }
+
+    public function test_get_formatted_price_attribute(): void
+    {
+        $this->markTestIncomplete('Test for getFormattedPriceAttribute needs implementation');
+    }
+
+    public function test_get_formatted_duration_attribute(): void
+    {
+        $this->markTestIncomplete('Test for getFormattedDurationAttribute needs implementation');
+    }
 }

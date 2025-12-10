@@ -10,182 +10,102 @@ use Illuminate\Http\Request;
 class VenueController extends Controller
 {
     /**
-     * Get a list of venues with pagination
+     * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 20);
+        $query = Venue::query();
 
-        $venues = Venue::with(['location.city', 'rating', 'images' => function ($query) {
-            $query->where('is_primary', true);
-        }])
-            ->when($request->city_id, function ($query, $cityId) {
-                $query->whereHas('location', function ($q) use ($cityId) {
-                    $q->where('city_id', $cityId);
-                });
-            })
-            ->when($request->rating, function ($query, $rating) {
-                $query->whereHas('rating', function ($q) use ($rating) {
-                    $q->where('weighted_average', '>=', $rating);
-                });
-            })
-            ->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%");
-            })
-            ->when($request->type, function ($query, $type) {
-                $query->where('type_name', $type);
-            })
-            ->when($request->sort, function ($query, $sort) {
-                switch ($sort) {
-                    case 'name':
-                        $query->orderBy('name', 'asc');
-                        break;
-                    case 'name_desc':
-                        $query->orderBy('name', 'desc');
-                        break;
-                    case 'rating':
-                        $query->whereHas('rating', function ($q) {
-                            $q->orderBy('weighted_average', 'desc');
-                        });
-                        break;
-                    case 'rating_asc':
-                        $query->whereHas('rating', function ($q) {
-                            $q->orderBy('weighted_average', 'asc');
-                        });
-                        break;
-                    case 'newest':
-                        $query->orderBy('created_at', 'desc');
-                        break;
-                    case 'oldest':
-                        $query->orderBy('created_at', 'asc');
-                        break;
-                    default:
-                        $query->orderBy('name', 'asc');
-                }
-            }, function ($query) {
-                $query->orderBy('name', 'asc');
-            })
-            ->paginate($perPage);
+        $query->with(['location.city', 'rating', 'images']);
 
-        return response()->json([
-            'data' => $venues->items(),
-            'links' => [
-                'first' => $venues->url(1),
-                'last' => $venues->url($venues->lastPage()),
-                'prev' => $venues->previousPageUrl(),
-                'next' => $venues->nextPageUrl(),
-            ],
-            'meta' => [
-                'current_page' => $venues->currentPage(),
-                'from' => $venues->firstItem(),
-                'last_page' => $venues->lastPage(),
-                'path' => $venues->path(),
-                'per_page' => $venues->perPage(),
-                'to' => $venues->lastItem(),
-                'total' => $venues->total(),
-            ],
-        ]);
+        // Search
+        if ($request->has('search') && $request->input('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // Filter by city
+        if ($request->has('city_id') && $request->input('city_id')) {
+            $cityId = $request->input('city_id');
+            $query->whereHas('location', function ($q) use ($cityId) {
+                $q->where('city_id', $cityId);
+            });
+        }
+
+        // Filter by rating
+        if ($request->has('rating') && $request->input('rating')) {
+            $rating = $request->input('rating');
+            $query->whereHas('rating', function ($q) use ($rating) {
+                $q->where('weighted_average', '>=', $rating);
+            });
+        }
+
+        // Filter by type
+        if ($request->has('type') && $request->input('type')) {
+            $type = $request->input('type');
+            $query->where('type_name', $type);
+        }
+
+        // Sorting
+        if ($request->has('sort')) {
+            $sort = $request->input('sort');
+            switch ($sort) {
+                case 'name':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('name', 'desc');
+                    break;
+                case 'rating':
+                    $query->join('ratings', 'venues.id', '=', 'ratings.venue_id')
+                        ->orderBy('ratings.weighted_average', 'desc')
+                        ->select('venues.*'); // Avoid column collision
+                    break;
+                case 'rating_asc':
+                    $query->join('ratings', 'venues.id', '=', 'ratings.venue_id')
+                        ->orderBy('ratings.weighted_average', 'asc')
+                        ->select('venues.*');
+                    break;
+                case 'newest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'oldest':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                default:
+                    $query->orderBy('id', 'desc');
+            }
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $perPage = $request->input('per_page', 15);
+        $venues = $query->paginate($perPage);
+
+        return response()->json($venues);
     }
 
     /**
-     * Get a single venue with full details
+     * Display the specified resource.
      */
-    public function show(Venue $venue)
+    public function show($id)
     {
-        $venue->load(['location.city', 'rating', 'images', 'openingHours', 'treatments']);
+        // If $id is numeric, find by ID. Otherwise find by slug.
+        if (is_numeric($id)) {
+            $venue = Venue::with(['location.city', 'rating', 'images', 'openingHours', 'treatments'])->find($id);
+        } else {
+            $venue = Venue::with(['location.city', 'rating', 'images', 'openingHours', 'treatments'])->where('slug', $id)->first();
+        }
+
+        if (! $venue) {
+            return response()->json(['message' => 'Venue not found'], 404);
+        }
 
         return response()->json($venue);
     }
 
     /**
-     * Get venues by city
-     */
-    public function byCity(City $city, Request $request)
-    {
-        $perPage = $request->input('per_page', 20);
-
-        $venues = Venue::whereHas('location', function ($query) use ($city) {
-            $query->where('city_id', $city->id);
-        })
-            ->with(['location.city', 'rating', 'images' => function ($query) {
-                $query->where('is_primary', true);
-            }])
-            ->when($request->rating, function ($query, $rating) {
-                $query->whereHas('rating', function ($q) use ($rating) {
-                    $q->where('weighted_average', '>=', $rating);
-                });
-            })
-            ->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%");
-            })
-            ->when($request->type, function ($query, $type) {
-                $query->where('type_name', $type);
-            })
-            ->when($request->sort, function ($query, $sort) {
-                switch ($sort) {
-                    case 'name':
-                        $query->orderBy('name', 'asc');
-                        break;
-                    case 'name_desc':
-                        $query->orderBy('name', 'desc');
-                        break;
-                    case 'rating':
-                        $query->whereHas('rating', function ($q) {
-                            $q->orderBy('weighted_average', 'desc');
-                        });
-                        break;
-                    case 'rating_asc':
-                        $query->whereHas('rating', function ($q) {
-                            $q->orderBy('weighted_average', 'asc');
-                        });
-                        break;
-                    case 'newest':
-                        $query->orderBy('created_at', 'desc');
-                        break;
-                    case 'oldest':
-                        $query->orderBy('created_at', 'asc');
-                        break;
-                    default:
-                        $query->orderBy('name', 'asc');
-                }
-            }, function ($query) {
-                $query->orderBy('name', 'asc');
-            })
-            ->paginate($perPage);
-
-        return response()->json([
-            'data' => $venues->items(),
-            'links' => [
-                'first' => $venues->url(1),
-                'last' => $venues->url($venues->lastPage()),
-                'prev' => $venues->previousPageUrl(),
-                'next' => $venues->nextPageUrl(),
-            ],
-            'meta' => [
-                'current_page' => $venues->currentPage(),
-                'from' => $venues->firstItem(),
-                'last_page' => $venues->lastPage(),
-                'path' => $venues->path(),
-                'per_page' => $venues->perPage(),
-                'to' => $venues->lastItem(),
-                'total' => $venues->total(),
-            ],
-        ]);
-    }
-
-    /**
-     * Get list of available cities
-     */
-    public function cities()
-    {
-        $cities = City::withMostVenues()
-            ->get();
-
-        return response()->json($cities);
-    }
-
-    /**
-     * Get list of venue types
+     * Get distinct venue types
      */
     public function types()
     {
@@ -199,21 +119,35 @@ class VenueController extends Controller
     }
 
     /**
+     * Get all cities
+     */
+    public function cities()
+    {
+        $cities = City::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($cities);
+    }
+
+    /**
      * Get statistics
      */
     public function stats()
     {
         $totalVenues = Venue::count();
-        $totalCities = City::has('locations')->count();
+        $totalCities = City::count();
 
-        $topRatedVenues = Venue::whereHas('rating', function ($query) {
-            $query->orderBy('weighted_average', 'desc');
-        })
-            ->with(['location.city', 'rating'])
-            ->take(10)
+        $topRatedVenues = Venue::join('ratings', 'venues.id', '=', 'ratings.venue_id')
+            ->orderBy('ratings.weighted_average', 'desc')
+            ->take(5)
+            ->select('venues.id', 'venues.name', 'ratings.weighted_average')
             ->get();
 
-        $citiesWithMostVenues = City::withMostVenues(10)->get();
+        $citiesWithMostVenues = City::withCount('locations as venues_count')
+            ->orderBy('venues_count', 'desc')
+            ->take(5)
+            ->get(['id', 'name', 'venues_count']);
 
         return response()->json([
             'total_venues' => $totalVenues,
