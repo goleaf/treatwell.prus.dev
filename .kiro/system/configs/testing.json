@@ -1,0 +1,128 @@
+{
+  "environment": "testing",
+  "debug": true,
+  "app_env": "testing",
+  "database": {
+    "default": "sqlite",
+    "connections": {
+      "sqlite": {
+        "driver": "sqlite",
+        "database": ":memory:",
+        "foreign_key_constraints": true
+      },
+      "mysql_testing": {
+        "driver": "mysql",
+        "host": "127.0.0.1",
+        "port": "3306",
+        "database": "laravel_testing",
+        "username": "root",
+        "password": ""
+      }
+    }
+  },
+  "cache": {
+    "default": "array",
+    "stores": {
+      "array": {
+        "driver": "array"
+      }
+    }
+  },
+  "session": {
+    "driver": "array"
+  },
+  "queue": {
+    "default": "sync"
+  },
+  "mail": {
+    "default": "array"
+  },
+  "broadcasting": {
+    "default": "log"
+  },
+  "filesystems": {
+    "default": "local",
+    "disks": {
+      "local": {
+        "driver": "local",
+        "root": "storage/app/testing"
+      }
+    }
+  },
+  "logging": {
+    "default": "single",
+    "channels": {
+      "single": {
+        "driver": "single",
+        "path": "storage/logs/testing.log",
+        "level": "debug"
+      }
+    }
+  },
+  "testing": {
+    "parallel": {
+      "enabled": true,
+      "processes": 4
+    },
+    "coverage": {
+      "enabled": true,
+      "threshold": 80,
+      "exclude": [
+        "bootstrap/*",
+        "config/*",
+        "public/*",
+        "resources/*",
+        "storage/*",
+        "vendor/*"
+      ]
+    },
+    "performance": {
+      "max_execution_time": 30,
+      "memory_limit": "512M",
+      "slow_test_threshold": 1000
+    },
+    "factories": {
+      "faker_locale": "en_US",
+      "default_count": 3
+    },
+    "assertions": {
+      "strict_mode": true,
+      "deprecation_handling": "strict"
+    }
+  },
+  "phpunit": {
+    "bootstrap": "vendor/autoload.php",
+    "test_suites": {
+      "Unit": {
+        "directory": "./tests/Unit"
+      },
+      "Feature": {
+        "directory": "./tests/Feature"
+      }
+    },
+    "coverage": {
+      "include": [
+        "./app"
+      ],
+      "exclude": [
+        "./app/Console/Kernel.php"
+      ]
+    },
+    "php": {
+      "ini": {
+        "memory_limit": "512M"
+      },
+      "env": {
+        "APP_ENV": "testing",
+        "BCRYPT_ROUNDS": 4,
+        "CACHE_DRIVER": "array",
+        "DB_CONNECTION": "sqlite",
+        "DB_DATABASE": ":memory:",
+        "MAIL_MAILER": "array",
+        "QUEUE_CONNECTION": "sync",
+        "SESSION_DRIVER": "array",
+        "TELESCOPE_ENABLED": false
+      }
+    }
+  }
+}
