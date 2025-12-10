@@ -1,23 +1,36 @@
-# Kiro Usage Guide
+# Kiro Laravel 12 Usage Guide
 
 ## Overview
-This guide explains how to effectively use Kiro for Laravel development with the configured specs, hooks, and steering files.
+This comprehensive guide explains how to effectively use Kiro AI for Laravel 12 development with advanced automation, best practices enforcement, and intelligent workflows.
+
+## Laravel 12 Specific Features
+
+### Streamlined Architecture
+- **No middleware registration files** - Use `bootstrap/app.php` with `withMiddleware()`
+- **Auto-registering commands** - Files in `app/Console/Commands/` automatically available
+- **Service provider registration** - Use `bootstrap/providers.php`
+- **Modern PHP 8.3+ features** - Constructor property promotion, explicit return types
+
+### Enhanced Performance
+- **Optimized autoloading** - Built-in performance improvements
+- **Streamlined configuration** - Reduced overhead and faster bootstrapping
+- **Improved caching** - Enhanced config, route, and view caching
 
 ## Specs Usage
 
-### Available Specs
-- `feature-development.md` - Complete feature development workflow
-- `model-creation.md` - Model creation with relationships and factories
-- `crud-resource.md` - CRUD resource creation with controllers and views
-- `api-endpoint.md` - API endpoint development with resources
-- `authentication-system.md` - Authentication and authorization setup
-- `database-migration.md` - Database migration and schema changes
-- `queue-job.md` - Queue job creation and processing
-- `middleware-creation.md` - Custom middleware development
-- `event-listener-system.md` - Event-driven architecture setup
-- `notification-system.md` - Multi-channel notification system
-- `command-creation.md` - Artisan command development
-- `service-provider.md` - Service provider creation and binding
+### Available Specs (Updated for Laravel 12)
+- `feature-development.md` - Complete Laravel 12 feature development workflow
+- `model-creation.md` - Model creation with `casts()` method and relationships
+- `crud-resource.md` - CRUD resource creation with Form Requests
+- `api-endpoint.md` - API endpoint development with Laravel 12 resources
+- `authentication-system.md` - Laravel 12 authentication and authorization
+- `database-migration.md` - Database migration with Laravel 12 conventions
+- `queue-job.md` - Queue job creation with Laravel 12 improvements
+- `middleware-creation.md` - Laravel 12 middleware with `bootstrap/app.php` registration
+- `event-listener-system.md` - Event-driven architecture with Laravel 12 features
+- `notification-system.md` - Multi-channel notifications with Laravel 12 enhancements
+- `command-creation.md` - Auto-registering Artisan commands
+- `service-provider.md` - Service provider with `bootstrap/providers.php` registration
 
 ### Using Specs
 1. Choose appropriate spec for your task
@@ -25,17 +38,36 @@ This guide explains how to effectively use Kiro for Laravel development with the
 3. Use checkboxes to track progress
 4. Reference related files and examples
 
-## Hooks Automation
+## Advanced Hooks Automation (Laravel 12 Optimized)
 
-### Active Hooks
-- `format-on-save.json` - Auto-format code with Pint on save
-- `test-on-save.json` - Run relevant tests when files change
-- `build-frontend.json` - Build frontend assets when needed
-- `migration-reminder.json` - Remind to run migrations
-- `env-validation.json` - Validate environment configuration
-- `composer-update.json` - Remind about composer updates
-- `route-cache-clear.json` - Clear route cache on route changes
-- `view-cache-clear.json` - Clear view cache on template changes
+### Core Development Workflow
+- **comprehensive-development-workflow.json** - Complete automation (formatting, testing, caching)
+- **laravel-12-code-quality.json** - Laravel 12 best practices enforcement
+- **laravel-12-artisan-optimization.json** - Artisan command optimization
+
+### Component Creation Automation
+- **laravel-12-model-creation.json** - Model creation with Laravel 12 conventions
+- **laravel-12-controller-creation.json** - Controller with Form Requests and resources
+- **laravel-12-middleware-management.json** - Middleware with `bootstrap/app.php` registration
+- **laravel-12-service-provider.json** - Service provider with `bootstrap/providers.php`
+
+### Database & Migration Management
+- **laravel-12-migration-workflow.json** - Migration with factory/seeder automation
+- **laravel-12-queue-management.json** - Queue job creation and monitoring
+
+### Frontend & Assets (Tailwind CSS v4)
+- **frontend-asset-optimization.json** - Tailwind CSS v4 and Vite optimization
+
+### Testing & Quality Assurance
+- **laravel-12-test-automation.json** - PHPUnit testing workflow (Laravel 12 compliant)
+- **laravel-12-security-audit.json** - Security checks and vulnerability scanning
+
+### Performance & Optimization
+- **laravel-12-performance-monitor.json** - Performance monitoring and optimization
+- **laravel-12-deployment-prep.json** - Pre-deployment checklist and optimization
+
+### Advanced Features
+- **laravel-12-event-system.json** - Event and listener management
 
 ### Hook Management
 - Hooks automatically trigger based on file changes

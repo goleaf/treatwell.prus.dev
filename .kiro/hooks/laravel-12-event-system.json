@@ -1,0 +1,29 @@
+{
+  "name": "Laravel 12 Event System Management",
+  "description": "Event and listener creation workflow for Laravel 12",
+  "version": "2.0",
+  "triggers": [
+    {
+      "type": "file_created",
+      "patterns": ["app/Events/*.php", "app/Listeners/*.php"]
+    }
+  ],
+  "actions": [
+    {
+      "type": "sequence",
+      "steps": [
+        {
+          "type": "message",
+          "content": "📡 Laravel 12 Event System:\n\n✅ Use constructor property promotion in events\n✅ Implement ShouldBroadcast for real-time updates\n✅ Add ShouldQueue to listeners for async processing\n✅ Use proper type hints in event data\n✅ Register events in bootstrap/providers.php\n✅ Implement proper error handling\n✅ Use event discovery for auto-registration\n✅ Add proper logging for debugging"
+        },
+        {
+          "type": "command",
+          "command": "php artisan event:list",
+          "description": "List registered events and listeners"
+        }
+      ]
+    }
+  ],
+  "enabled": true,
+  "priority": "medium"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Laravel 12 Service Provider Management",
+  "description": "Service provider creation and registration workflow for Laravel 12",
+  "version": "2.0",
+  "triggers": [
+    {
+      "type": "file_created",
+      "patterns": ["app/Providers/*.php"]
+    },
+    {
+      "type": "file_saved",
+      "patterns": ["bootstrap/providers.php"]
+    }
+  ],
+  "actions": [
+    {
+      "type": "sequence",
+      "steps": [
+        {
+          "type": "message",
+          "content": "🔧 Laravel 12 Service Provider Management:\n\n✅ Register in bootstrap/providers.php\n✅ Use register() for service bindings\n✅ Use boot() for bootstrapping\n✅ Implement deferred providers for performance\n✅ Add proper dependency injection\n✅ Configure service aliases\n✅ Add configuration validation\n✅ Implement proper error handling"
+        },
+        {
+          "type": "command",
+          "command": "php artisan about",
+          "description": "Check provider registration"
+        }
+      ]
+    }
+  ],
+  "enabled": true,
+  "priority": "medium"
+}

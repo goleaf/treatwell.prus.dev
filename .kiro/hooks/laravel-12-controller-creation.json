@@ -1,0 +1,29 @@
+{
+  "name": "Laravel 12 Controller Creation Workflow",
+  "description": "Controller creation with Form Request validation and Laravel 12 conventions",
+  "version": "2.0",
+  "triggers": [
+    {
+      "type": "file_created",
+      "patterns": ["app/Http/Controllers/*.php"]
+    }
+  ],
+  "actions": [
+    {
+      "type": "sequence",
+      "steps": [
+        {
+          "type": "message",
+          "content": "🎮 New Controller Created! Laravel 12 Controller Checklist:\n\n✅ Create Form Requests: `php artisan make:request Store{{ModelName}}Request`\n✅ Create Form Requests: `php artisan make:request Update{{ModelName}}Request`\n✅ Use explicit return type declarations\n✅ Keep controllers thin - delegate to services\n✅ Use proper HTTP status codes\n✅ Create API Resources if needed: `php artisan make:resource {{ModelName}}Resource`\n✅ Add proper authorization with policies\n✅ Use route model binding"
+        },
+        {
+          "type": "command",
+          "command": "vendor/bin/pint --dirty",
+          "description": "Format new controller with Pint"
+        }
+      ]
+    }
+  ],
+  "enabled": true,
+  "priority": "high"
+}

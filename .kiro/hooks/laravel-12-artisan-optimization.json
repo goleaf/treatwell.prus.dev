@@ -1,0 +1,38 @@
+{
+  "name": "Laravel 12 Artisan Command Optimization",
+  "description": "Automated Artisan command execution and Laravel 12 optimization",
+  "version": "2.0",
+  "triggers": [
+    {
+      "type": "file_saved",
+      "patterns": [
+        "app/Console/Commands/*.php",
+        "routes/console.php",
+        "bootstrap/app.php"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "sequence",
+      "steps": [
+        {
+          "type": "message",
+          "content": "⚙️ Laravel 12 Artisan Optimization:\n\n✅ Commands auto-register from app/Console/Commands/\n✅ No manual registration needed in Laravel 12\n✅ Use descriptive command signatures\n✅ Implement proper error handling\n✅ Add progress indicators for long operations\n✅ Use confirmation prompts for destructive operations\n✅ Return appropriate exit codes"
+        },
+        {
+          "type": "command",
+          "command": "php artisan list",
+          "description": "List available Artisan commands"
+        },
+        {
+          "type": "command",
+          "command": "php artisan optimize:clear",
+          "description": "Clear all cached data"
+        }
+      ]
+    }
+  ],
+  "enabled": true,
+  "priority": "medium"
+}

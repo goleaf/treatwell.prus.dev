@@ -1,0 +1,38 @@
+{
+  "name": "Laravel 12 Code Quality Assurance",
+  "description": "Comprehensive code quality checks and Laravel 12 best practices enforcement",
+  "version": "2.0",
+  "triggers": [
+    {
+      "type": "file_saved",
+      "patterns": [
+        "app/**/*.php",
+        "database/**/*.php",
+        "tests/**/*.php"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "sequence",
+      "steps": [
+        {
+          "type": "message",
+          "content": "🔍 Laravel 12 Code Quality Check:\n\n✅ PHP 8.3+ features used\n✅ Constructor property promotion\n✅ Explicit return type declarations\n✅ Proper type hints\n✅ Laravel 12 conventions followed\n✅ Eloquent relationships typed\n✅ N+1 queries prevented\n✅ PHPDoc blocks added\n✅ Descriptive naming used"
+        },
+        {
+          "type": "command",
+          "command": "vendor/bin/pint --dirty --test",
+          "description": "Check code formatting"
+        },
+        {
+          "type": "command",
+          "command": "php artisan about",
+          "description": "Check application status"
+        }
+      ]
+    }
+  ],
+  "enabled": true,
+  "priority": "high"
+}
