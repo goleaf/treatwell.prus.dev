@@ -15,7 +15,7 @@ class Image extends Model
     use CrudTrait, HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'imageable_type', 'imageable_id', 'venue_id', 'external_id',
+        'imageable_type', 'imageable_id', 'venue_id', 'city_id', 'external_id',
         'path', 'uri_small', 'uri_medium', 'uri_large', 'uri_xlarge',
         'is_primary', 'alt_text', 'sort_order',
     ];
@@ -35,6 +35,11 @@ class Image extends Model
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     /**

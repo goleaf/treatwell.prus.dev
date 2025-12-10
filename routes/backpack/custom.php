@@ -3,11 +3,13 @@
 use Illuminate\Support\Facades\Route;
 
 // --------------------------
-// Custom Backpack Routes
+// Custom Backpack Routes - DISABLED
 // --------------------------
-// This route file is loaded automatically by Backpack\CRUD.
-// Routes you generate using Backpack\Generators will be placed here.
+// All Backpack admin routes have been disabled
+// Authentication and admin functionality removed
 
+// All admin routes are commented out to disable admin functionality
+/*
 Route::group([
     'prefix' => config('backpack.base.route_prefix', 'admin'),
     'middleware' => array_merge(
@@ -23,6 +25,7 @@ Route::group([
     Route::crud('treatment', 'TreatmentCrudController');
     Route::crud('rating', 'RatingCrudController');
 }); // this should be the absolute last line of this file
+*/
 
 /**
  * DO NOT ADD ANYTHING HERE.

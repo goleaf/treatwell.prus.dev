@@ -68,8 +68,8 @@ class CountrySeeder extends Seeder
                     );
 
                     // Also attach to the many-to-many relationship if not already attached
-                    if (! $city->venues->contains($venue)) {
-                        $city->venues()->attach($venue);
+                    if (! $venue->cities->contains($city)) {
+                        $venue->cities()->attach($city);
                     }
                 }
             }

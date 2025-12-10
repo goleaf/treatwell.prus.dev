@@ -69,6 +69,7 @@ class ScrapeTreatwellAll extends Command
             ['code' => 'LT'],
             [
                 'name' => 'Lithuania',
+                'slug' => 'lithuania',
                 'normalised_name' => 'lithuania',
                 'active' => true,
             ]
@@ -536,8 +537,11 @@ class ScrapeTreatwellAll extends Command
         // Add new images
         foreach ($imagesData as $image) {
             Image::create([
+                'imageable_type' => Venue::class,
+                'imageable_id' => $venue->id,
                 'venue_id' => $venue->id,
                 'external_id' => $image['id'] ?? null,
+                'path' => '', // Required field, using empty string as default
                 'uri_small' => $image['uris']['360x240'] ?? null,
                 'uri_medium' => $image['uris']['720x480'] ?? null,
                 'uri_large' => $image['uris']['1080x720'] ?? null,

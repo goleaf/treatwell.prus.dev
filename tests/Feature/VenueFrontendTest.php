@@ -98,23 +98,7 @@ class VenueFrontendTest extends TestCase
         $response->assertDontSee('Fitness Center');
     }
 
-    public function test_authenticated_user_can_see_delete_button_on_venue_show_page(): void
-    {
-        $user = \App\Models\User::factory()->create();
-        $city = City::factory()->create();
-        $venue = Venue::factory()->create([
-            'city_id' => $city->id,
-            'is_active' => true,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('web.venues.show', $venue));
-
-        $response->assertStatus(200);
-        $response->assertSee('Delete Venue');
-        $response->assertSee('confirmDelete');
-    }
-
-    public function test_guest_cannot_see_delete_button_on_venue_show_page(): void
+    public function test_anyone_can_see_delete_button_on_venue_show_page(): void
     {
         $city = City::factory()->create();
         $venue = Venue::factory()->create([
@@ -125,30 +109,25 @@ class VenueFrontendTest extends TestCase
         $response = $this->get(route('web.venues.show', $venue));
 
         $response->assertStatus(200);
-        $response->assertDontSee('Delete Venue');
+        $response->assertSee('Delete Venue');
+        $response->assertSee('confirmDelete');
     }
 
-    public function test_authenticated_user_can_delete_venue(): void
+    public function test_delete_button_is_visible_to_everyone(): void
     {
-        $user = \App\Models\User::factory()->create();
         $city = City::factory()->create();
         $venue = Venue::factory()->create([
             'city_id' => $city->id,
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($user)
-            ->withSession(['_token' => 'test-token'])
-            ->delete(route('web.venues.destroy', $venue), [
-                '_token' => 'test-token',
-            ]);
+        $response = $this->get(route('web.venues.show', $venue));
 
-        $response->assertRedirect(route('web.venues.index'));
-        $response->assertSessionHas('success', 'Venue deleted successfully.');
-        $this->assertSoftDeleted('venues', ['id' => $venue->id]);
+        $response->assertStatus(200);
+        $response->assertSee('Delete Venue');
     }
 
-    public function test_guest_cannot_delete_venue(): void
+    public function test_anyone_can_delete_venue(): void
     {
         $city = City::factory()->create();
         $venue = Venue::factory()->create([
@@ -161,27 +140,29 @@ class VenueFrontendTest extends TestCase
                 '_token' => 'test-token',
             ]);
 
-        $response->assertRedirect(route('login'));
-        $this->assertDatabaseHas('venues', ['id' => $venue->id]);
+        $response->assertRedirect(route('web.venues.index'));
+        $response->assertSessionHas('success', 'Venue deleted successfully.');
+        $this->assertSoftDeleted('venues', ['id' => $venue->id]);
     }
 
-    public function test_authenticated_user_can_see_delete_button_on_venue_index_page(): void
+    public function test_deletion_works_without_authentication(): void
     {
-        $user = \App\Models\User::factory()->create();
         $city = City::factory()->create();
         $venue = Venue::factory()->create([
             'city_id' => $city->id,
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($user)->get(route('web.venues.index'));
+        $response = $this->withSession(['_token' => 'test-token'])
+            ->delete(route('web.venues.destroy', $venue), [
+                '_token' => 'test-token',
+            ]);
 
-        $response->assertStatus(200);
-        $response->assertSee('Delete');
-        $response->assertSee('Edit');
+        $response->assertRedirect(route('web.venues.index'));
+        $this->assertSoftDeleted('venues', ['id' => $venue->id]);
     }
 
-    public function test_guest_cannot_see_delete_button_on_venue_index_page(): void
+    public function test_anyone_can_see_delete_button_on_venue_index_page(): void
     {
         $city = City::factory()->create();
         $venue = Venue::factory()->create([
@@ -192,9 +173,23 @@ class VenueFrontendTest extends TestCase
         $response = $this->get(route('web.venues.index'));
 
         $response->assertStatus(200);
-        // Check that the delete form is not present
-        $response->assertDontSee('web.venues.destroy');
-        $response->assertDontSee('method="POST"');
-        $response->assertDontSee('@method(\'DELETE\')');
+        $response->assertSee('Delete');
+        $response->assertSee('Edit');
+    }
+
+    public function test_delete_button_is_visible_to_everyone_on_index_page(): void
+    {
+        $city = City::factory()->create();
+        $venue = Venue::factory()->create([
+            'city_id' => $city->id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('web.venues.index'));
+
+        $response->assertStatus(200);
+        // Check that the delete form is present for everyone
+        $response->assertSee('Delete');
+        $response->assertSee('Edit');
     }
 }

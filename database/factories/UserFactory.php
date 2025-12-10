@@ -64,6 +64,15 @@ class UserFactory extends Factory
             'email_verified_at' => $emailVerifiedAt,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'phone' => $this->faker->optional(0.7)->phoneNumber(),
+            'is_venue_owner' => $this->faker->boolean(15), // 15% chance of being venue owner
+            'notification_preferences' => $this->faker->optional(0.5)->passthrough([
+                'email_notifications' => $this->faker->boolean(90),
+                'sms_notifications' => $this->faker->boolean(60),
+                'push_notifications' => $this->faker->boolean(80),
+                'reminder_hours' => $this->faker->randomElement([2, 4, 12, 24]),
+            ]),
+            'last_booking_at' => $this->faker->optional(0.6)->dateTimeBetween('-6 months', 'now'),
         ];
     }
 
@@ -193,6 +202,29 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => $verified ? now() : null,
+        ]);
+    }
+
+    /**
+     * Create a venue owner user.
+     */
+    public function venueOwner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_venue_owner' => true,
+            'phone' => $this->faker->phoneNumber(),
+            'email_verified_at' => now(),
+        ]);
+    }
+
+    /**
+     * Create a regular customer user.
+     */
+    public function customer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_venue_owner' => false,
+            'last_booking_at' => $this->faker->optional(0.8)->dateTimeBetween('-3 months', 'now'),
         ]);
     }
 }

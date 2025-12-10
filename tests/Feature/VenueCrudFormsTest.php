@@ -22,7 +22,7 @@ class VenueCrudFormsTest extends TestCase
 
     public function test_venue_create_form_loads_successfully(): void
     {
-        $response = $this->actingAs($this->user)->get(route('web.venues.create'));
+        $response = $this->get(route('web.venues.create'));
 
         $response->assertStatus(200);
         $response->assertViewIs('venues.create');
@@ -40,7 +40,7 @@ class VenueCrudFormsTest extends TestCase
         $city = City::factory()->create();
         $venue = Venue::factory()->create(['city_id' => $city->id]);
 
-        $response = $this->actingAs($this->user)->get(route('web.venues.edit', $venue));
+        $response = $this->get(route('web.venues.edit', $venue));
 
         $response->assertStatus(200);
         $response->assertViewIs('venues.edit');
@@ -54,11 +54,12 @@ class VenueCrudFormsTest extends TestCase
         $this->markTestSkipped('CSRF token handling in tests needs to be resolved');
     }
 
-    public function test_venue_create_requires_authentication(): void
+    public function test_venue_create_is_publicly_accessible(): void
     {
         $response = $this->get(route('web.venues.create'));
 
-        $response->assertRedirect(route('login'));
+        $response->assertStatus(200);
+        $response->assertViewIs('venues.create');
     }
 
     public function test_venue_store_requires_authentication(): void

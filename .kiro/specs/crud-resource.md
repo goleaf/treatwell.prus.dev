@@ -55,7 +55,7 @@ php artisan make:model {ModelName} -mfsr
 
 ### 5. Controller
 - [x] Resource controller with all methods
-- [ ] Proper authorization checks
+- [x] Proper authorization checks
 - [x] Use Form Requests for validation
 - [x] Return appropriate responses
 - [x] Handle errors gracefully
@@ -67,17 +67,17 @@ php artisan make:model {ModelName} -mfsr
 - [x] Follow consistent response format
 
 ### 7. Routes
-- [ ] Define resource routes
-- [ ] Add API routes if needed
-- [ ] Apply appropriate middleware
-- [ ] Use route model binding
+- [x] Define resource routes
+- [x] Add API routes if needed
+- [x] Apply appropriate middleware
+- [x] Use route model binding
 
 ### 8. Frontend (if applicable)
 - [ ] Index view with pagination
 - [ ] Create/Edit forms
 - [ ] Show view for details
 - [x] Delete confirmation
-- [-] Proper error handling
+- [x] Proper error handling
 
 ### 9. Testing
 - [ ] Feature tests for all CRUD operations

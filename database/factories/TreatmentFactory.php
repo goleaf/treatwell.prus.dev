@@ -162,6 +162,12 @@ class TreatmentFactory extends Factory
             'category' => $category,
             'options' => $options,
             'is_active' => $this->faker->boolean(90),
+            'booking_enabled' => $this->faker->boolean(85), // 85% chance of booking enabled
+            'advance_booking_days' => $this->faker->optional(0.3)->randomElement([7, 14, 30, 60]),
+            'cancellation_hours' => $this->faker->optional(0.3)->randomElement([12, 24, 48]),
+            'buffer_time_before' => $this->faker->randomElement([0, 5, 10, 15]),
+            'buffer_time_after' => $this->faker->randomElement([0, 5, 10, 15]),
+            'booking_notes' => $this->faker->optional(0.4)->sentence(),
         ];
     }
 
@@ -296,6 +302,40 @@ class TreatmentFactory extends Factory
                         ],
                     ],
                 ],
+            ];
+        });
+    }
+
+    /**
+     * Configure the factory to create a treatment with booking enabled.
+     */
+    public function bookingEnabled(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'booking_enabled' => true,
+                'advance_booking_days' => 30,
+                'cancellation_hours' => 24,
+                'buffer_time_before' => 10,
+                'buffer_time_after' => 5,
+                'booking_notes' => 'Please arrive 10 minutes before your appointment.',
+            ];
+        });
+    }
+
+    /**
+     * Configure the factory to create a treatment with booking disabled.
+     */
+    public function bookingDisabled(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'booking_enabled' => false,
+                'advance_booking_days' => null,
+                'cancellation_hours' => null,
+                'buffer_time_before' => 0,
+                'buffer_time_after' => 0,
+                'booking_notes' => null,
             ];
         });
     }

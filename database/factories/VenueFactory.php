@@ -94,6 +94,11 @@ class VenueFactory extends Factory
             'rating_count' => $this->faker->numberBetween(5, 150),
             'is_new_venue' => $this->faker->boolean(15),
             'is_active' => $this->faker->boolean(95),
+            'owner_id' => $this->faker->optional(0.7)->passthrough(\App\Models\User::factory()->venueOwner()),
+            'booking_enabled' => $this->faker->boolean(80), // 80% chance of booking enabled
+            'booking_advance_days' => $this->faker->randomElement([7, 14, 30, 60, 90]),
+            'default_cancellation_hours' => $this->faker->randomElement([12, 24, 48, 72]),
+            'booking_instructions' => $this->faker->optional(0.6)->sentence(),
             'raw_data' => [
                 'source' => 'treatwell_api',
                 'imported_at' => now()->toISOString(),
@@ -201,6 +206,51 @@ class VenueFactory extends Factory
             return [
                 'rating' => $this->faker->randomFloat(2, 4.5, 5.0),
                 'rating_count' => $this->faker->numberBetween(50, 200),
+            ];
+        });
+    }
+
+    /**
+     * Configure the factory to create a venue with booking enabled.
+     */
+    public function bookingEnabled(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'booking_enabled' => true,
+                'owner_id' => \App\Models\User::factory()->venueOwner(),
+                'booking_advance_days' => 30,
+                'default_cancellation_hours' => 24,
+                'booking_instructions' => 'Please arrive 10 minutes before your appointment.',
+            ];
+        });
+    }
+
+    /**
+     * Configure the factory to create a venue with booking disabled.
+     */
+    public function bookingDisabled(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'booking_enabled' => false,
+                'owner_id' => null,
+                'booking_advance_days' => null,
+                'default_cancellation_hours' => null,
+                'booking_instructions' => null,
+            ];
+        });
+    }
+
+    /**
+     * Configure the factory to create a venue with a specific owner.
+     */
+    public function ownedBy(\App\Models\User $user): static
+    {
+        return $this->state(function (array $attributes) use ($user) {
+            return [
+                'owner_id' => $user->id,
+                'booking_enabled' => true,
             ];
         });
     }

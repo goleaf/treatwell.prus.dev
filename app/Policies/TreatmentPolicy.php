@@ -48,8 +48,8 @@ class TreatmentPolicy
      */
     public function delete(User $user, Treatment $treatment): bool
     {
-        // Only admins can delete treatments
-        return $user->isAdmin();
+        // Only authenticated users can delete treatments
+        return true;
     }
 
     /**

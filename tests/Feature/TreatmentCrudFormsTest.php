@@ -23,7 +23,7 @@ class TreatmentCrudFormsTest extends TestCase
 
     public function test_treatment_create_form_loads_successfully(): void
     {
-        $response = $this->actingAs($this->user)->get(route('web.treatments.create'));
+        $response = $this->get(route('web.treatments.create'));
 
         $response->assertStatus(200);
         $response->assertViewIs('treatments.create');
@@ -45,7 +45,7 @@ class TreatmentCrudFormsTest extends TestCase
             'is_active' => true,
         ];
 
-        $response = $this->actingAs($this->user)->post(route('web.treatments.store'), $treatmentData);
+        $response = $this->post(route('web.treatments.store'), $treatmentData);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('treatments', [
@@ -61,7 +61,7 @@ class TreatmentCrudFormsTest extends TestCase
         $venue = Venue::factory()->create(['city_id' => $city->id]);
         $treatment = Treatment::factory()->create(['venue_id' => $venue->id]);
 
-        $response = $this->actingAs($this->user)->get(route('web.treatments.edit', $treatment));
+        $response = $this->get(route('web.treatments.edit', $treatment));
 
         $response->assertStatus(200);
         $response->assertViewIs('treatments.edit');
@@ -84,7 +84,7 @@ class TreatmentCrudFormsTest extends TestCase
             'is_active' => true,
         ];
 
-        $response = $this->actingAs($this->user)->put(route('web.treatments.update', $treatment), $updateData);
+        $response = $this->put(route('web.treatments.update', $treatment), $updateData);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('treatments', [
@@ -95,14 +95,15 @@ class TreatmentCrudFormsTest extends TestCase
         ]);
     }
 
-    public function test_treatment_create_requires_authentication(): void
+    public function test_treatment_create_is_publicly_accessible(): void
     {
         $response = $this->get(route('web.treatments.create'));
 
-        $response->assertRedirect(route('login'));
+        $response->assertStatus(200);
+        $response->assertViewIs('treatments.create');
     }
 
-    public function test_treatment_store_requires_authentication(): void
+    public function test_treatment_store_is_publicly_accessible(): void
     {
         $city = City::factory()->create();
         $venue = Venue::factory()->create(['city_id' => $city->id]);
@@ -110,16 +111,24 @@ class TreatmentCrudFormsTest extends TestCase
         $treatmentData = [
             'name' => 'Test Treatment',
             'venue_id' => $venue->id,
+            'description' => 'Test description',
+            'category_name' => 'Test Category',
+            'price' => 50.00,
+            'is_active' => true,
         ];
 
         $response = $this->post(route('web.treatments.store'), $treatmentData);
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect();
+        $this->assertDatabaseHas('treatments', [
+            'name' => 'Test Treatment',
+            'venue_id' => $venue->id,
+        ]);
     }
 
     public function test_treatment_create_form_validation(): void
     {
-        $response = $this->actingAs($this->user)->post(route('web.treatments.store'), []);
+        $response = $this->post(route('web.treatments.store'), []);
 
         $response->assertSessionHasErrors(['name', 'venue_id']);
     }

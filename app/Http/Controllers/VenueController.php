@@ -16,7 +16,7 @@ use Throwable;
 class VenueController extends Controller
 {
     use HandlesWebErrors;
-{
+
     /**
      * Display a listing of the resource.
      */
@@ -49,6 +49,8 @@ class VenueController extends Controller
      */
     public function create(): View
     {
+        $this->authorize('create', Venue::class);
+
         $cities = City::orderBy('name')->get();
 
         return view('venues.create', compact('cities'));
@@ -59,6 +61,8 @@ class VenueController extends Controller
      */
     public function store(VenueRequest $request): RedirectResponse
     {
+        $this->authorize('create', Venue::class);
+
         try {
             $data = $request->validated();
 
@@ -107,6 +111,8 @@ class VenueController extends Controller
      */
     public function edit(Venue $venue): View
     {
+        $this->authorize('update', $venue);
+
         $cities = City::orderBy('name')->get();
 
         return view('venues.edit', compact('venue', 'cities'));
@@ -117,6 +123,8 @@ class VenueController extends Controller
      */
     public function update(VenueRequest $request, Venue $venue): RedirectResponse
     {
+        $this->authorize('update', $venue);
+
         try {
             $data = $request->validated();
 
@@ -125,48 +133,20 @@ class VenueController extends Controller
                 $data['slug'] = Str::slug($data['name']);
             }
 
-            DB::transaction(function () use ($venue, $data) {
+            $this->executeWebTransaction(function () use ($venue, $data) {
                 $venue->update($data);
-            });
+            }, 'venue update');
 
-            Log::info('Venue updated successfully', [
-                'venue_id' => $venue->id,
-                'name' => $venue->name,
-                'user_id' => auth()->id(),
-            ]);
+            $this->logWebOperation('update', $venue, $data);
 
             return redirect()
                 ->route('web.venues.show', $venue)
                 ->with('success', 'Venue updated successfully.');
 
         } catch (QueryException $e) {
-            Log::error('Database error updating venue', [
-                'venue_id' => $venue->id,
-                'error' => $e->getMessage(),
-                'data' => $data ?? [],
-                'user_id' => auth()->id(),
-            ]);
-
-            $errorMessage = $this->getDatabaseErrorMessage($e);
-            
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['error' => $errorMessage]);
-
+            return $this->handleWebDatabaseError($e, 'venue');
         } catch (Throwable $e) {
-            Log::error('Unexpected error updating venue', [
-                'venue_id' => $venue->id,
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'user_id' => auth()->id(),
-            ]);
-
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['error' => 'An unexpected error occurred. Please try again.']);
+            return $this->handleWebUnexpectedError($e, 'venue update');
         }
     }
 
@@ -175,77 +155,29 @@ class VenueController extends Controller
      */
     public function destroy(Venue $venue): RedirectResponse
     {
-        try {
-            // Check if venue has related data that would prevent deletion
-            $hasRelatedData = $venue->treatments()->exists() || 
-                             $venue->images()->exists() || 
-                             $venue->openingHours()->exists();
+        $this->authorize('delete', $venue);
 
-            if ($hasRelatedData) {
-                return redirect()
-                    ->back()
-                    ->withErrors(['error' => 'Cannot delete this venue because it has associated treatments, images, or opening hours. Please remove them first.']);
+        try {
+            // Validate that the venue can be deleted
+            $validationError = $this->validateWebDeletion($venue, ['treatments', 'images', 'openingHours']);
+            if ($validationError) {
+                return $validationError;
             }
 
-            DB::transaction(function () use ($venue) {
+            $this->executeWebTransaction(function () use ($venue) {
                 $venue->delete();
-            });
+            }, 'venue deletion');
 
-            Log::info('Venue deleted successfully', [
-                'venue_id' => $venue->id,
-                'name' => $venue->name,
-                'user_id' => auth()->id(),
-            ]);
+            $this->logWebOperation('delete', $venue);
 
             return redirect()
                 ->route('web.venues.index')
                 ->with('success', 'Venue deleted successfully.');
 
         } catch (QueryException $e) {
-            Log::error('Database error deleting venue', [
-                'venue_id' => $venue->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
-            ]);
-
-            $errorMessage = $this->getDatabaseErrorMessage($e);
-            
-            return redirect()
-                ->back()
-                ->withErrors(['error' => $errorMessage]);
-
+            return $this->handleWebDatabaseError($e, 'venue');
         } catch (Throwable $e) {
-            Log::error('Unexpected error deleting venue', [
-                'venue_id' => $venue->id,
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'user_id' => auth()->id(),
-            ]);
-
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'An unexpected error occurred. Please try again.']);
+            return $this->handleWebUnexpectedError($e, 'venue deletion');
         }
-    }
-
-    /**
-     * Get user-friendly database error messages.
-     */
-    private function getDatabaseErrorMessage(QueryException $e): string
-    {
-        $errorCode = $e->errorInfo[1] ?? $e->getCode();
-
-        return match ($errorCode) {
-            1062, 23000 => str_contains($e->getMessage(), 'Duplicate entry') 
-                ? 'A venue with this information already exists.' 
-                : 'This operation violates a database constraint.',
-            1451 => 'Cannot delete this venue because it is referenced by other data.',
-            1452 => 'The referenced record does not exist.',
-            1048 => 'Required information is missing.',
-            default => app()->environment('local', 'testing') 
-                ? $e->getMessage() 
-                : 'A database error occurred. Please try again.',
-        };
     }
 }

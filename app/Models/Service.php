@@ -16,6 +16,7 @@ class Service extends Model
 
     protected $fillable = [
         'venue_id',
+        'city_id',
         'name',
         'slug',
         'description',
@@ -45,6 +46,11 @@ class Service extends Model
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     public function images(): MorphMany

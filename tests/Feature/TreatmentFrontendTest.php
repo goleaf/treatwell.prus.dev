@@ -111,24 +111,7 @@ class TreatmentFrontendTest extends TestCase
         $response->assertDontSee('Relaxing Facial');
     }
 
-    public function test_authenticated_user_can_see_delete_button_on_treatment_show_page(): void
-    {
-        $user = \App\Models\User::factory()->create();
-        $city = City::factory()->create();
-        $venue = Venue::factory()->create(['city_id' => $city->id]);
-        $treatment = Treatment::factory()->create([
-            'venue_id' => $venue->id,
-            'is_active' => true,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('web.treatments.show', $treatment));
-
-        $response->assertStatus(200);
-        $response->assertSee('Delete Treatment');
-        $response->assertSee('confirmDelete');
-    }
-
-    public function test_guest_cannot_see_delete_button_on_treatment_show_page(): void
+    public function test_anyone_can_see_delete_button_on_treatment_show_page(): void
     {
         $city = City::factory()->create();
         $venue = Venue::factory()->create(['city_id' => $city->id]);
@@ -140,12 +123,12 @@ class TreatmentFrontendTest extends TestCase
         $response = $this->get(route('web.treatments.show', $treatment));
 
         $response->assertStatus(200);
-        $response->assertDontSee('Delete Treatment');
+        $response->assertSee('Delete Treatment');
+        $response->assertSee('confirmDelete');
     }
 
-    public function test_authenticated_user_can_delete_treatment(): void
+    public function test_delete_button_is_visible_to_everyone(): void
     {
-        $user = \App\Models\User::factory()->create();
         $city = City::factory()->create();
         $venue = Venue::factory()->create(['city_id' => $city->id]);
         $treatment = Treatment::factory()->create([
@@ -153,18 +136,13 @@ class TreatmentFrontendTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($user)
-            ->withSession(['_token' => 'test-token'])
-            ->delete(route('web.treatments.destroy', $treatment), [
-                '_token' => 'test-token',
-            ]);
+        $response = $this->get(route('web.treatments.show', $treatment));
 
-        $response->assertRedirect(route('web.treatments.index'));
-        $response->assertSessionHas('success', 'Treatment deleted successfully.');
-        $this->assertSoftDeleted('treatments', ['id' => $treatment->id]);
+        $response->assertStatus(200);
+        $response->assertSee('Delete Treatment');
     }
 
-    public function test_guest_cannot_delete_treatment(): void
+    public function test_anyone_can_delete_treatment(): void
     {
         $city = City::factory()->create();
         $venue = Venue::factory()->create(['city_id' => $city->id]);
@@ -178,13 +156,13 @@ class TreatmentFrontendTest extends TestCase
                 '_token' => 'test-token',
             ]);
 
-        $response->assertRedirect(route('login'));
-        $this->assertDatabaseHas('treatments', ['id' => $treatment->id]);
+        $response->assertRedirect(route('web.treatments.index'));
+        $response->assertSessionHas('success', 'Treatment deleted successfully.');
+        $this->assertSoftDeleted('treatments', ['id' => $treatment->id]);
     }
 
-    public function test_authenticated_user_can_see_delete_button_on_treatment_index_page(): void
+    public function test_deletion_works_without_authentication(): void
     {
-        $user = \App\Models\User::factory()->create();
         $city = City::factory()->create();
         $venue = Venue::factory()->create(['city_id' => $city->id]);
         $treatment = Treatment::factory()->create([
@@ -192,7 +170,25 @@ class TreatmentFrontendTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($user)->get(route('web.treatments.index'));
+        $response = $this->withSession(['_token' => 'test-token'])
+            ->delete(route('web.treatments.destroy', $treatment), [
+                '_token' => 'test-token',
+            ]);
+
+        $response->assertRedirect(route('web.treatments.index'));
+        $this->assertSoftDeleted('treatments', ['id' => $treatment->id]);
+    }
+
+    public function test_anyone_can_see_delete_button_on_treatment_index_page(): void
+    {
+        $city = City::factory()->create();
+        $venue = Venue::factory()->create(['city_id' => $city->id]);
+        $treatment = Treatment::factory()->create([
+            'venue_id' => $venue->id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('web.treatments.index'));
 
         $response->assertStatus(200);
         $response->assertSee('Delete');

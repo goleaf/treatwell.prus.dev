@@ -48,8 +48,8 @@ class VenuePolicy
      */
     public function delete(User $user, Venue $venue): bool
     {
-        // Only admins can delete venues
-        return $user->isAdmin();
+        // Only authenticated users can delete venues
+        return true;
     }
 
     /**

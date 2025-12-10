@@ -201,7 +201,6 @@ trait HandlesApiErrors
             'model' => get_class($model),
             'id' => $model->getKey(),
             'data' => $data,
-            'user_id' => auth()->id(),
             'ip' => request()->ip(),
         ]);
     }

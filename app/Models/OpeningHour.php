@@ -23,6 +23,7 @@ class OpeningHour extends Model
 
     protected $fillable = [
         'venue_id',
+        'city_id',
         'day_of_week',
         'opening_time',
         'closing_time',
@@ -41,6 +42,11 @@ class OpeningHour extends Model
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     /**

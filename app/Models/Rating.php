@@ -14,7 +14,7 @@ class Rating extends Model
     use CrudTrait, HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'venue_id', 'weighted_average', 'count',
+        'venue_id', 'city_id', 'weighted_average', 'count',
         'cleanliness_avg', 'cleanliness_count',
         'staff_avg', 'staff_count',
         'atmosphere_avg', 'atmosphere_count',
@@ -37,6 +37,11 @@ class Rating extends Model
     public function venue(): BelongsTo
     {
         return $this->belongsTo(Venue::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     /**

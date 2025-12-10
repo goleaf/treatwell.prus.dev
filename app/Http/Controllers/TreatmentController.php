@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesWebErrors;
 use App\Http\Requests\TreatmentRequest;
 use App\Models\Treatment;
 use App\Models\Venue;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Throwable;
 
 class TreatmentController extends Controller
 {
+    use HandlesWebErrors;
+
     /**
      * Display a listing of the resource.
      */
@@ -65,6 +66,8 @@ class TreatmentController extends Controller
      */
     public function create(): View
     {
+        $this->authorize('create', Treatment::class);
+
         $venues = Venue::where('is_active', true)->orderBy('name')->get();
         $categories = Treatment::distinct()
             ->pluck('category_name')
@@ -79,6 +82,8 @@ class TreatmentController extends Controller
      */
     public function store(TreatmentRequest $request): RedirectResponse
     {
+        $this->authorize('create', Treatment::class);
+
         try {
             $data = $request->validated();
 
@@ -87,47 +92,20 @@ class TreatmentController extends Controller
                 $data['slug'] = Str::slug($data['name']);
             }
 
-            $treatment = DB::transaction(function () use ($data) {
+            $treatment = $this->executeWebTransaction(function () use ($data) {
                 return Treatment::create($data);
-            });
+            }, 'treatment creation');
 
-            Log::info('Treatment created successfully', [
-                'treatment_id' => $treatment->id,
-                'name' => $treatment->name,
-                'venue_id' => $treatment->venue_id,
-                'user_id' => auth()->id(),
-            ]);
+            $this->logWebOperation('create', $treatment, $data);
 
             return redirect()
                 ->route('web.treatments.show', $treatment)
                 ->with('success', 'Treatment created successfully.');
 
         } catch (QueryException $e) {
-            Log::error('Database error creating treatment', [
-                'error' => $e->getMessage(),
-                'data' => $data ?? [],
-                'user_id' => auth()->id(),
-            ]);
-
-            $errorMessage = $this->getDatabaseErrorMessage($e);
-            
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['error' => $errorMessage]);
-
+            return $this->handleWebDatabaseError($e, 'treatment');
         } catch (Throwable $e) {
-            Log::error('Unexpected error creating treatment', [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'user_id' => auth()->id(),
-            ]);
-
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['error' => 'An unexpected error occurred. Please try again.']);
+            return $this->handleWebUnexpectedError($e, 'treatment creation');
         }
     }
 
@@ -146,6 +124,8 @@ class TreatmentController extends Controller
      */
     public function edit(Treatment $treatment): View
     {
+        $this->authorize('update', $treatment);
+
         $venues = Venue::where('is_active', true)->orderBy('name')->get();
         $categories = Treatment::distinct()
             ->pluck('category_name')
@@ -160,6 +140,8 @@ class TreatmentController extends Controller
      */
     public function update(TreatmentRequest $request, Treatment $treatment): RedirectResponse
     {
+        $this->authorize('update', $treatment);
+
         try {
             $data = $request->validated();
 
@@ -168,49 +150,20 @@ class TreatmentController extends Controller
                 $data['slug'] = Str::slug($data['name']);
             }
 
-            DB::transaction(function () use ($treatment, $data) {
+            $this->executeWebTransaction(function () use ($treatment, $data) {
                 $treatment->update($data);
-            });
+            }, 'treatment update');
 
-            Log::info('Treatment updated successfully', [
-                'treatment_id' => $treatment->id,
-                'name' => $treatment->name,
-                'venue_id' => $treatment->venue_id,
-                'user_id' => auth()->id(),
-            ]);
+            $this->logWebOperation('update', $treatment, $data);
 
             return redirect()
                 ->route('web.treatments.show', $treatment)
                 ->with('success', 'Treatment updated successfully.');
 
         } catch (QueryException $e) {
-            Log::error('Database error updating treatment', [
-                'treatment_id' => $treatment->id,
-                'error' => $e->getMessage(),
-                'data' => $data ?? [],
-                'user_id' => auth()->id(),
-            ]);
-
-            $errorMessage = $this->getDatabaseErrorMessage($e);
-            
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['error' => $errorMessage]);
-
+            return $this->handleWebDatabaseError($e, 'treatment');
         } catch (Throwable $e) {
-            Log::error('Unexpected error updating treatment', [
-                'treatment_id' => $treatment->id,
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'user_id' => auth()->id(),
-            ]);
-
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['error' => 'An unexpected error occurred. Please try again.']);
+            return $this->handleWebUnexpectedError($e, 'treatment update');
         }
     }
 
@@ -219,67 +172,23 @@ class TreatmentController extends Controller
      */
     public function destroy(Treatment $treatment): RedirectResponse
     {
-        try {
-            DB::transaction(function () use ($treatment) {
-                $treatment->delete();
-            });
+        $this->authorize('delete', $treatment);
 
-            Log::info('Treatment deleted successfully', [
-                'treatment_id' => $treatment->id,
-                'name' => $treatment->name,
-                'venue_id' => $treatment->venue_id,
-                'user_id' => auth()->id(),
-            ]);
+        try {
+            $this->executeWebTransaction(function () use ($treatment) {
+                $treatment->delete();
+            }, 'treatment deletion');
+
+            $this->logWebOperation('delete', $treatment);
 
             return redirect()
                 ->route('web.treatments.index')
                 ->with('success', 'Treatment deleted successfully.');
 
         } catch (QueryException $e) {
-            Log::error('Database error deleting treatment', [
-                'treatment_id' => $treatment->id,
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
-            ]);
-
-            $errorMessage = $this->getDatabaseErrorMessage($e);
-            
-            return redirect()
-                ->back()
-                ->withErrors(['error' => $errorMessage]);
-
+            return $this->handleWebDatabaseError($e, 'treatment');
         } catch (Throwable $e) {
-            Log::error('Unexpected error deleting treatment', [
-                'treatment_id' => $treatment->id,
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'user_id' => auth()->id(),
-            ]);
-
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'An unexpected error occurred. Please try again.']);
+            return $this->handleWebUnexpectedError($e, 'treatment deletion');
         }
-    }
-
-    /**
-     * Get user-friendly database error messages.
-     */
-    private function getDatabaseErrorMessage(QueryException $e): string
-    {
-        $errorCode = $e->errorInfo[1] ?? $e->getCode();
-
-        return match ($errorCode) {
-            1062, 23000 => str_contains($e->getMessage(), 'Duplicate entry') 
-                ? 'A treatment with this information already exists.' 
-                : 'This operation violates a database constraint.',
-            1451 => 'Cannot delete this treatment because it is referenced by other data.',
-            1452 => 'The referenced record does not exist.',
-            1048 => 'Required information is missing.',
-            default => app()->environment('local', 'testing') 
-                ? $e->getMessage() 
-                : 'A database error occurred. Please try again.',
-        };
     }
 }

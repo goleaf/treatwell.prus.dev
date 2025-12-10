@@ -44,25 +44,7 @@
                         </div>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                        @auth
-                            <div class="relative ml-3">
-                                <div class="flex items-center gap-4">
-                                    <a href="{{ route('dashboard') }}" class="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                                        Dashboard
-                                    </a>
-                                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                                        @csrf
-                                        <button type="submit" class="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                                            Logout
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        @else
-                            <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                                Login
-                            </a>
-                        @endauth
+                        <!-- Authentication removed - public access only -->
                     </div>
                 </div>
             </div>

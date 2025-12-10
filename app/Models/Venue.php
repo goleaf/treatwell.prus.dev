@@ -21,6 +21,8 @@ class Venue extends Model
         'type_id', 'type_name', 'normalised_name', 'desktop_uri', 'mobile_uri', 'app_uri',
         'is_new_venue', 'raw_data', 'latitude', 'longitude', 'phone', 'email', 'website',
         'opening_hours', 'rating', 'rating_count', 'is_active',
+        'owner_id', 'booking_enabled', 'booking_advance_days', 'default_cancellation_hours',
+        'booking_instructions',
     ];
 
     protected function casts(): array
@@ -33,6 +35,7 @@ class Venue extends Model
             'is_active' => 'boolean',
             'is_new_venue' => 'boolean',
             'raw_data' => 'array',
+            'booking_enabled' => 'boolean',
         ];
     }
 
@@ -201,5 +204,241 @@ class Venue extends Model
         ]);
 
         return implode(', ', $parts);
+    }
+
+    // Booking-related relationships
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function timeSlots(): HasMany
+    {
+        return $this->hasMany(TimeSlot::class);
+    }
+
+    public function bookingPolicies(): HasMany
+    {
+        return $this->hasMany(BookingPolicy::class);
+    }
+
+    // Booking-related scopes
+    public function scopeBookingEnabled($query)
+    {
+        return $query->where('booking_enabled', true);
+    }
+
+    public function scopeOwnedBy($query, $userId)
+    {
+        return $query->where('owner_id', $userId);
+    }
+
+    // Business Logic Methods for booking
+    public function isBookingEnabled(): bool
+    {
+        return $this->booking_enabled && $this->is_active;
+    }
+
+    public function getAvailableTimeSlots(string $date, ?int $treatmentId = null)
+    {
+        return $this->timeSlots()
+            ->available()
+            ->forDate($date)
+            ->when($treatmentId, fn ($q) => $q->forTreatment($treatmentId))
+            ->orderBy('start_time')
+            ->get();
+    }
+
+    public function getBookingPolicy(): ?BookingPolicy
+    {
+        return $this->bookingPolicies()->where('is_active', true)->first()
+            ?? BookingPolicy::where('policy_type', 'system')->where('is_active', true)->first();
+    }
+
+    public function getTodaysBookings()
+    {
+        return $this->bookings()
+            ->where('booking_date', now()->toDateString())
+            ->with(['user', 'treatment'])
+            ->orderBy('start_time');
+    }
+
+    public function getUpcomingBookings()
+    {
+        return $this->bookings()
+            ->upcoming()
+            ->active()
+            ->with(['user', 'treatment'])
+            ->orderBy('booking_date')
+            ->orderBy('start_time');
+    }
+
+    public function hasOwner(): bool
+    {
+        return ! is_null($this->owner_id);
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->owner_id === $user->id;
+    }
+
+    // Parsing-related methods
+
+    /**
+     * Get parsing metadata for this venue.
+     */
+    public function getParsingMetadata(): array
+    {
+        return [
+            'last_parsed' => $this->updated_at,
+            'data_completeness' => $this->getDataCompleteness(),
+            'has_images' => $this->images()->exists(),
+            'has_treatments' => $this->treatments()->exists(),
+            'has_location' => $this->location()->exists(),
+            'has_opening_hours' => $this->openingHours()->exists(),
+            'has_rating' => !is_null($this->rating),
+        ];
+    }
+
+    /**
+     * Update venue from API data.
+     */
+    public function updateFromApiData(array $data): void
+    {
+        // Store raw data for debugging
+        $this->raw_data = $data;
+        
+        // Extract fillable data
+        $fillableData = array_intersect_key($data, array_flip($this->fillable));
+        
+        // Handle special fields
+        if (isset($data['opening_hours']) && is_array($data['opening_hours'])) {
+            $fillableData['opening_hours'] = $data['opening_hours'];
+        }
+        
+        if (isset($data['coordinates'])) {
+            $fillableData['latitude'] = $data['coordinates']['lat'] ?? null;
+            $fillableData['longitude'] = $data['coordinates']['lng'] ?? null;
+        }
+        
+        // Handle location data that might contain coordinates
+        if (isset($data['location'])) {
+            if (isset($data['location']['coordinates'])) {
+                $fillableData['latitude'] = $data['location']['coordinates']['lat'] ?? null;
+                $fillableData['longitude'] = $data['location']['coordinates']['lng'] ?? null;
+            }
+            if (isset($data['location']['latitude'])) {
+                $fillableData['latitude'] = $data['location']['latitude'];
+            }
+            if (isset($data['location']['longitude'])) {
+                $fillableData['longitude'] = $data['location']['longitude'];
+            }
+        }
+        
+        $this->update($fillableData);
+    }
+
+    /**
+     * Get data completeness percentage for this venue.
+     */
+    public function getDataCompleteness(): float
+    {
+        $requiredFields = [
+            'name', 'slug', 'address', 'latitude', 'longitude', 
+            'phone', 'email', 'website', 'description'
+        ];
+        
+        $completedFields = 0;
+        foreach ($requiredFields as $field) {
+            if (!empty($this->$field)) {
+                $completedFields++;
+            }
+        }
+        
+        // Add bonus points for related data
+        $bonusPoints = 0;
+        if ($this->images()->exists()) $bonusPoints++;
+        if ($this->treatments()->exists()) $bonusPoints++;
+        if ($this->openingHours()->exists()) $bonusPoints++;
+        if ($this->ratingDetails()->exists()) $bonusPoints++;
+        
+        $totalPossible = count($requiredFields) + 4; // 4 bonus categories
+        return (($completedFields + $bonusPoints) / $totalPossible) * 100;
+    }
+
+    /**
+     * Check if venue data is complete enough for display.
+     */
+    public function isDataComplete(): bool
+    {
+        return $this->getDataCompleteness() >= 70; // 70% threshold
+    }
+
+    /**
+     * Get missing data fields for this venue.
+     */
+    public function getMissingDataFields(): array
+    {
+        $requiredFields = [
+            'name', 'slug', 'address', 'latitude', 'longitude', 
+            'phone', 'email', 'website', 'description'
+        ];
+        
+        $missing = [];
+        foreach ($requiredFields as $field) {
+            if (empty($this->$field)) {
+                $missing[] = $field;
+            }
+        }
+        
+        // Check related data
+        if (!$this->images()->exists()) $missing[] = 'images';
+        if (!$this->treatments()->exists()) $missing[] = 'treatments';
+        if (!$this->openingHours()->exists()) $missing[] = 'opening_hours';
+        if (!$this->ratingDetails()->exists()) $missing[] = 'rating_details';
+        
+        return $missing;
+    }
+
+    /**
+     * Sync all related data with city relationships.
+     */
+    public function syncRelatedDataWithCity(): void
+    {
+        if (!$this->city_id) {
+            return;
+        }
+
+        // Update services to have city_id
+        $this->services()->update(['city_id' => $this->city_id]);
+
+        // Update images to have city_id
+        $this->images()->update(['city_id' => $this->city_id]);
+
+        // Update ratings to have city_id
+        if ($this->ratingDetails) {
+            $this->ratingDetails->update(['city_id' => $this->city_id]);
+        }
+
+        // Update opening hours to have city_id
+        $this->openingHours()->update(['city_id' => $this->city_id]);
+
+        // Update locations to have city_id
+        $this->locations()->update(['city_id' => $this->city_id]);
+
+        // Sync treatments with city through many-to-many
+        $treatmentIds = $this->treatments()->pluck('id');
+        if ($treatmentIds->isNotEmpty()) {
+            $city = $this->city;
+            if ($city) {
+                $city->treatments()->syncWithoutDetaching($treatmentIds);
+            }
+        }
     }
 }

@@ -1,11 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
 // Additional venue routes (must come before resource routes to avoid conflicts)
 Route::get('/venue-cities', [\App\Http\Controllers\Api\VenueController::class, 'cities']);
@@ -42,8 +37,7 @@ Route::get('/procedures/active', [\App\Http\Controllers\Api\ProcedureController:
 Route::get('/procedures/with-venues-count', [\App\Http\Controllers\Api\ProcedureController::class, 'withVenuesCount']);
 Route::get('/procedures/with-cities-count', [\App\Http\Controllers\Api\ProcedureController::class, 'withCitiesCount']);
 
-// Additional user routes
-Route::get('/users/profile', [\App\Http\Controllers\Api\UserController::class, 'profile'])->middleware('auth:sanctum');
+// Additional user routes (no authentication required)
 Route::get('/users/admins', [\App\Http\Controllers\Api\UserController::class, 'admins']);
 
 // Additional rating routes

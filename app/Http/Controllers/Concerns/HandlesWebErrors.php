@@ -22,7 +22,6 @@ trait HandlesWebErrors
                 'error' => $e->getMessage(),
                 'code' => $e->getCode(),
                 'sql' => $e->getSql() ?? 'N/A',
-                'user_id' => auth()->id(),
                 'ip' => request()->ip(),
             ]);
 
@@ -32,7 +31,6 @@ trait HandlesWebErrors
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'user_id' => auth()->id(),
                 'ip' => request()->ip(),
             ]);
 
@@ -94,7 +92,6 @@ trait HandlesWebErrors
             'error' => $e->getMessage(),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'user_id' => auth()->id(),
             'ip' => request()->ip(),
         ]);
 
@@ -113,7 +110,6 @@ trait HandlesWebErrors
             'model' => is_object($model) ? get_class($model) : $model,
             'id' => is_object($model) ? $model->getKey() : null,
             'data' => $data,
-            'user_id' => auth()->id(),
             'ip' => request()->ip(),
         ]);
     }
@@ -126,6 +122,7 @@ trait HandlesWebErrors
         foreach ($relationships as $relationship) {
             if ($model->$relationship()->exists()) {
                 $relationshipName = str_replace('_', ' ', $relationship);
+
                 return redirect()
                     ->back()
                     ->withErrors(['error' => "Cannot delete this record because it has associated {$relationshipName}. Please remove them first."]);
@@ -143,14 +140,14 @@ trait HandlesWebErrors
         $errorCode = $e->errorInfo[1] ?? $e->getCode();
 
         return match ($errorCode) {
-            1062, 23000 => str_contains($e->getMessage(), 'Duplicate entry') 
-                ? "A {$entityType} with this information already exists." 
+            1062, 23000 => str_contains($e->getMessage(), 'Duplicate entry')
+                ? "A {$entityType} with this information already exists."
                 : 'This operation violates a database constraint.',
             1451 => "Cannot delete this {$entityType} because it is referenced by other data.",
             1452 => 'The referenced record does not exist.',
             1048 => 'Required information is missing.',
-            default => app()->environment('local', 'testing') 
-                ? $e->getMessage() 
+            default => app()->environment('local', 'testing')
+                ? $e->getMessage()
                 : 'A database error occurred. Please try again.',
         };
     }
