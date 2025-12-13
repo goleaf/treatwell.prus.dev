@@ -1,0 +1,61 @@
+{
+  "environment": "production",
+  "debug": false,
+  "app_env": "production",
+  "testing": {
+    "database": "mysql",
+    "memory": false,
+    "parallel": true,
+    "coverage": true
+  },
+  "caching": {
+    "enabled": true,
+    "driver": "redis",
+    "config_cache": true,
+    "route_cache": true,
+    "view_cache": true,
+    "event_cache": true
+  },
+  "queues": {
+    "driver": "redis",
+    "workers": 4,
+    "timeout": 300,
+    "retry_after": 90,
+    "max_attempts": 3
+  },
+  "mail": {
+    "driver": "smtp",
+    "encryption": "tls"
+  },
+  "logging": {
+    "level": "error",
+    "channels": ["daily", "slack"],
+    "max_files": 14
+  },
+  "assets": {
+    "hot_reload": false,
+    "source_maps": false,
+    "minification": true,
+    "compression": true,
+    "cdn": true
+  },
+  "database": {
+    "query_logging": false,
+    "slow_query_threshold": 2000,
+    "connection_pooling": true
+  },
+  "security": {
+    "csrf_protection": true,
+    "session_secure": true,
+    "https_only": true,
+    "hsts": true,
+    "content_security_policy": true
+  },
+  "performance": {
+    "opcache": true,
+    "autoloader_optimization": true,
+    "config_caching": true,
+    "route_caching": true,
+    "view_caching": true
+  }
+}

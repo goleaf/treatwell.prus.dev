@@ -45,23 +45,23 @@ class VenueTest extends TestCase
     }
 
     /**
-     * Test venue belongs to location.
+     * Test venue has one location.
      */
-    public function test_venue_belongs_to_location(): void
+    public function test_venue_has_one_location(): void
     {
         $venue = new Venue;
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $venue->location());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->location());
     }
 
     /**
-     * Test venue belongs to rating.
+     * Test venue has one rating.
      */
-    public function test_venue_belongs_to_rating(): void
+    public function test_venue_has_one_rating(): void
     {
         $venue = new Venue;
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $venue->rating());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->ratingDetails());
     }
 
     /**
@@ -71,7 +71,7 @@ class VenueTest extends TestCase
     {
         $venue = new Venue;
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphMany::class, $venue->images());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->images());
     }
 
     /**
@@ -95,13 +95,35 @@ class VenueTest extends TestCase
     }
 
     /**
-     * Test venue belongs to city.
+     * Test venue belongs to many procedures.
      */
-    public function test_venue_belongs_to_city(): void
+    public function test_venue_belongs_to_many_procedures(): void
     {
         $venue = new Venue;
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $venue->city());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $venue->procedures());
+    }
+
+    /**
+     * Test venue belongs to many cities.
+     */
+    public function test_venue_belongs_to_many_cities(): void
+    {
+        $venue = new Venue;
+
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $venue->cities());
+    }
+
+    /**
+     * Test extract slug from URL method works correctly.
+     */
+    public function test_extract_slug_from_url(): void
+    {
+        $url = 'https://www.treatwell.lt/salonas/grozio-salonas-edda/';
+
+        $slug = Venue::extractSlugFromUrl($url);
+
+        $this->assertEquals('grozio-salonas-edda', $slug);
     }
 
     /**
@@ -118,11 +140,8 @@ class VenueTest extends TestCase
         // Create rating
         Rating::factory()->create(['venue_id' => $venue->id]);
 
-        // Create images (polymorphic relationship)
-        Image::factory()->count(3)->create([
-            'imageable_type' => Venue::class,
-            'imageable_id' => $venue->id,
-        ]);
+        // Create images
+        Image::factory()->count(3)->create(['venue_id' => $venue->id]);
 
         // Create opening hours
         OpeningHour::factory()->count(7)->create(['venue_id' => $venue->id]);
@@ -131,11 +150,11 @@ class VenueTest extends TestCase
         Treatment::factory()->count(5)->create(['venue_id' => $venue->id]);
 
         // Load relationships
-        $venue->load('locations', 'ratings', 'images', 'openingHours', 'treatments');
+        $venue->load('location', 'ratingDetails', 'images', 'openingHours', 'treatments');
 
         // Test relationships
-        $this->assertInstanceOf(Collection::class, $venue->locations);
-        $this->assertInstanceOf(Collection::class, $venue->ratings);
+        $this->assertInstanceOf(Location::class, $venue->location);
+        $this->assertInstanceOf(Rating::class, $venue->ratingDetails);
         $this->assertInstanceOf(Collection::class, $venue->images);
         $this->assertCount(3, $venue->images);
         $this->assertInstanceOf(Collection::class, $venue->openingHours);

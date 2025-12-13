@@ -21,7 +21,8 @@ class CountryTest extends TestCase
 
         $this->assertContains('name', $country->getFillable());
         $this->assertContains('code', $country->getFillable());
-        $this->assertContains('slug', $country->getFillable());
+        $this->assertContains('normalised_name', $country->getFillable());
+        $this->assertContains('active', $country->getFillable());
     }
 
     /**
@@ -59,10 +60,12 @@ class CountryTest extends TestCase
     public function test_creating_country(): void
     {
         // Create country using the model
-        $country = Country::factory()->create([
+        $country = Country::create([
             'name' => 'Lithuania',
             'code' => 'LT',
             'slug' => 'lithuania',
+            'normalised_name' => 'lithuania',
+            'active' => true,
         ]);
 
         // Verify it's in the database
@@ -71,6 +74,8 @@ class CountryTest extends TestCase
             'name' => 'Lithuania',
             'code' => 'LT',
             'slug' => 'lithuania',
+            'normalised_name' => 'lithuania',
+            'active' => 1,
         ]);
     }
 

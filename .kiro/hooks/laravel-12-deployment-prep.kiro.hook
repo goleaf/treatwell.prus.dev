@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Laravel 12 Deployment Preparation",
+  "description": "Pre-deployment checklist and optimization for Laravel 12",
+  "version": "2.0",
+  "when": {
+    "type": "manual"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Execute comprehensive Laravel 12 deployment preparation:\n\n**Pre-Deployment Checklist:**\n1. **Testing**: Run full test suite with `php artisan test`\n2. **Code Quality**: Format code with `vendor/bin/pint`\n3. **Assets**: Build production assets with `npm run build`\n4. **Caching**: Cache configurations, routes, and views\n5. **Optimization**: Optimize autoloader with `composer install --optimize-autoloader --no-dev`\n6. **Environment**: Verify production environment variables\n7. **Database**: Backup database and plan rollback strategy\n8. **Security**: Review security settings and SSL configuration\n\nExecute each step and provide deployment readiness confirmation."
+  }
+}

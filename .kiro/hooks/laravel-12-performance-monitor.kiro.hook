@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Laravel 12 Performance Monitor",
+  "description": "Performance optimization and monitoring for Laravel 12 applications",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/Models/*.php",
+      "app/Http/Controllers/*.php",
+      "database/migrations/*.php",
+      "routes/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Code has been modified that may impact performance. Please review Laravel 12 performance optimizations:\n\n1. **Eager Loading**: Ensure eager loading prevents N+1 queries\n2. **Database Indexing**: Check for proper indexing on queried columns\n3. **Query Caching**: Implement query caching where appropriate\n4. **Route Caching**: Use `php artisan route:cache` for production\n5. **Config Caching**: Use `php artisan config:cache` for production\n6. **View Caching**: Use `php artisan view:cache` for production\n7. **Autoloader Optimization**: Use `composer install --optimize-autoloader`\n8. **Queue Usage**: Use queues for heavy operations\n\nAnalyze the modified code for performance bottlenecks and suggest optimizations."
+  }
+}

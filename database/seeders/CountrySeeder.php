@@ -17,7 +17,10 @@ class CountrySeeder extends Seeder
         ];
 
         foreach ($countries as $countryData) {
-            $country = Country::create($countryData);
+            $country = Country::firstOrCreate(
+                ['code' => $countryData['code']],
+                $countryData
+            );
 
             // Create cities for each country
             $cities = match ($country->code) {
@@ -36,24 +39,38 @@ class CountrySeeder extends Seeder
             };
 
             foreach ($cities as $cityData) {
-                $city = $country->cities()->create($cityData);
+                $city = City::firstOrCreate(
+                    ['slug' => $cityData['slug'], 'country_id' => $country->id],
+                    array_merge($cityData, ['country_id' => $country->id])
+                );
 
-                // Create sample venues for each city
+                // Create sample venues for each city if they don't exist
                 for ($i = 1; $i <= 3; $i++) {
-                    $city->venues()->create([
-                        'name' => "Sample Spa {$i} - {$city->name}",
-                        'slug' => "sample-spa-{$i}-".strtolower($city->name),
-                        'description' => "A beautiful spa in {$city->name} offering relaxing treatments.",
-                        'address' => "123 Main Street, {$city->name}",
-                        'latitude' => $city->latitude + (rand(-100, 100) / 10000),
-                        'longitude' => $city->longitude + (rand(-100, 100) / 10000),
-                        'phone' => '+44 20 1234 567'.$i,
-                        'email' => "spa{$i}@{$city->slug}.com",
-                        'website' => "https://spa{$i}-{$city->slug}.com",
-                        'rating' => rand(35, 50) / 10,
-                        'rating_count' => rand(10, 100),
-                        'is_active' => true,
-                    ]);
+                    $venueSlug = "sample-spa-{$i}-".strtolower($city->name);
+
+                    $venue = \App\Models\Venue::firstOrCreate(
+                        ['slug' => $venueSlug],
+                        [
+                            'city_id' => $city->id,
+                            'name' => "Sample Spa {$i} - {$city->name}",
+                            'slug' => $venueSlug,
+                            'description' => "A beautiful spa in {$city->name} offering relaxing treatments.",
+                            'address' => "123 Main Street, {$city->name}",
+                            'latitude' => $city->latitude + (rand(-100, 100) / 10000),
+                            'longitude' => $city->longitude + (rand(-100, 100) / 10000),
+                            'phone' => '+44 20 1234 567'.$i,
+                            'email' => "spa{$i}@{$city->slug}.com",
+                            'website' => "https://spa{$i}-{$city->slug}.com",
+                            'rating' => rand(35, 50) / 10,
+                            'rating_count' => rand(10, 100),
+                            'is_active' => true,
+                        ]
+                    );
+
+                    // Also attach to the many-to-many relationship if not already attached
+                    if (! $venue->cities->contains($city)) {
+                        $venue->cities()->attach($city);
+                    }
                 }
             }
         }

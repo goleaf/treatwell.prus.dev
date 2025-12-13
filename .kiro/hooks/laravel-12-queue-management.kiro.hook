@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Laravel 12 Queue Management",
+  "description": "Queue job creation and management workflow for Laravel 12",
+  "version": "2.0",
+  "when": {
+    "type": "fileCreated",
+    "patterns": ["app/Jobs/*.php"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Queue job has been created! Please guide through Laravel 12 queue management:\n\n1. **ShouldQueue Interface**: Implement ShouldQueue interface for async processing\n2. **Error Handling**: Add proper error handling and exception management\n3. **Job Middleware**: Use job middleware for rate limiting and throttling\n4. **Retry Logic**: Implement proper retry logic with exponential backoff\n5. **Job Batching**: Add job batching if processing related jobs\n6. **Worker Monitoring**: Monitor queue workers and failed jobs\n7. **Unique Jobs**: Use unique jobs to prevent duplicate processing\n8. **Logging**: Implement proper logging for debugging\n\nRun `php artisan queue:work --once` to test job processing and `php artisan queue:failed` to check failed jobs."
+  }
+}

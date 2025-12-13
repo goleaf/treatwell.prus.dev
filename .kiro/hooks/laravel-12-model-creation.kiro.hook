@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Laravel 12 Model Creation Workflow",
+  "description": "Comprehensive model creation workflow with Laravel 12 best practices",
+  "version": "2.0",
+  "when": {
+    "type": "fileCreated",
+    "patterns": ["app/Models/*.php"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "New model has been created! Please guide through Laravel 12 model best practices:\n\n1. **Casts Method**: Use `casts()` method instead of `$casts` property\n2. **Relationship Types**: Add proper return types to all relationships\n3. **Factory Creation**: Create factory with `php artisan make:factory {ModelName}Factory`\n4. **Seeder Creation**: Create seeder with `php artisan make:seeder {ModelName}Seeder`\n5. **Migration**: Create migration if needed with `php artisan make:migration create_{table_name}_table`\n6. **PHPDoc Blocks**: Add proper PHPDoc blocks for properties and methods\n7. **Constructor Promotion**: Use constructor property promotion where applicable\n8. **Eager Loading**: Prevent N+1 queries with proper eager loading\n\nRun `vendor/bin/pint --dirty` to format the new model."
+  }
+}

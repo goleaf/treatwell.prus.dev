@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Migration Check",
+  "description": "Check for pending migrations and run them if needed",
+  "version": "1.0",
+  "when": {
+    "type": "sessionStart"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Check for pending database migrations:\n\n1. Run `php artisan migrate:status` to see migration status\n2. If there are pending migrations, ask if they should be run\n3. Provide guidance on migration safety and rollback options\n4. Check for any migration conflicts or issues\n\nEnsure database is in sync with codebase."
+  }
+}

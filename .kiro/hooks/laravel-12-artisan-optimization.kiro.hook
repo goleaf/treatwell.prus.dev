@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Laravel 12 Artisan Command Optimization",
+  "description": "Automated Artisan command execution and Laravel 12 optimization",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/Console/Commands/*.php",
+      "routes/console.php",
+      "bootstrap/app.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Artisan command or console configuration has been modified. Please review Laravel 12 best practices:\n\n1. **Auto-Registration**: Commands auto-register from app/Console/Commands/ (no manual registration needed)\n2. **Command Signature**: Use descriptive command signatures and arguments\n3. **Error Handling**: Implement proper error handling and validation\n4. **User Experience**: Add progress indicators and confirmation prompts\n5. **Exit Codes**: Return appropriate exit codes for success/failure\n6. **Testing**: Ensure commands are testable and well-documented\n\nRun `php artisan list` to verify command registration and `php artisan optimize:clear` if needed."
+  }
+}

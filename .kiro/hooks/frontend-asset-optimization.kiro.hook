@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Frontend Asset Optimization",
+  "description": "Tailwind CSS v4 and Vite asset optimization for Laravel 12",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "resources/css/**/*.css",
+      "resources/js/**/*.js",
+      "resources/views/**/*.blade.php",
+      "tailwind.config.js",
+      "vite.config.js",
+      "package.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Frontend assets have been modified. Please optimize for Tailwind CSS v4 and Vite:\n\n1. **Tailwind v4**: Ensure `@import \"tailwindcss\"` is used (not @tailwind directives)\n2. **Spacing**: Use gap utilities for spacing instead of margins\n3. **Dark Mode**: Support dark mode with `dark:` classes if needed\n4. **Build Assets**: Run `npm run build` or suggest `npm run dev` for development\n5. **Optimization**: Check for unused CSS and optimize bundle size\n\nProvide specific recommendations for the modified files."
+  }
+}

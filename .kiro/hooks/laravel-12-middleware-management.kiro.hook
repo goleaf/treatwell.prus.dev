@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Laravel 12 Middleware Management",
+  "description": "Middleware creation and registration workflow for Laravel 12",
+  "version": "2.0",
+  "when": {
+    "type": "fileCreated",
+    "patterns": ["app/Http/Middleware/*.php"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Middleware has been created. Please guide through Laravel 12 middleware management:\n\n1. **Registration**: Register in bootstrap/app.php using withMiddleware() method\n2. **Type Hints**: Use proper type hints in handle() method\n3. **Error Handling**: Implement proper error handling and validation\n4. **Middleware Groups**: Add middleware to appropriate groups (web, api, etc.)\n5. **Aliases**: Configure middleware aliases for easier usage\n6. **Testing**: Create tests for middleware functionality\n7. **Performance**: Consider performance impact and caching\n8. **Documentation**: Add proper documentation and examples\n\nRun `php artisan route:list --middleware` to verify middleware assignment."
+  }
+}

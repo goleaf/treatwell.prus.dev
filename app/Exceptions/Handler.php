@@ -48,6 +48,9 @@ class Handler extends ExceptionHandler
             if ($request->is('api/*')) {
                 return $this->handleApiException($e, $request);
             }
+
+            // Handle web exceptions
+            return $this->handleWebException($e, $request);
         });
     }
 
@@ -111,5 +114,63 @@ class Handler extends ExceptionHandler
         }
 
         return response()->json($response, $status);
+    }
+
+    /**
+     * Handle web exceptions and return appropriate responses
+     */
+    private function handleWebException(Throwable $exception, $request)
+    {
+        // Only handle specific exceptions for web routes
+        if ($exception instanceof ValidationException) {
+            // Let Laravel handle validation exceptions normally
+            return null;
+        }
+
+        if ($exception instanceof AuthenticationException) {
+            return redirect()->route('home')
+                ->with('error', 'Access denied.');
+        }
+
+        if ($exception instanceof AuthorizationException) {
+            return redirect()->back()
+                ->with('error', 'You are not authorized to perform this action.');
+        }
+
+        if ($exception instanceof ModelNotFoundException) {
+            return redirect()->route('web.venues.index')
+                ->with('error', 'The requested resource was not found.');
+        }
+
+        if ($exception instanceof NotFoundHttpException) {
+            return response()->view('errors.404', [], 404);
+        }
+
+        if ($exception instanceof QueryException) {
+            // Log the error but don't expose database details to users
+            Log::error('Database error in web request', [
+                'error' => $exception->getMessage(),
+                'url' => $request->url(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'A database error occurred. Please try again.');
+        }
+
+        // For other exceptions in production, show generic error
+        if (app()->environment('production')) {
+            Log::error('Unexpected error in web request', [
+                'error' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'url' => $request->url(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'An unexpected error occurred. Please try again.');
+        }
+
+        // In development, let Laravel handle it normally for debugging
+        return null;
     }
 }

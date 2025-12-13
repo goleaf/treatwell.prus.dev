@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Laravel 12 Security Audit",
+  "description": "Automated security checks and best practices enforcement for Laravel 12",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/Http/Controllers/*.php",
+      "app/Http/Requests/*.php",
+      "routes/*.php",
+      "app/Models/*.php",
+      ".env.example"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Security-sensitive code has been modified. Please perform Laravel 12 security audit:\n\n1. **Form Request Validation**: Ensure Form Request validation is implemented\n2. **CSRF Protection**: Verify CSRF protection is enabled for forms\n3. **SQL Injection**: Check for raw SQL queries with user input\n4. **Authorization**: Verify proper authorization using Gates and Policies\n5. **Environment Variables**: Ensure sensitive data uses environment variables\n6. **Rate Limiting**: Check rate limiting configuration\n7. **Input Sanitization**: Validate input sanitization and filtering\n8. **Error Handling**: Ensure proper error handling without data leakage\n\nRun `php artisan route:list --except-vendor` to review routes for security issues."
+  }
+}
