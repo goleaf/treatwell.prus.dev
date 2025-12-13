@@ -23,10 +23,9 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
-            ->brandName('City Data Parser')
+            ->path('')
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => Color::Amber,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -35,7 +34,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                // Remove account widget since no authentication
+                \App\Filament\Widgets\StatsOverview::class,
+                \App\Filament\Widgets\VenuesChart::class,
+                \App\Filament\Widgets\VenuesByCityChart::class,
+                \App\Filament\Widgets\RatingsChart::class,
+                \App\Filament\Widgets\TreatmentsByCategoryChart::class,
                 FilamentInfoWidget::class,
             ])
             ->middleware([
@@ -47,15 +50,6 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-            ])
-            // Remove authentication middleware for display-only interface
-            ->authMiddleware([])
-            // Configure for display-only interface
-            ->spa()
-            ->sidebarCollapsibleOnDesktop()
-            ->navigationGroups([
-                'Data Views',
-                'System Information',
             ]);
     }
 }
