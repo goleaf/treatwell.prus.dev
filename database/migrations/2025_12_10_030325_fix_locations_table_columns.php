@@ -12,22 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('locations', function (Blueprint $table) {
-            if (!Schema::hasColumn('locations', 'postal_code')) {
+            if (! Schema::hasColumn('locations', 'postal_code')) {
                 $table->string('postal_code')->nullable();
             }
-            if (!Schema::hasColumn('locations', 'address_line1')) {
+            if (! Schema::hasColumn('locations', 'address_line1')) {
                 $table->string('address_line1')->nullable();
             }
-            if (!Schema::hasColumn('locations', 'address_line2')) {
+            if (! Schema::hasColumn('locations', 'address_line2')) {
                 $table->string('address_line2')->nullable();
             }
-            if (!Schema::hasColumn('locations', 'latitude')) {
+            if (! Schema::hasColumn('locations', 'latitude')) {
                 $table->decimal('latitude', 10, 8)->nullable();
             }
-            if (!Schema::hasColumn('locations', 'longitude')) {
-                 $table->decimal('longitude', 11, 8)->nullable();
+            if (! Schema::hasColumn('locations', 'longitude')) {
+                $table->decimal('longitude', 11, 8)->nullable();
             }
-            if (!Schema::hasColumn('locations', 'map_zoom')) {
+            if (! Schema::hasColumn('locations', 'map_zoom')) {
                 $table->integer('map_zoom')->nullable();
             }
         });

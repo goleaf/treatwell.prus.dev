@@ -219,12 +219,12 @@ class ScrapeTreatwellCommand extends Command
             if ($response->successful()) {
                 return $response->json();
             } else {
-                $this->error('API request failed with status: ' . $response->status());
+                $this->error('API request failed with status: '.$response->status());
 
                 return null;
             }
         } catch (\Exception $e) {
-            $this->error('Exception occurred: ' . $e->getMessage());
+            $this->error('Exception occurred: '.$e->getMessage());
 
             return null;
         }
@@ -238,7 +238,7 @@ class ScrapeTreatwellCommand extends Command
             }
 
             $venueData = $result['data'];
-            
+
             // Process City first to get city_id
             $city = null;
             if (isset($venueData['location'])) {
@@ -267,22 +267,43 @@ class ScrapeTreatwellCommand extends Command
                 if (isset($venueData['menuHighlights'])) {
                     $this->processTreatments($venue, $venueData['menuHighlights']);
                 }
-                
+
                 $this->info("Venue processed: {$venue->name}");
                 $this->stats['venues_processed']++;
 
             } catch (\Exception $e) {
-                $this->error("Error processing venue {$venueData['name']}: " . $e->getMessage());
+                $this->error("Error processing venue {$venueData['name']}: ".$e->getMessage());
             }
         }
     }
 
     protected function processVenue(array $venueData, ?int $cityId): Venue
     {
+        // #region agent log
+        file_put_contents('/www/wwwroot/treatwell.prus.dev/.cursor/debug.log', json_encode(['sessionId' => 'debug-session', 'runId' => 'run1', 'hypothesisId' => 'A', 'location' => 'ScrapeTreatwellCommand.php:280', 'message' => 'processVenue entry', 'data' => ['venueId' => $venueData['id'] ?? null, 'venueName' => $venueData['name'] ?? null, 'hasLocation' => isset($venueData['location']), 'hasPhone' => isset($venueData['phone']), 'hasEmail' => isset($venueData['email']), 'hasWebsite' => isset($venueData['website'])], 'timestamp' => time() * 1000])."\n", FILE_APPEND);
+        // #endregion
+
         $address = null;
         if (isset($venueData['location']['address']['addressLines'])) {
             $address = implode(', ', $venueData['location']['address']['addressLines']);
         }
+
+        // Extract coordinates from location if available
+        $latitude = null;
+        $longitude = null;
+        if (isset($venueData['location']['point'])) {
+            $latitude = $venueData['location']['point']['lat'] ?? null;
+            $longitude = $venueData['location']['point']['lon'] ?? null;
+        }
+
+        // Extract contact information
+        $phone = $venueData['phone'] ?? $venueData['contact']['phone'] ?? null;
+        $email = $venueData['email'] ?? $venueData['contact']['email'] ?? null;
+        $website = $venueData['website'] ?? $venueData['contact']['website'] ?? null;
+
+        // #region agent log
+        file_put_contents('/www/wwwroot/treatwell.prus.dev/.cursor/debug.log', json_encode(['sessionId' => 'debug-session', 'runId' => 'run1', 'hypothesisId' => 'A', 'location' => 'ScrapeTreatwellCommand.php:300', 'message' => 'processVenue extracted fields', 'data' => ['latitude' => $latitude, 'longitude' => $longitude, 'phone' => $phone, 'email' => $email, 'website' => $website], 'timestamp' => time() * 1000])."\n", FILE_APPEND);
+        // #endregion
 
         $venue = Venue::updateOrCreate(
             ['external_id' => $venueData['id']],
@@ -300,8 +321,17 @@ class ScrapeTreatwellCommand extends Command
                 'is_new_venue' => $venueData['newVenue'] ?? false,
                 'raw_data' => $venueData,
                 'slug' => $this->generateSlug($venueData['name']),
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'phone' => $phone,
+                'email' => $email,
+                'website' => $website,
             ]
         );
+
+        // #region agent log
+        file_put_contents('/www/wwwroot/treatwell.prus.dev/.cursor/debug.log', json_encode(['sessionId' => 'debug-session', 'runId' => 'run1', 'hypothesisId' => 'A', 'location' => 'ScrapeTreatwellCommand.php:325', 'message' => 'processVenue saved', 'data' => ['venueId' => $venue->id, 'wasRecentlyCreated' => $venue->wasRecentlyCreated], 'timestamp' => time() * 1000])."\n", FILE_APPEND);
+        // #endregion
 
         if ($venue->wasRecentlyCreated) {
             $this->stats['venues_created']++;
@@ -428,13 +458,13 @@ class ScrapeTreatwellCommand extends Command
         if (isset($ratingData['dimensions']) && is_array($ratingData['dimensions'])) {
             foreach ($ratingData['dimensions'] as $dimension) {
                 if ($dimension['name'] === 'Švara') {
-                    $cleanlinessAvg = $dimension['average'] ?? null;
+                    $cleanlinessAvg = $this->parseDecimal($dimension['average'] ?? null);
                     $cleanlinessCount = $dimension['count'] ?? 0;
                 } elseif ($dimension['name'] === 'Personalas') {
-                    $staffAvg = $dimension['average'] ?? null;
+                    $staffAvg = $this->parseDecimal($dimension['average'] ?? null);
                     $staffCount = $dimension['count'] ?? 0;
                 } elseif ($dimension['name'] === 'Atmosfera') {
-                    $atmosphereAvg = $dimension['average'] ?? null;
+                    $atmosphereAvg = $this->parseDecimal($dimension['average'] ?? null);
                     $atmosphereCount = $dimension['count'] ?? 0;
                 }
             }
@@ -443,7 +473,7 @@ class ScrapeTreatwellCommand extends Command
         Rating::updateOrCreate(
             ['venue_id' => $venue->id],
             [
-                'weighted_average' => $ratingData['weightedAverage'] ?? null,
+                'weighted_average' => $this->parseDecimal($ratingData['weightedAverage'] ?? null),
                 'count' => $ratingData['count'] ?? 0,
                 'cleanliness_avg' => $cleanlinessAvg,
                 'cleanliness_count' => $cleanlinessCount,
@@ -451,11 +481,26 @@ class ScrapeTreatwellCommand extends Command
                 'staff_count' => $staffCount,
                 'atmosphere_avg' => $atmosphereAvg,
                 'atmosphere_count' => $atmosphereCount,
-                'display_average' => $ratingData['displayAverage'] ?? null,
+                'display_average' => $this->parseDecimal($ratingData['displayAverage'] ?? null),
             ]
         );
 
         $this->stats['ratings_created']++;
+    }
+
+    private function parseDecimal($value): ?float
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (is_float($value)) {
+            return $value;
+        }
+        if (is_int($value)) {
+            return (float) $value;
+        }
+
+        return (float) str_replace(',', '.', (string) $value);
     }
 
     protected function processOpeningHours(Venue $venue, array $openingHoursData): void
@@ -497,6 +542,10 @@ class ScrapeTreatwellCommand extends Command
 
     protected function processTreatments(Venue $venue, array $treatmentsData): void
     {
+        // #region agent log
+        file_put_contents('/www/wwwroot/treatwell.prus.dev/.cursor/debug.log', json_encode(['sessionId' => 'debug-session', 'runId' => 'run1', 'hypothesisId' => 'B', 'location' => 'ScrapeTreatwellCommand.php:513', 'message' => 'processTreatments entry', 'data' => ['venueId' => $venue->id, 'treatmentsCount' => count($treatmentsData)], 'timestamp' => time() * 1000])."\n", FILE_APPEND);
+        // #endregion
+
         $venue->treatments()->delete();
 
         foreach ($treatmentsData as $treatment) {
@@ -505,6 +554,10 @@ class ScrapeTreatwellCommand extends Command
             }
 
             $data = $treatment['data'];
+
+            // #region agent log
+            file_put_contents('/www/wwwroot/treatwell.prus.dev/.cursor/debug.log', json_encode(['sessionId' => 'debug-session', 'runId' => 'run1', 'hypothesisId' => 'B', 'location' => 'ScrapeTreatwellCommand.php:522', 'message' => 'processing treatment', 'data' => ['treatmentId' => $data['id'] ?? null, 'treatmentName' => $data['name'] ?? null, 'hasDescription' => isset($data['description']), 'hasCategory' => isset($data['primaryTreatmentCategory']) || isset($data['category'])], 'timestamp' => time() * 1000])."\n", FILE_APPEND);
+            // #endregion
 
             $minPrice = null;
             $maxPrice = null;
@@ -522,17 +575,52 @@ class ScrapeTreatwellCommand extends Command
                 $maxDuration = $data['durationRange']['maxDurationMinutes'] ?? null;
             }
 
+            // Extract category name
+            $categoryName = null;
+            if (isset($data['primaryTreatmentCategory']['name'])) {
+                $categoryName = $data['primaryTreatmentCategory']['name'];
+            } elseif (isset($data['category']['name'])) {
+                $categoryName = $data['category']['name'];
+            } elseif (isset($data['categoryName'])) {
+                $categoryName = $data['categoryName'];
+            }
+
+            // Extract duration from options if not available
+            $duration = $minDuration ?? $maxDuration ?? null;
+            if ($duration === null && isset($data['options']) && is_array($data['options']) && count($data['options']) > 0) {
+                $firstOption = $data['options'][0];
+                $duration = $firstOption['durationMinutes'] ?? null;
+            }
+            $duration = $duration ?? $data['duration'] ?? 0;
+
+            // Extract price from options if not available
+            $price = $minPrice ?? $maxPrice ?? null;
+            if ($price === null && isset($data['options']) && is_array($data['options']) && count($data['options']) > 0) {
+                $firstOption = $data['options'][0];
+                if (isset($firstOption['priceRange']['minSalePriceAmount'])) {
+                    $price = $firstOption['priceRange']['minSalePriceAmount'];
+                }
+            }
+            $price = $price ?? $data['price'] ?? 0;
+
+            // #region agent log
+            file_put_contents('/www/wwwroot/treatwell.prus.dev/.cursor/debug.log', json_encode(['sessionId' => 'debug-session', 'runId' => 'run1', 'hypothesisId' => 'B', 'location' => 'ScrapeTreatwellCommand.php:590', 'message' => 'treatment extracted fields', 'data' => ['categoryName' => $categoryName, 'duration' => $duration, 'price' => $price, 'description' => isset($data['description']) ? substr($data['description'], 0, 50) : null], 'timestamp' => time() * 1000])."\n", FILE_APPEND);
+            // #endregion
+
             Treatment::create([
                 'venue_id' => $venue->id,
                 'external_id' => $data['id'] ?? null,
                 'name' => $data['name'] ?? '',
                 'slug' => $this->generateSlug($data['name'] ?? ''),
+                'description' => $data['description'] ?? null,
+                'duration' => (int) $duration,
+                'price' => (float) $price,
                 'min_price' => $minPrice,
                 'max_price' => $maxPrice,
                 'min_duration' => $minDuration,
                 'max_duration' => $maxDuration,
-                'category_id' => $data['primaryTreatmentCategoryId'] ?? null,
-                'category_name' => null,
+                'category_id' => $data['primaryTreatmentCategoryId'] ?? $data['categoryId'] ?? null,
+                'category_name' => $categoryName,
                 'options' => $data['optionGroups'] ?? null,
             ]);
 
@@ -624,6 +712,14 @@ class ScrapeTreatwellCommand extends Command
                 'description' => $venueData['description'] ?? null,
                 'slug' => $this->generateSlug($venueData['name'] ?? ''),
                 'desktop_uri' => $venueData['url'] ?? $venueData['desktop_uri'] ?? null,
+                'mobile_uri' => $venueData['mobile_uri'] ?? null,
+                'app_uri' => $venueData['app_uri'] ?? null,
+                'address' => $venueData['address'] ?? null,
+                'latitude' => $venueData['latitude'] ?? $venueData['lat'] ?? null,
+                'longitude' => $venueData['longitude'] ?? $venueData['lon'] ?? null,
+                'phone' => $venueData['phone'] ?? null,
+                'email' => $venueData['email'] ?? null,
+                'website' => $venueData['website'] ?? null,
                 'raw_data' => $venueData,
             ]
         );
@@ -723,10 +819,19 @@ class ScrapeTreatwellCommand extends Command
         foreach ($treatmentsData as $treatmentData) {
             Treatment::create([
                 'venue_id' => $venue->id,
+                'external_id' => $treatmentData['id'] ?? $treatmentData['external_id'] ?? null,
                 'name' => $treatmentData['name'] ?? $treatmentData['title'] ?? '',
                 'slug' => $this->generateSlug($treatmentData['name'] ?? $treatmentData['title'] ?? ''),
+                'description' => $treatmentData['description'] ?? null,
                 'duration' => $treatmentData['duration'] ?? $treatmentData['duration_minutes'] ?? null,
                 'price' => $treatmentData['price'] ?? $treatmentData['price_from'] ?? null,
+                'min_price' => $treatmentData['min_price'] ?? null,
+                'max_price' => $treatmentData['max_price'] ?? null,
+                'min_duration' => $treatmentData['min_duration'] ?? null,
+                'max_duration' => $treatmentData['max_duration'] ?? null,
+                'category_id' => $treatmentData['category_id'] ?? null,
+                'category_name' => $treatmentData['category_name'] ?? $treatmentData['category'] ?? null,
+                'options' => $treatmentData['options'] ?? null,
             ]);
             $this->stats['treatments_created']++;
         }

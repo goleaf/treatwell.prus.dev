@@ -40,6 +40,8 @@ class RatingFactory extends Factory
             'atmosphere_avg' => $atmosphereAvg,
             'atmosphere_count' => $count,
             'display_average' => number_format($weightedAverage, 1),
+            'rating' => $this->faker->numberBetween(1, 5),
+            'is_verified' => $this->faker->boolean(70),
         ];
     }
 }

@@ -25,7 +25,8 @@ class ImageFactory extends Factory
         $imageId = $this->faker->unique()->numerify('IMG######');
 
         return [
-            'venue_id' => Venue::factory(),
+            'imageable_type' => Venue::class,
+            'imageable_id' => Venue::factory(),
             'external_id' => $imageId,
             'uri_small' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w360.h240.x'.$this->faker->hexColor().'/',
             'uri_medium' => 'https://cdn1.treatwell.net/images/view/v2.i'.$imageId.'.w720.h480.x'.$this->faker->hexColor().'/',

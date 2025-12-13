@@ -7,7 +7,6 @@ use App\Models\Country;
 use App\Models\Image;
 use App\Models\Location;
 use App\Models\OpeningHour;
-use App\Models\Procedure;
 use App\Models\Rating;
 use App\Models\Treatment;
 use App\Models\Venue;
@@ -24,8 +23,7 @@ class ModelRelationshipsTest extends TestCase
 
         $this->assertContains('name', $country->getFillable());
         $this->assertContains('code', $country->getFillable());
-        $this->assertContains('normalised_name', $country->getFillable());
-        $this->assertContains('active', $country->getFillable());
+        $this->assertContains('slug', $country->getFillable());
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $country->cities());
     }
@@ -46,8 +44,7 @@ class ModelRelationshipsTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $city->locations());
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $city->mainCity());
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $city->subregions());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $city->venues());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $city->procedures());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $city->venues());
     }
 
     /**
@@ -61,13 +58,14 @@ class ModelRelationshipsTest extends TestCase
         $this->assertContains('description', $venue->getFillable());
         $this->assertContains('type_name', $venue->getFillable());
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->location());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasOne::class, $venue->rating());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->images());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $venue->city());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $venue->location());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $venue->rating());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->locations());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->ratings());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphMany::class, $venue->images());
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->openingHours());
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $venue->treatments());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $venue->procedures());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $venue->cities());
     }
 
     /**
@@ -108,11 +106,12 @@ class ModelRelationshipsTest extends TestCase
     {
         $image = new Image;
 
-        $this->assertContains('venue_id', $image->getFillable());
+        $this->assertContains('imageable_type', $image->getFillable());
+        $this->assertContains('imageable_id', $image->getFillable());
         $this->assertContains('external_id', $image->getFillable());
         $this->assertContains('is_primary', $image->getFillable());
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $image->venue());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphTo::class, $image->imageable());
     }
 
     /**
@@ -142,19 +141,5 @@ class ModelRelationshipsTest extends TestCase
         $this->assertContains('closing_time', $openingHour->getFillable());
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $openingHour->venue());
-    }
-
-    /**
-     * Test procedure model relationships.
-     */
-    public function test_procedure_relationships(): void
-    {
-        $procedure = new Procedure;
-
-        $this->assertContains('name', $procedure->getFillable());
-        $this->assertContains('slug', $procedure->getFillable());
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $procedure->venues());
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $procedure->cities());
     }
 }

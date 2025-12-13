@@ -74,7 +74,9 @@ class TreatmentFactory extends Factory
             'max_duration' => $maxDuration,
             'category_id' => $this->faker->numberBetween(1, 20),
             'category_name' => $category,
+            'category' => $category,
             'options' => $options,
+            'is_active' => true,
         ];
     }
 }

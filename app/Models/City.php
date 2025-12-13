@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class City extends Model
 {
-    use CrudTrait;
+    use CrudTrait, HasFactory;
 
     protected function casts(): array
     {
@@ -60,5 +61,25 @@ class City extends Model
     public function locations(): HasMany
     {
         return $this->hasMany(Location::class);
+    }
+
+    /**
+     * Extract slug from a Treatwell URL.
+     * Example: https://www.treatwell.lt/salonai/kur-vilnius-lt/ -> vilnius-lt
+     */
+    public static function extractSlugFromUrl(string $url): string
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+        $segments = explode('/', trim($path, '/'));
+
+        // Get the last segment and remove 'kur-' prefix if present
+        $slug = end($segments);
+
+        // Remove 'kur-' prefix if it exists
+        if (str_starts_with($slug, 'kur-')) {
+            $slug = substr($slug, 4);
+        }
+
+        return $slug;
     }
 }

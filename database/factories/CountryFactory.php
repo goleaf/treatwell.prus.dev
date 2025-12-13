@@ -24,8 +24,7 @@ class CountryFactory extends Factory
         return [
             'code' => 'LT',
             'name' => 'Lithuania',
-            'normalised_name' => 'lithuania',
-            'active' => true,
+            'slug' => 'lithuania',
         ];
     }
 }
