@@ -25,7 +25,7 @@ class CityFactory extends Factory
         $cityName = $this->faker->city();
 
         return [
-            'entity_id' => strtolower(str_replace(' ', '-', $cityName)) . '-lt',
+            'entity_id' => strtolower(str_replace(' ', '-', $cityName)).'-lt',
             'slug' => strtolower(str_replace(' ', '-', $cityName)),
             'country_id' => function () {
                 return Country::firstOrCreate(
@@ -37,7 +37,7 @@ class CityFactory extends Factory
                 )->id;
             },
             'name' => $cityName,
-            'normalised_name' => strtolower(str_replace(' ', '-', $cityName)) . '-lt',
+            'normalised_name' => strtolower(str_replace(' ', '-', $cityName)).'-lt',
             'latitude' => $this->faker->latitude(54.0, 56.0),  // Lithuania's approx. latitude range
             'longitude' => $this->faker->longitude(21.0, 26.0),  // Lithuania's approx. longitude range
             'type' => 'city',
